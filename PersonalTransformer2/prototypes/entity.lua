@@ -43,7 +43,7 @@ data:extend{
 			layers =
 			{
 				{
-					filename = '__PersonalTransformer__/graphics/empty.png',
+					filename = '__PersonalTransformer2__/graphics/empty.png',
 					priority = "high",
 					frames = 1,
 					width = 32,
@@ -98,7 +98,7 @@ data:extend{
 			layers =
 			{
 				{
-					filename = '__PersonalTransformer__/graphics/empty.png',
+					filename = '__PersonalTransformer2__/graphics/empty.png',
 					priority = "high",
 					frames = 1,
 					width = 32,
@@ -151,7 +151,7 @@ data:extend{
 			layers =
 			{
 				{
-					filename = '__PersonalTransformer__/graphics/empty.png',
+					filename = '__PersonalTransformer2__/graphics/empty.png',
 					priority = "high",
 					frames = 1,
 					width = 32,
@@ -206,7 +206,7 @@ data:extend{
 			layers =
 			{
 				{
-					filename = '__PersonalTransformer__/graphics/empty.png',
+					filename = '__PersonalTransformer2__/graphics/empty.png',
 					priority = "high",
 					frames = 1,
 					width = 32,
@@ -259,7 +259,7 @@ data:extend{
 			layers =
 			{
 				{
-					filename = '__PersonalTransformer__/graphics/empty.png',
+					filename = '__PersonalTransformer2__/graphics/empty.png',
 					priority = "high",
 					frames = 1,
 					width = 32,
@@ -314,7 +314,7 @@ data:extend{
 			layers =
 			{
 				{
-					filename = '__PersonalTransformer__/graphics/empty.png',
+					filename = '__PersonalTransformer2__/graphics/empty.png',
 					priority = "high",
 					frames = 1,
 					width = 32,

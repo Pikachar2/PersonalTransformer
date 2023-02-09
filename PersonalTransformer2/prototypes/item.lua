@@ -2,7 +2,7 @@ data:extend{
 	{
 		type = 'item',
 		name = 'personal-transformer-equipment',
-		icon = '__PersonalTransformer__/graphics/equipment/personal-transformer.png',
+		icon = '__PersonalTransformer2__/graphics/equipment/personal-transformer.png',
 		icon_size = 32,
 		placed_as_equipment_result = 'personal-transformer-equipment',
 		subgroup = 'equipment',
@@ -12,7 +12,7 @@ data:extend{
 	{
 		type = 'item',
 		name = 'personal-transformer-mk2-equipment',
-		icon = '__PersonalTransformer__/graphics/equipment/personal-transformer.png',
+		icon = '__PersonalTransformer2__/graphics/equipment/personal-transformer.png',
 		icon_size = 32,
 		placed_as_equipment_result = 'personal-transformer-mk2-equipment',
 		subgroup = 'equipment',
@@ -22,7 +22,7 @@ data:extend{
 	{
 		type = 'item',
 		name = 'personal-transformer-mk3-equipment',
-		icon = '__PersonalTransformer__/graphics/equipment/personal-transformer.png',
+		icon = '__PersonalTransformer2__/graphics/equipment/personal-transformer.png',
 		icon_size = 32,
 		placed_as_equipment_result = 'personal-transformer-mk3-equipment',
 		subgroup = 'equipment',

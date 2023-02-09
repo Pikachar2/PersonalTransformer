@@ -10,7 +10,7 @@ data:extend{
 		toggleable = true,
 		icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-input-x32.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-input-x32.png',
 			priority = 'extra-high-no-scale',
 			size = 32,
 			scale = 1,
@@ -18,7 +18,7 @@ data:extend{
 		},
 		small_icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-input-x24.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-input-x24.png',
 			priority = 'extra-high-no-scale',
 			size = 24,
 			scale = 1,
@@ -26,7 +26,7 @@ data:extend{
 		},
 		disabled_icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-input-x32-white.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-input-x32-white.png',
 			priority = 'extra-high-no-scale',
 			size = 32,
 			scale = 1,
@@ -34,7 +34,7 @@ data:extend{
 		},
 		disabled_small_icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-input-x24-white.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-input-x24-white.png',
 			priority = 'extra-high-no-scale',
 			size = 24,
 			scale = 1,
@@ -57,7 +57,7 @@ data:extend{
 		toggleable = true,
 		icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-output-x32.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x32.png',
 			priority = 'extra-high-no-scale',
 			size = 32,
 			scale = 1,
@@ -65,7 +65,7 @@ data:extend{
 		},
 		small_icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-output-x24.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x24.png',
 			priority = 'extra-high-no-scale',
 			size = 24,
 			scale = 1,
@@ -73,7 +73,7 @@ data:extend{
 		},
 		disabled_icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-output-x32-white.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x32-white.png',
 			priority = 'extra-high-no-scale',
 			size = 32,
 			scale = 1,
@@ -81,7 +81,7 @@ data:extend{
 		},
 		disabled_small_icon =
 		{
-			filename = '__PersonalTransformer__/graphics/icons/shortcut-toolbar/personal-transformer-output-x24-white.png',
+			filename = '__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x24-white.png',
 			priority = 'extra-high-no-scale',
 			size = 24,
 			scale = 1,

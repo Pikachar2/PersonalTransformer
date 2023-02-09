@@ -2,7 +2,7 @@ data:extend{
 	{
 		type = 'technology',
 		name = 'personal-transformer-equipment',
-		icon = '__PersonalTransformer__/graphics/technology/personal-transformer.png',
+		icon = '__PersonalTransformer2__/graphics/technology/personal-transformer.png',
 		icon_size = 32,
 		unit =
 		{
@@ -27,7 +27,7 @@ data:extend{
 	{
 		type = 'technology',
 		name = 'personal-transformer-mk2-equipment',
-		icon = '__PersonalTransformer__/graphics/technology/personal-transformer.png',
+		icon = '__PersonalTransformer2__/graphics/technology/personal-transformer.png',
 		icon_size = 32,
 		unit =
 		{
@@ -53,7 +53,7 @@ data:extend{
 	{
 		type = 'technology',
 		name = 'personal-transformer-mk3-equipment',
-		icon = '__PersonalTransformer__/graphics/technology/personal-transformer.png',
+		icon = '__PersonalTransformer2__/graphics/technology/personal-transformer.png',
 		icon_size = 32,
 		unit =
 		{
