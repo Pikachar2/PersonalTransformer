@@ -1,0 +1,9 @@
+0.1.6
+- Added input/output values for how much each Transformer can input/output.
+- Added changelog.
+
+0.1.5
+- Random code cleanup.
+
+0.0.4
+- Base upload.
