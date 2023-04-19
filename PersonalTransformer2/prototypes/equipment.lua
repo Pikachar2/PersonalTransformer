@@ -18,9 +18,9 @@ data:extend{
 		energy_source =
 		{
 			type = 'electric',
-			buffer_capacity = '0kJ',
-			input_flow_limit = '0kW',
-			output_flow_limit = '0kW',
+			buffer_capacity = '0J',
+			input_flow_limit = '200kW',
+			output_flow_limit = '200kW',
 			usage_priority = 'tertiary'
 		},
 		categories = { 'armor' }
@@ -44,9 +44,9 @@ data:extend{
 		energy_source =
 		{
 			type = 'electric',
-			buffer_capacity = '0kJ',
-			input_flow_limit = '0kW',
-			output_flow_limit = '0kW',
+			buffer_capacity = '0J',
+			input_flow_limit = '1MW',
+			output_flow_limit = '1MW',
 			usage_priority = 'tertiary'
 		},
 		categories = { 'armor' }
@@ -70,9 +70,9 @@ data:extend{
 		energy_source =
 		{
 			type = 'electric',
-			buffer_capacity = '0kJ',
-			input_flow_limit = '0kW',
-			output_flow_limit = '0kW',
+			buffer_capacity = '0J',
+			input_flow_limit = '4MW',
+			output_flow_limit = '4MW',
 			usage_priority = 'tertiary'
 		},
 		categories = { 'armor' }
