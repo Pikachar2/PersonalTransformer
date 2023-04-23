@@ -30,7 +30,7 @@ data:extend{
 		name = 'personal-transformer-mk2-equipment',
 		sprite =
 		{
-			filename = '__PersonalTransformer2__/graphics/equipment/personal-transformer.png',
+			filename = '__PersonalTransformer2__/graphics/equipment/personal-transformer2.png',
 			width = 32,
 			height = 32,
 			priority = 'medium'
@@ -56,7 +56,7 @@ data:extend{
 		name = 'personal-transformer-mk3-equipment',
 		sprite =
 		{
-			filename = '__PersonalTransformer2__/graphics/equipment/personal-transformer.png',
+			filename = '__PersonalTransformer2__/graphics/equipment/personal-transformer3.png',
 			width = 32,
 			height = 32,
 			priority = 'medium'
