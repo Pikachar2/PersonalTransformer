@@ -1,5 +1,6 @@
 0.1.7
-- Updated images to be better visual aids as to what they're referring to.
+- Added new images to the MK2 and MK3 versions of the equipment/technology.
+- Updated toggle button images to be better visual aids as to what they're referring to as opposed to question marks.
 
 0.1.6
 - Added input/output values for how much each Transformer can input/output.
