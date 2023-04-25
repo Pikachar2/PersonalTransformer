@@ -1,9 +1,11 @@
 local my_types = {"car", "spider-vehicle"}
 local grid
 global.grid_vehicles = global.grid_vehicles or {}
-global.grid_draw = global.grid_draw or {}
-global.grid_transformer_entities = global.grid_transformer_entities or {}
-global.grid_energy_draw = global.grid_energy_draw or {}
+-- global.grid_draw = global.grid_draw or {}
+-- global.grid_transformer_entities = global.grid_transformer_entities or {}
+-- global.grid_energy_draw = global.grid_energy_draw or {}
+
+-- global.transformer_data = global.transformer_data or {}
 
 log ('migrations starting...')
 for s, surface in pairs(game.surfaces) do
