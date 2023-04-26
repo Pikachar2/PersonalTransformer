@@ -1,16 +1,30 @@
-0.1.8
-- Added vehicle logic
+---------------------------------------------------------------------------------------------------
+Version: 0.1.8
+  Features:
+    - Added logic for Personal Transformers to work inside vehicles.
+  Changes:
+    - Changed changelog.txt to appropriate format.
 
-0.1.7
-- Added new images to the MK2 and MK3 versions of the equipment/technology.
-- Updated toggle button images to be better visual aids as to what they're referring to as opposed to question marks.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.7
+  Gui:
+    - Added new images to the MK2 and MK3 versions of the equipment/technology.
+    - Updated toggle button images to be better visual aids as to what they're referring to as opposed to question marks.
 
-0.1.6
-- Added input/output values for how much each Transformer can input/output.
-- Added changelog.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.6
+  Gui:
+    - Added input/output values for how much each Transformer can input/output.
+    - Updated toggle button images to be better visual aids as to what they're referring to as opposed to question marks.
+  Changes:
+    - Added changelog.
 
-0.1.5
-- Random code cleanup.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.5
+  Optimizations:
+    - Random code cleanup.
 
-0.0.4
-- Base upload.
+---------------------------------------------------------------------------------------------------
+Version: 0.0.4
+  Features:
+    - Base upload.
