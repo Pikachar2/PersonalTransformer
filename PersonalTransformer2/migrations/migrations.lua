@@ -10,9 +10,12 @@ global.grid_vehicles = global.grid_vehicles or {}
 log ('migrations starting...')
 for s, surface in pairs(game.surfaces) do
 	for v, vehicle in pairs(surface.find_entities_filtered{type = my_types}) do
-		grid = vehicle.grid
-		if grid and grid.valid then
-			global.grid_vehicles[grid.unique_id] = vehicle
+		if vehicle and vehicle.valid then
+			log ('on_configuration_changed valid vehicle --- vehicle.unit_number: ' .. serpent.block(vehicle.unit_number))
+			grid = vehicle.grid
+			if grid and grid.valid then
+				global.grid_vehicles[grid.unique_id] = vehicle
+			end
 		end
 	end
 end

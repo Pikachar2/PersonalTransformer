@@ -58,16 +58,21 @@ script.on_load(
 
 script.on_configuration_changed(
 	function(data)
-		log ('migrations starting...')
+	-- global.grid_vehicles = {}
+		log ('on_configuration_changed --- migrations starting...')
+		log ('on_configuration_changed start --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
 		for s, surface in pairs(game.surfaces) do
 			for v, vehicle in pairs(surface.find_entities_filtered{type = my_types}) do
-				grid = vehicle.grid
-				if grid and grid.valid then
-					global.grid_vehicles[grid.unique_id] = vehicle
+				if vehicle and vehicle.valid then
+					log ('on_configuration_changed valid vehicle --- vehicle.unit_number: ' .. serpent.block(vehicle.unit_number))
+					grid = vehicle.grid
+					if grid and grid.valid then
+						global.grid_vehicles[grid.unique_id] = vehicle
+					end
 				end
 			end
 		end
-		log ('global.grid_vehicles = '.. serpent.dump(global.grid_vehicles))
+		log ('on_configuration_changed end --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
 	end
 )
 
@@ -129,7 +134,7 @@ script.on_event(defines.events.on_equipment_removed,
 
 script.on_event(defines.events.on_built_entity, 
 	function(event)
-		new_vehicle_placed(event)
+		new_vehicle_placed_event_wrapper(event)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
@@ -137,7 +142,7 @@ script.on_event(defines.events.on_built_entity,
 
 script.on_event(defines.events.on_entity_cloned, 
 	function(event)
-		new_vehicle_placed(event)
+		new_vehicle_placed(event.destination)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
@@ -145,7 +150,7 @@ script.on_event(defines.events.on_entity_cloned,
 
 script.on_event(defines.events.script_raised_built, 
 	function(event)
-		new_vehicle_placed(event)
+		new_vehicle_placed(event.entity)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
@@ -153,8 +158,38 @@ script.on_event(defines.events.script_raised_built,
 
 script.on_event(defines.events.script_raised_revive, 
 	function(event)
-		new_vehicle_placed(event)
+		new_vehicle_placed(event.entity)
 	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.on_player_mined_entity, 
+	function(event)
+		log ('on_player_mined_entity start --- ')
+		entity_removed(event.entity)
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.on_entity_destroyed, 
+	function(event)
+		-- entity_removed(event.entity)
+	log ('on_entity_destroyed --- ')
+	end
+
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.on_entity_died, 
+	function(event)
+		log ('on_entity_died start --- ')
+		entity_removed(event.entity)
+		log ('on_entity_died end --- ')
+	end
+
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
 )
@@ -583,12 +618,17 @@ function remove_entity(equipment_name, grid_id)
 	end
 end
 
-function new_vehicle_placed(event)
+function new_vehicle_placed_event_wrapper(event)
+	new_vehicle_placed(event.created_entity)
+end
+
+function new_vehicle_placed(entity)
 	-- add placed vehicle to vehicle list
 	-- add draw total to draw list
 	log ('new_vehicle_placed --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
-	log ('new_vehicle_placed --- created_entity.type = '.. serpent.block(event.created_entity.type))
-	local vehicle = event.created_entity
+	log ('new_vehicle_placed --- created_entity.type = '.. serpent.block(entity.type))
+	-- local vehicle = event.created_entity
+	local vehicle = entity
 	local grid = vehicle.grid
 	if grid and grid.valid then
 		local grid_id = grid.unique_id
@@ -626,4 +666,20 @@ function new_vehicle_placed(event)
 	end
 	log ('new_vehicle_placed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	log ('new_vehicle_placed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
+end
+
+function entity_removed(entity)
+	log ('entity_removed start --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+	log ('entity_removed start --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))	
+	local grid_id
+	for index, vehicle_entity in pairs (global.grid_vehicles) do 
+		if entity.unit_number == vehicle_entity.unit_number then
+			grid_id = index
+			global.grid_vehicles[grid_id] = nil
+			global.transformer_data[grid_id] = nil
+			break
+		end
+	end
+	log ('entity_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+	log ('entity_removed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
 end
