@@ -1,5 +1,6 @@
 local char_armor_transformers = nil
 local vehicle_armor_transformers = nil
+local my_types = {"car", "spider-vehicle"}
 
 local tickdelay = 1
 
@@ -143,41 +144,31 @@ script.on_event(defines.events.on_equipment_removed,
 
 script.on_event(defines.events.on_built_entity, 
 	function(event)
-	-- add placed vehicle to vehicle list
-	-- add draw total to draw list
-	log ('global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
-		local vehicle = event.created_entity
-		local grid = vehicle.grid
-		if grid and grid.valid then
-			local grid_id = grid.unique_id
-			global.grid_vehicles[grid_id] = vehicle
-			local mk1_count = grid.count(personal_transformer_mk1_name)
-			local mk2_count = grid.count(personal_transformer_mk2_name)
-			local mk3_count = grid.count(personal_transformer_mk3_name)
-			local draw_total = (mk1_count * mk1_draw) + (mk2_count * mk2_draw) + (mk3_count * mk3_draw)
-			if draw_total > 0 then
-				global.transformer_data[grid_id].grid_draw = draw_total
+		new_vehicle_placed(event)
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
 
-				if mk1_count > 0 then
-					for i = 1, mk1_count do
-						insert_entity(personal_transformer_mk1_name, vehicle, grid_id)
-					end
-				end
-				if mk2_count > 0 then
-					for i = 1, mk2_count do
-						insert_entity(personal_transformer_mk2_name, vehicle, grid_id)
-					end
-				end
-				if mk3_count > 0 then
-					for i = 1, mk3_count do
-						insert_entity(personal_transformer_mk3_name, vehicle, grid_id)
-					end
-				end
-		
-				get_grid_energy_draw(grid)
-			end
-		end
-		log ('on_built end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+script.on_event(defines.events.on_entity_cloned, 
+	function(event)
+		new_vehicle_placed(event)
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.script_raised_built, 
+	function(event)
+		new_vehicle_placed(event)
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.script_raised_revive, 
+	function(event)
+		new_vehicle_placed(event)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
@@ -605,4 +596,49 @@ function remove_entity(equipment_name, grid_id)
 			end
 		end
 	end
+end
+
+function new_vehicle_placed(event)
+	-- add placed vehicle to vehicle list
+	-- add draw total to draw list
+	log ('new_vehicle_placed --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
+	log ('new_vehicle_placed --- created_entity.type = '.. serpent.block(event.created_entity.type))
+	local vehicle = event.created_entity
+	local grid = vehicle.grid
+	if grid and grid.valid then
+		local grid_id = grid.unique_id
+		global.grid_vehicles[grid_id] = vehicle
+		local mk1_count = grid.count(personal_transformer_mk1_name)
+		local mk2_count = grid.count(personal_transformer_mk2_name)
+		local mk3_count = grid.count(personal_transformer_mk3_name)
+		local draw_total = (mk1_count * mk1_draw) + (mk2_count * mk2_draw) + (mk3_count * mk3_draw)
+		if draw_total > 0 then
+			if not global.transformer_data[grid_id] then 
+				global.transformer_data[grid_id] = {}
+				global.transformer_data[grid_id].grid_transformer_entities = {}
+			end
+
+			global.transformer_data[grid_id].grid_draw = draw_total
+
+			if mk1_count > 0 then
+				for i = 1, mk1_count do
+					insert_entity(personal_transformer_mk1_name, vehicle, grid_id)
+				end
+			end
+			if mk2_count > 0 then
+				for i = 1, mk2_count do
+					insert_entity(personal_transformer_mk2_name, vehicle, grid_id)
+				end
+			end
+			if mk3_count > 0 then
+				for i = 1, mk3_count do
+					insert_entity(personal_transformer_mk3_name, vehicle, grid_id)
+				end
+			end
+	
+			get_grid_energy_draw(grid)
+		end
+	end
+	log ('new_vehicle_placed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+	log ('new_vehicle_placed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
 end
