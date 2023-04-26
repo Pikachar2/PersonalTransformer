@@ -423,6 +423,11 @@ function update_vehicle_transformer()
 		
 		local transformer_count = 1
 
+		log ('update_vehicle_transformer --- pre check')
+		log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
+		log ('update_vehicle_transformer --- request_out: ' .. serpent.block(request_out))
+		log ('update_vehicle_transformer --- post check')
+		log ('------------------------------------------')
 
 		local drain_in, drain_out, ratio_in, ratio_out = nil
 		if avail_in == 0 then
@@ -447,6 +452,23 @@ function update_vehicle_transformer()
 		else
 			ratio_out = math.min(math.max(request_out / max_draw_out, 0), 1)
 		end
+		
+		log ('update_vehicle_transformer --- pre label')
+
+		log ('update_vehicle_transformer --- max_draw_in: ' .. serpent.block(max_draw_in))
+		log ('update_vehicle_transformer --- max_draw_out: ' .. serpent.block(max_draw_out))
+
+		log ('update_vehicle_transformer --- drain_in: ' .. serpent.block(drain_in))
+		log ('update_vehicle_transformer --- drain_out: ' .. serpent.block(drain_out))
+
+		log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
+		log ('update_vehicle_transformer --- request_out: ' .. serpent.block(request_out))
+		log ('update_vehicle_transformer --- ratio_in: ' .. serpent.block(ratio_in))
+		log ('update_vehicle_transformer --- ratio_out: ' .. serpent.block(ratio_out))
+		
+		log ('update_vehicle_transformer --- post label')
+		log ('\n')
+		
 		-- for _, v in pairs(t.inputs) do
 		for _, entity in pairs(grid_entities) do
 			entity.energy = entity.energy * (1 - drain_in)
@@ -522,10 +544,13 @@ function insert_entity(equipment_name, vehicle, grid_id)
 		local entity_output_name
 		if personal_transformer_mk1_name == equipment_name then
 			entity_input_name = "personal-transformer-input-entity"
+			entity_output_name = "personal-transformer-output-entity"
 		elseif personal_transformer_mk2_name == equipment_name then
 			entity_input_name = "personal-transformer-mk2-input-entity"
+			entity_output_name = "personal-transformer-mk2-output-entity"
 		elseif personal_transformer_mk3_name == equipment_name then
 			entity_input_name = "personal-transformer-mk3-input-entity"
+			entity_output_name = "personal-transformer-mk3-output-entity"
 		end
 		local input_entity = vehicle.surface.create_entity
 			{
@@ -534,26 +559,48 @@ function insert_entity(equipment_name, vehicle, grid_id)
 				force = vehicle.force
 			}
 		table.insert(global.transformer_data[grid_id].grid_transformer_entities, input_entity)
+		local output_entity = vehicle.surface.create_entity
+			{
+				name = entity_output_name,
+				position = vehicle.position,
+				force = vehicle.force
+			}
+		table.insert(global.transformer_data[grid_id].grid_transformer_entities, output_entity)
 	end
 end
 
 function remove_entity(equipment_name, grid_id)
 	if is_personal_transformer_name_match(equipment_name) then
-		local entity_name
+		local entity_input_name
+		local entity_output_name
 		if personal_transformer_mk1_name == equipment_name then
-			entity_name = "personal-transformer-input-entity"
+			entity_input_name = "personal-transformer-input-entity"
+			entity_output_name = "personal-transformer-output-entity"
 		elseif personal_transformer_mk2_name == equipment_name then
-			entity_name = "personal-transformer-mk2-input-entity"
+			entity_input_name = "personal-transformer-mk2-input-entity"
+			entity_output_name = "personal-transformer-mk2-output-entity"
 		elseif personal_transformer_mk3_name == equipment_name then
-			entity_name = "personal-transformer-mk3-input-entity"
+			entity_input_name = "personal-transformer-mk3-input-entity"
+			entity_output_name = "personal-transformer-mk3-output-entity"
 		end
 
+		local input_check = false
+		local output_check = false
 		for index, entity in ipairs (global.transformer_data[grid_id].grid_transformer_entities) do 
-			if (entity.name == entity_name) then
+			if (entity.name == entity_input_name) then
 				local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
 				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
 				entity = nil
+				input_check = true
+			elseif (entity.name == entity_output_name) then
+				local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
+				log ('remove_entity --- entity: ' .. serpent.block(entity))
+				entity.destroy()
+				entity = nil
+				output_check = true
+			end
+			if input_check and output_check then
 				return
 			end
 		end
