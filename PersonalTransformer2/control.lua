@@ -173,6 +173,15 @@ script.on_event(defines.events.on_player_mined_entity,
 	-- ,{{filter = "name", name = "vehicle"}}
 )
 
+script.on_event(defines.events.on_robot_mined_entity, 
+	function(event)
+		log ('on_robot_mined_entity start --- ')
+		entity_removed(event.entity)
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
 script.on_event(defines.events.on_entity_destroyed, 
 	function(event)
 		-- entity_removed(event.entity)
@@ -190,6 +199,16 @@ script.on_event(defines.events.on_entity_died,
 		log ('on_entity_died end --- ')
 	end
 
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.script_raised_destroy, 
+	function(event)
+		log ('script_raised_destroy start --- ')
+		entity_removed(event.entity)
+		log ('script_raised_destroy end --- ')
+	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
 )
