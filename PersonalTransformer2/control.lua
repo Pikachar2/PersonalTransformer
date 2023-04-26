@@ -13,11 +13,6 @@ local personal_transformer_mk2_name = "personal-transformer-mk2-equipment"
 local personal_transformer_mk3_name = "personal-transformer-mk3-equipment"
 
 global.grid_vehicles = global.grid_vehicles or {}
-
--- global.grid_draw = global.grid_draw or {}
-global.grid_transformer_entities = global.grid_transformer_entities or {}
-global.grid_energy_draw = global.grid_energy_draw or {}
-
 global.transformer_data = global.transformer_data or {}
 	-- global.transformer_data[grid_id] = {
 		-- grid_draw = someNum,
@@ -27,16 +22,6 @@ global.transformer_data = global.transformer_data or {}
 		-- equipment_draw_out = someNum,
 		-- item3 = {}....
 	-- }
-
-	-- example
-	-- global.test = {}
-	-- global.test[grid_id] = {
-		-- item1 = "item1",
-		-- item2 = "item2",
-		-- item3 = {}
-	-- }
-	-- global.test[grid_id].item3 = "item3"
-	-- global.test[grid_id].item4 = "item4"
 
 
 script.on_init(
