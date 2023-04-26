@@ -1,6 +1,6 @@
 local char_armor_transformers = nil
 local vehicle_armor_transformers = nil
-local my_types = {"car", "spider-vehicle"}
+local my_types = {"car", "spider-vehicle", "rolling-stock"}
 
 local tickdelay = 1
 
@@ -133,6 +133,14 @@ script.on_event(defines.events.on_equipment_removed,
 )
 
 script.on_event(defines.events.on_built_entity, 
+	function(event)
+		new_vehicle_placed_event_wrapper(event)
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.on_robot_built_entity, 
 	function(event)
 		new_vehicle_placed_event_wrapper(event)
 	end
@@ -453,11 +461,11 @@ function update_vehicle_transformer()
 		
 		local transformer_count = 1
 
-		log ('update_vehicle_transformer --- pre check')
-		log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
-		log ('update_vehicle_transformer --- request_out: ' .. serpent.block(request_out))
-		log ('update_vehicle_transformer --- post check')
-		log ('------------------------------------------')
+		-- log ('update_vehicle_transformer --- pre check')
+		-- log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
+		-- log ('update_vehicle_transformer --- request_out: ' .. serpent.block(request_out))
+		-- log ('update_vehicle_transformer --- post check')
+		-- log ('------------------------------------------')
 
 		local drain_in, drain_out, ratio_in, ratio_out = nil
 		if avail_in == 0 then
@@ -483,21 +491,21 @@ function update_vehicle_transformer()
 			ratio_out = math.min(math.max(request_out / max_draw_out, 0), 1)
 		end
 		
-		log ('update_vehicle_transformer --- pre label')
+		-- log ('update_vehicle_transformer --- pre label')
 
-		log ('update_vehicle_transformer --- max_draw_in: ' .. serpent.block(max_draw_in))
-		log ('update_vehicle_transformer --- max_draw_out: ' .. serpent.block(max_draw_out))
+		-- log ('update_vehicle_transformer --- max_draw_in: ' .. serpent.block(max_draw_in))
+		-- log ('update_vehicle_transformer --- max_draw_out: ' .. serpent.block(max_draw_out))
 
-		log ('update_vehicle_transformer --- drain_in: ' .. serpent.block(drain_in))
-		log ('update_vehicle_transformer --- drain_out: ' .. serpent.block(drain_out))
+		-- log ('update_vehicle_transformer --- drain_in: ' .. serpent.block(drain_in))
+		-- log ('update_vehicle_transformer --- drain_out: ' .. serpent.block(drain_out))
 
-		log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
-		log ('update_vehicle_transformer --- request_out: ' .. serpent.block(request_out))
-		log ('update_vehicle_transformer --- ratio_in: ' .. serpent.block(ratio_in))
-		log ('update_vehicle_transformer --- ratio_out: ' .. serpent.block(ratio_out))
+		-- log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
+		-- log ('update_vehicle_transformer --- request_out: ' .. serpent.block(request_out))
+		-- log ('update_vehicle_transformer --- ratio_in: ' .. serpent.block(ratio_in))
+		-- log ('update_vehicle_transformer --- ratio_out: ' .. serpent.block(ratio_out))
 		
-		log ('update_vehicle_transformer --- post label')
-		log ('\n')
+		-- log ('update_vehicle_transformer --- post label')
+		-- log ('\n')
 		
 		-- for _, v in pairs(t.inputs) do
 		for _, entity in pairs(grid_entities) do
@@ -644,11 +652,13 @@ end
 function new_vehicle_placed(entity)
 	-- add placed vehicle to vehicle list
 	-- add draw total to draw list
-	log ('new_vehicle_placed --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
-	log ('new_vehicle_placed --- created_entity.type = '.. serpent.block(entity.type))
+	log ('new_vehicle_placed start --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
+	log ('new_vehicle_placed start --- created_entity.type = '.. serpent.block(entity.type))
 	-- local vehicle = event.created_entity
 	local vehicle = entity
 	local grid = vehicle.grid
+	log ('new_vehicle_placed --- vehicle = '.. serpent.block(vehicle))
+	log ('new_vehicle_placed --- grid = '.. serpent.block(grid))
 	if grid and grid.valid then
 		local grid_id = grid.unique_id
 		global.grid_vehicles[grid_id] = vehicle
