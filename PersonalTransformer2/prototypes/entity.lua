@@ -36,7 +36,8 @@ data:extend{
 			buffer_capacity = '20kJ',
 			usage_priority = 'secondary-input',
 			input_flow_limit = '200kW',
-			output_flow_limit = '0kW'
+			output_flow_limit = '200kW'
+			-- output_flow_limit = '0kW'
 		},
 		picture =
 		{

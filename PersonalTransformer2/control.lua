@@ -92,8 +92,8 @@ script.on_event(defines.events.on_equipment_inserted,
 		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
 		local vehicle = nil
 		
-		if is_personal_transformer_name_match(event.equipment.name) then
-			if valid_vehicle and valid_vehicle.valid then
+		if valid_vehicle and valid_vehicle.valid then
+			if is_personal_transformer_name_match(event.equipment.name) then
 				vehicle = global.grid_vehicles[grid_id]
 				
 				if not global.transformer_data[grid_id] then 
@@ -106,11 +106,10 @@ script.on_event(defines.events.on_equipment_inserted,
 				add_grid_draw(event.equipment.name, grid_id, personal_transformer_mk3_name, mk3_draw)
 
 				log ('on_inserted valid_vehicle --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+				insert_entity(event.equipment.name, vehicle, grid_id)
 			end
-		
-			insert_entity(event.equipment.name, vehicle, grid_id)
+			get_grid_energy_draw(event.grid)
 		end
-		get_grid_energy_draw(event.grid)
 
 		log ('on_inserted end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	end
@@ -122,16 +121,22 @@ script.on_event(defines.events.on_equipment_removed,
 		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
 		local vehicle = nil
 
-		if is_personal_transformer_name_match(event.equipment) then
-			if valid_vehicle and valid_vehicle.valid then
+		if valid_vehicle and valid_vehicle.valid then
+			if is_personal_transformer_name_match(event.equipment) then
 				subtract_grid_draw(event.equipment, grid_id, personal_transformer_mk1_name, mk1_draw)
 				subtract_grid_draw(event.equipment, grid_id, personal_transformer_mk2_name, mk2_draw)
 				subtract_grid_draw(event.equipment, grid_id, personal_transformer_mk3_name, mk3_draw)
-			end
-			remove_entity(event.equipment, grid_id)
-		end
 
-		get_grid_energy_draw(event.grid)
+				remove_entity(event.equipment, grid_id)
+				log ('on_removed post remove entity --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+				if global.transformer_data[grid_id].grid_draw == nil then
+					log ('on_removed nil grid_draw --- global.transformer_data: ')
+					global.transformer_data[grid_id] = nil
+				end
+			end
+
+			get_grid_energy_draw(event.grid)
+		end
 		log ('on_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	end
 )
@@ -220,7 +225,7 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 	local _, p, t, v, grid = nil
 	for _, p in pairs(game.players) do
 	-- p is player
-	-- t is character
+	-- t is character_armor_transformers
 	-- v is various
 		if p.character ~= nil then
 			t = char_table[p.index]
@@ -383,12 +388,12 @@ function update_vehicle_transformer()
 	if global.transformer_data == nil then
 		return
 	end
-	log ('update_vehicle_transformer  --- post nil check.')
+	-- log ('update_vehicle_transformer  --- post nil check.')
 	local dt = tickdelay / 60
 	
 	for grid_draw_id, transformer_data_values in pairs(global.transformer_data) do
 		local grid_draw_value = transformer_data_values.grid_draw
-		log ('update_vehicle_transformer --- transformer_data_values: ' .. serpent.block(transformer_data_values))
+		-- log ('update_vehicle_transformer --- transformer_data_values: ' .. serpent.block(transformer_data_values))
 		local grid = global.grid_vehicles[grid_draw_id].grid
 		local vehicle_position = global.grid_vehicles[grid_draw_id].position
 		-- if in appropriate position ie, in pole area
@@ -406,7 +411,7 @@ function update_vehicle_transformer()
 			request_out = request_out + (buffer - entity.energy)
 		end
 
-		log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
+		-- log ('update_vehicle_transformer --- avail_in: ' .. serpent.block(avail_in))
 
 		local max_draw = grid_draw_value
 
@@ -414,7 +419,7 @@ function update_vehicle_transformer()
 		local max_draw_in = global.transformer_data[grid_draw_id].equipment_draw_in
 		local max_draw_out = global.transformer_data[grid_draw_id].equipment_draw_out
 		-- max_draw_out = 0
-		log ('update_vehicle_transformer --- max_draw_in: ' .. serpent.block(max_draw_in))
+		-- log ('update_vehicle_transformer --- max_draw_in: ' .. serpent.block(max_draw_in))
 		
 		local transformer_count = 1
 
@@ -445,6 +450,7 @@ function update_vehicle_transformer()
 		-- for _, v in pairs(t.inputs) do
 		for _, entity in pairs(grid_entities) do
 			entity.energy = entity.energy * (1 - drain_in)
+			entity.energy = buffer - ((buffer - entity.energy) * (1 - drain_out))
 		end
 		-- for _, v in pairs(t.outputs) do
 --			grid_entity.energy = buffer - ((buffer - grid_entity.energy) * (1 - drain_out))
@@ -452,7 +458,7 @@ function update_vehicle_transformer()
 		-- log ('energy_source in grid = '.. serpent.block(v.name))
 		for _, v in pairs(grid.equipment) do
 			if not is_personal_transformer_name_match(v.name) and v.prototype.energy_source ~= nil then
-				log ('energy_source in grid = '.. serpent.block(v.name))
+				-- log ('energy_source in grid = '.. serpent.block(v.name))
 
 				-- v.energy = 100000000
 				local draw_in = math.min(v.prototype.energy_source.input_flow_limit * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
@@ -512,21 +518,22 @@ end
 
 function insert_entity(equipment_name, vehicle, grid_id)
 	if is_personal_transformer_name_match(equipment_name) then
-		local entity_name
+		local entity_input_name
+		local entity_output_name
 		if personal_transformer_mk1_name == equipment_name then
-			entity_name = "personal-transformer-input-entity"
+			entity_input_name = "personal-transformer-input-entity"
 		elseif personal_transformer_mk2_name == equipment_name then
-			entity_name = "personal-transformer-mk2-input-entity"
+			entity_input_name = "personal-transformer-mk2-input-entity"
 		elseif personal_transformer_mk3_name == equipment_name then
-			entity_name = "personal-transformer-mk3-input-entity"
+			entity_input_name = "personal-transformer-mk3-input-entity"
 		end
-		local entity = vehicle.surface.create_entity
+		local input_entity = vehicle.surface.create_entity
 			{
-				name = entity_name,
+				name = entity_input_name,
 				position = vehicle.position,
 				force = vehicle.force
 			}
-		table.insert(global.transformer_data[grid_id].grid_transformer_entities, entity)
+		table.insert(global.transformer_data[grid_id].grid_transformer_entities, input_entity)
 	end
 end
 
