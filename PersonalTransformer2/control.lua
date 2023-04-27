@@ -33,14 +33,13 @@ script.on_init(
 		global.char_armor_transformers = char_armor_transformers
 
 		global.transformer_data = global.transformer_data or {}
+		-- log ('init --- global.transformer_data = '.. serpent.dump(global.transformer_data))
+		-- I don't like this, but it wont work in on_init for some reason... need to figure that out once the rest is working
+		if global.transformer_data == nil then
+			global.transformer_data = {}
+		end
 
 		global.grid_vehicles = global.grid_vehicles or {}
-		-- global.grid_draw = global.grid_draw or {}
-		global.grid_transformer_entities = global.grid_transformer_entities or {}
-		global.grid_energy_draw = global.grid_energy_draw or {}
-		
-
-
 	end
 )
 
@@ -234,17 +233,6 @@ script.on_event(defines.events.on_lua_shortcut,
 
 script.on_event(defines.events.on_tick,
 	function(event)
-		-- log ('init --- global.transformer_data = '.. serpent.dump(global.transformer_data))
-		-- I don't like this, but it wont work in on_init for some reason... need to figure that out once the rest is working
-		if global.transformer_data == nil then
-			global.transformer_data = {}
-		end
-
-		-- log ('init --- global.transformer_data = '.. serpent.dump(global.transformer_data))
-
-		-- This is a delay constant for controlling how often the transformer script runs. The mod will behave reasonably for any value from 1 to 6.
-		-- Lower values are more UPS intensive but have finer updates, while higher values are less UPS intensive but have coarser updates.
-		local tickdelay = 1
 		
 		if event.tick % tickdelay ~= 0 then
 			return
