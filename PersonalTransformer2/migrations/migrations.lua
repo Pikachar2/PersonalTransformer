@@ -19,4 +19,4 @@ for s, surface in pairs(game.surfaces) do
 		end
 	end
 end
-log ('global.grid_vehicles = '.. serpent.dump(global.grid_vehicles))
+log ('global.grid_vehicles = '.. serpent.block(global.grid_vehicles))

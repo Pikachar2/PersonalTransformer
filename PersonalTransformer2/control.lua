@@ -60,6 +60,9 @@ script.on_configuration_changed(
 	-- global.grid_vehicles = {}
 		log ('on_configuration_changed --- migrations starting...')
 		log ('on_configuration_changed start --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
+		if global.transformer_data == nil then
+			global.transformer_data = {}
+		end
 		for s, surface in pairs(game.surfaces) do
 			for v, vehicle in pairs(surface.find_entities_filtered{type = my_types}) do
 				if vehicle and vehicle.valid then
@@ -71,6 +74,7 @@ script.on_configuration_changed(
 				end
 			end
 		end
+		log ('on_configuration_changed end --- global.transformer_data = '.. serpent.block(global.transformer_data))
 		log ('on_configuration_changed end --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
 	end
 )
