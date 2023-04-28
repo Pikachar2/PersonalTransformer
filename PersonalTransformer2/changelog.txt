@@ -4,7 +4,7 @@ Version: 0.1.9
     - Fixed weird instantiation crash on configuration change.
   Current Bugs:
     - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
-    - Transformers do NOT work if you put them in after other equipment. No idea why. 
+    - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
     - Despite these bugs I've released this so that people could at least attempt to use the functionality. If you've got a fix, please let me know!
 
 ---------------------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ Version: 0.1.8
     - Changed changelog.txt to appropriate format.
   Current Bugs:
     - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
-    - Transformers do NOT work if you put them in after other equipment. No idea why. 
+    - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
     - Despite these bugs I've released this so that people could at least attempt to use the functionality. If you've got a fix, please let me know!
 
 ---------------------------------------------------------------------------------------------------
