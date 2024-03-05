@@ -1,6 +1,6 @@
-data:extend{
-	{
-		type = 'battery-equipment',
+
+local transformer_eq = {
+	["transformer-1"] = {
 		name = 'personal-transformer-equipment',
 		sprite =
 		{
@@ -9,24 +9,17 @@ data:extend{
 			height = 32,
 			priority = 'medium'
 		},
-		shape =
-		{
-			type = 'full',
-			width = 2,
-			height = 2
-		},
 		energy_source =
 		{
 			type = 'electric',
-			buffer_capacity = '0J',
+			buffer_capacity = '20kJ',
 			input_flow_limit = '200kW',
 			output_flow_limit = '200kW',
 			usage_priority = 'tertiary'
-		},
-		categories = { 'armor' }
+		}
 	},
-	{
-		type = 'battery-equipment',
+	
+	["transformer-2"] = {
 		name = 'personal-transformer-mk2-equipment',
 		sprite =
 		{
@@ -35,24 +28,17 @@ data:extend{
 			height = 32,
 			priority = 'medium'
 		},
-		shape =
-		{
-			type = 'full',
-			width = 2,
-			height = 2
-		},
 		energy_source =
 		{
 			type = 'electric',
-			buffer_capacity = '0J',
+			buffer_capacity = '100kJ',
 			input_flow_limit = '1MW',
 			output_flow_limit = '1MW',
 			usage_priority = 'tertiary'
-		},
-		categories = { 'armor' }
+		}
 	},
-	{
-		type = 'battery-equipment',
+	
+	["transformer-3"] = {
 		name = 'personal-transformer-mk3-equipment',
 		sprite =
 		{
@@ -61,20 +47,43 @@ data:extend{
 			height = 32,
 			priority = 'medium'
 		},
-		shape =
+		energy_source =
+		{
+			type = 'electric',
+			buffer_capacity = '400kJ',
+			input_flow_limit = '4MW',
+			output_flow_limit = '4MW',
+			usage_priority = 'tertiary'
+		}
+	}
+}
+
+for name, teq in pairs(transformer_eq) do
+	log('\n\n')
+	log('TEQ: ')
+	log (serpent.block (teq))
+	
+	teq.type = 'battery-equipment'
+	teq.shape = 
 		{
 			type = 'full',
 			width = 2,
 			height = 2
-		},
-		energy_source =
-		{
-			type = 'electric',
-			buffer_capacity = '0J',
-			input_flow_limit = '4MW',
-			output_flow_limit = '4MW',
-			usage_priority = 'tertiary'
-		},
-		categories = { 'armor' }
-	}
-}
+		}
+
+	if settings.startup["personal-transformer2-allow-non-armor"].value then
+		teq.categories = { 'armor' }
+	else
+		teq.categories = { 'armor-transformer' }
+	end
+	
+	log('\n\n')
+	log('TEQ2: ')
+	log (serpent.block (teq))
+
+	data:extend({
+		teq
+	})
+end
+
+

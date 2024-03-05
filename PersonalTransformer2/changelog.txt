@@ -1,13 +1,56 @@
-0.1.7
-- Added new images to the MK2 and MK3 versions of the equipment/technology.
-- Updated toggle button images to be better visual aids as to what they're referring to as opposed to question marks.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.10
+  Features:
+    - Added 'Allow Personal Transformer in non-armor grids' setting for allowing placement of Personal Transformer in non-armor grids.
+  Changes:
+    - Removed ability for Personal Transformers to be placed inside of vehicle grids.
+	- Code for vehicles is still here, but the ability to put the item in them is removed unless setting is checked.
+	- Left here for people to play around with if they desire.
+  Current Bugs:
+    - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
+    - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
+    - Despite these bugs I've released this so that people could at least attempt to use the functionality. If you've got a fix, please let me know!
 
-0.1.6
-- Added input/output values for how much each Transformer can input/output.
-- Added changelog.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.9
+  Bugfix:
+    - Fixed weird instantiation crash on configuration change.
+  Current Bugs:
+    - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
+    - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
+    - Despite these bugs I've released this so that people could at least attempt to use the functionality. If you've got a fix, please let me know!
 
-0.1.5
-- Random code cleanup.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.8
+  Features:
+    - Added logic for Personal Transformers to work inside vehicles.
+  Changes:
+    - Changed changelog.txt to appropriate format.
+  Current Bugs:
+    - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
+    - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
+    - Despite these bugs I've released this so that people could at least attempt to use the functionality. If you've got a fix, please let me know!
 
-0.0.4
-- Base upload.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.7
+  Gui:
+    - Added new images to the MK2 and MK3 versions of the equipment/technology.
+    - Updated toggle button images to be better visual aids as to what they're referring to as opposed to question marks.
+
+---------------------------------------------------------------------------------------------------
+Version: 0.1.6
+  Gui:
+    - Added input/output values for how much each Transformer can input/output.
+    - Updated toggle button images to be better visual aids as to what they're referring to as opposed to question marks.
+  Changes:
+    - Added changelog.
+
+---------------------------------------------------------------------------------------------------
+Version: 0.1.5
+  Optimizations:
+    - Random code cleanup.
+
+---------------------------------------------------------------------------------------------------
+Version: 0.0.4
+  Features:
+    - Base upload.
