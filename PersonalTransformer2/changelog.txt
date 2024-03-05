@@ -2,6 +2,8 @@
 Version: 0.1.10
   Changes:
     - Removed ability for Personal Transformers to be placed inside of vehicle grids.
+	- Code for vehicles is still here, but the ability to put the item in them is removed.
+	- Left here for people to play around with if they desire.
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.9
