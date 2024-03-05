@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.10
+  Changes:
+    - Removed ability for Personal Transformers to be placed inside of vehicle grids.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.1.9
   Bugfix:
     - Fixed weird instantiation crash on configuration change.

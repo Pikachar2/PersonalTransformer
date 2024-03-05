@@ -23,7 +23,7 @@ data:extend{
 			output_flow_limit = '200kW',
 			usage_priority = 'tertiary'
 		},
-		categories = { 'armor' }
+		categories = { 'armor-transformer' }
 	},
 	{
 		type = 'battery-equipment',
@@ -49,7 +49,7 @@ data:extend{
 			output_flow_limit = '1MW',
 			usage_priority = 'tertiary'
 		},
-		categories = { 'armor' }
+		categories = { 'armor-transformer' }
 	},
 	{
 		type = 'battery-equipment',
@@ -75,6 +75,6 @@ data:extend{
 			output_flow_limit = '4MW',
 			usage_priority = 'tertiary'
 		},
-		categories = { 'armor' }
+		categories = { 'armor-transformer' }
 	}
 }
