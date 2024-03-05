@@ -6,10 +6,9 @@ require('prototypes.shortcuts')
 require('prototypes.technology')
 
 
-
+if not settings.startup["personal-transformer2-allow-non-armor"].value then
 -- This loop is for adding the 'armor-transformer' category to each grid found in armors.
 -- This allows us to not allow equipment with the 'armor-transformer' category to be placed in grids without the 'armor-transformer' tag.
-if not settings.startup["personal-transformer2-allow-non-armor"].value then
 	for _, armor in pairs (data.raw.armor) do
 --	  log('\n\n')
 --	  log('ARMOR LOOP: ')
