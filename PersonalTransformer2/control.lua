@@ -216,12 +216,20 @@ script.on_event(defines.events.on_entity_died,
 
 script.on_event(defines.events.script_raised_destroy, 
 	function(event)
-		log ('script_raised_destroy start --- ')
+--		log ('script_raised_destroy start --- ')
 		entity_removed(event.entity)
-		log ('script_raised_destroy end --- ')
+--		log ('script_raised_destroy end --- ')
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
+)
+
+script.on_event(defines.events.on_player_changed_surface, 
+	function(event)
+		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans)
+		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans2)
+		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans3)
+	end
 )
 
 script.on_event(defines.events.on_lua_shortcut,
@@ -644,13 +652,13 @@ end
 function new_vehicle_placed(entity)
 	-- add placed vehicle to vehicle list
 	-- add draw total to draw list
-	log ('new_vehicle_placed start --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
-	log ('new_vehicle_placed start --- created_entity.type = '.. serpent.block(entity.type))
+--	log ('new_vehicle_placed start --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
+--	log ('new_vehicle_placed start --- created_entity.type = '.. serpent.block(entity.type))
 	-- local vehicle = event.created_entity
 	local vehicle = entity
 	local grid = vehicle.grid
-	log ('new_vehicle_placed --- vehicle = '.. serpent.block(vehicle))
-	log ('new_vehicle_placed --- grid = '.. serpent.block(grid))
+--	log ('new_vehicle_placed --- vehicle = '.. serpent.block(vehicle))
+--	log ('new_vehicle_placed --- grid = '.. serpent.block(grid))
 	if grid and grid.valid then
 		local grid_id = grid.unique_id
 		global.grid_vehicles[grid_id] = vehicle
@@ -685,13 +693,13 @@ function new_vehicle_placed(entity)
 			get_grid_energy_draw(grid)
 		end
 	end
-	log ('new_vehicle_placed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-	log ('new_vehicle_placed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
+--	log ('new_vehicle_placed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--	log ('new_vehicle_placed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
 end
 
 function entity_removed(entity)
-	log ('entity_removed start --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-	log ('entity_removed start --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))	
+--	log ('entity_removed start --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--	log ('entity_removed start --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))	
 	local grid_id
 	for index, vehicle_entity in pairs (global.grid_vehicles) do 
 		if entity.unit_number == vehicle_entity.unit_number then
@@ -701,6 +709,23 @@ function entity_removed(entity)
 			break
 		end
 	end
-	log ('entity_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-	log ('entity_removed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
+--	log ('entity_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--	log ('entity_removed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
+end
+
+function removeInputOutputTransformerEntities(playerIndex, old_surface_index, char_table)
+	local t = char_table[playerIndex]
+	for _, t_inputs in ipairs(t.inputs) do
+		removeInputOutputEntities(char_table[playerIndex].inputs, _)
+	end
+	for _, t_outputs in ipairs(t.outputs) do
+		removeInputOutputEntities(char_table[playerIndex].outputs, _)
+	end
+end
+
+function removeInputOutputEntities(tableToRemoveFrom, index)
+	local entity = table.remove(tableToRemoveFrom, index)
+	log ('remove_entity --- entity: ' .. serpent.block(entity))
+	entity.destroy()
+	entity = nil
 end

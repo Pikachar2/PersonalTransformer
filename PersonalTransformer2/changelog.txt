@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.11
+  Bugfix:
+    - SE: Fixed crash when launching a ship while standing on it while having a Personal Transformer in your currently equipped armor.
+  Changes:
+    - Added mod thumbnail.png
+  Current Bugs:
+    - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
+    - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
+    - Despite these bugs I've released this so that people could at least attempt to use the functionality. If you've got a fix, please let me know!
+
+---------------------------------------------------------------------------------------------------
 Version: 0.1.10
   Features:
     - Added 'Allow Personal Transformer in non-armor grids' setting for allowing placement of Personal Transformer in non-armor grids.
