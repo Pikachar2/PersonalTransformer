@@ -226,6 +226,7 @@ script.on_event(defines.events.script_raised_destroy,
 
 script.on_event(defines.events.on_player_changed_surface, 
 	function(event)
+		log ('on_player_changed_surface start --- ')
 		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans)
 		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans2)
 		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans3)
@@ -715,11 +716,17 @@ end
 
 function removeInputOutputTransformerEntities(playerIndex, old_surface_index, char_table)
 	local t = char_table[playerIndex]
-	for _, t_inputs in ipairs(t.inputs) do
-		removeInputOutputEntities(char_table[playerIndex].inputs, _)
+	if t == nil then
+		return
 	end
-	for _, t_outputs in ipairs(t.outputs) do
-		removeInputOutputEntities(char_table[playerIndex].outputs, _)
+	-- if character suface is not the old surface, ie if character changed surfaces
+	if t.surface_index ~= old_surface_index then
+		for _, t_inputs in ipairs(t.inputs) do
+			removeInputOutputEntities(char_table[playerIndex].inputs, _)
+		end
+		for _, t_outputs in ipairs(t.outputs) do
+			removeInputOutputEntities(char_table[playerIndex].outputs, _)
+		end
 	end
 end
 
