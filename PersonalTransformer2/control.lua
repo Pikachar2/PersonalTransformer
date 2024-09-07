@@ -212,9 +212,9 @@ script.on_event(defines.events.on_entity_destroyed,
 
 script.on_event(defines.events.on_entity_died, 
 	function(event)
-		log ('on_entity_died start --- ')
+--		log ('on_entity_died start --- ')
 		entity_removed(event.entity)
-		log ('on_entity_died end --- ')
+--		log ('on_entity_died end --- ')
 	end
 
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -339,7 +339,6 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 					local avail_in = 0
 					local request_out = 0
 					-- creates new personal-transformer-input entities
-			log ('Creating new PT entities.')
 					for _, v in pairs(t.inputs) do
 						if not v.valid then
 							v = p.surface.create_entity
