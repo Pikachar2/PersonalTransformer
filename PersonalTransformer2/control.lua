@@ -11,6 +11,7 @@ local mk3_draw = 4000000
 local personal_transformer_mk1_name = "personal-transformer-equipment"
 local personal_transformer_mk2_name = "personal-transformer-mk2-equipment"
 local personal_transformer_mk3_name = "personal-transformer-mk3-equipment"
+local isVehicleGridAllowed = settings.startup["personal-transformer2-allow-non-armor"].value;
 
 global.grid_vehicles = global.grid_vehicles or {}
 global.transformer_data = global.transformer_data or {}
@@ -49,7 +50,6 @@ script.on_load(
 		if char_armor_transformers.trans == nil then
 			char_armor_transformers.trans = { }
 			char_armor_transformers.trans2 = { }
-			char_armor_transformers.trans3 = { }
 		end
 	end
 )
@@ -82,6 +82,9 @@ script.on_configuration_changed(
 
 script.on_event(defines.events.on_equipment_inserted,
 	function(event)
+		if not isVehicleGridAllowed then
+			return
+		end
 		local grid_id = event.grid.unique_id
 		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
 		local vehicle = nil
@@ -111,6 +114,9 @@ script.on_event(defines.events.on_equipment_inserted,
 
 script.on_event(defines.events.on_equipment_removed,
 	function(event)
+		if not isVehicleGridAllowed then
+			return
+		end
 		local grid_id = event.grid.unique_id
 		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
 		local vehicle = nil
@@ -177,7 +183,7 @@ script.on_event(defines.events.script_raised_revive,
 
 script.on_event(defines.events.on_player_mined_entity, 
 	function(event)
-		log ('on_player_mined_entity start --- ')
+--		log ('on_player_mined_entity start --- ')
 		entity_removed(event.entity)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -186,7 +192,7 @@ script.on_event(defines.events.on_player_mined_entity,
 
 script.on_event(defines.events.on_robot_mined_entity, 
 	function(event)
-		log ('on_robot_mined_entity start --- ')
+--		log ('on_robot_mined_entity start --- ')
 		entity_removed(event.entity)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -196,7 +202,7 @@ script.on_event(defines.events.on_robot_mined_entity,
 script.on_event(defines.events.on_entity_destroyed, 
 	function(event)
 		-- entity_removed(event.entity)
-	log ('on_entity_destroyed --- ')
+--	log ('on_entity_destroyed --- ')
 	end
 
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -651,6 +657,9 @@ function new_vehicle_placed_event_wrapper(event)
 end
 
 function new_vehicle_placed(entity)
+	if not isVehicleGridAllowed then
+		return
+	end
 	-- add placed vehicle to vehicle list
 	-- add draw total to draw list
 --	log ('new_vehicle_placed start --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
@@ -702,6 +711,9 @@ function entity_removed(entity)
 --	log ('entity_removed start --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 --	log ('entity_removed start --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))	
 	local grid_id
+	if not isVehicleGridAllowed then
+		return
+	end
 	for index, vehicle_entity in pairs (global.grid_vehicles) do 
 		if entity.unit_number == vehicle_entity.unit_number then
 			grid_id = index
@@ -732,7 +744,7 @@ end
 
 function removeInputOutputEntities(tableToRemoveFrom, index)
 	local entity = table.remove(tableToRemoveFrom, index)
-	log ('remove_entity --- entity: ' .. serpent.block(entity))
+--	log ('remove_entity --- entity: ' .. serpent.block(entity))
 	entity.destroy()
 	entity = nil
 end
