@@ -391,9 +391,6 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 						ratio_out = math.min(math.max(request_out / max_draw_out, 0), 1)
 					end
 					for _, v in pairs(t.inputs) do
-						if v.energy == nil then
-						end
-						v.energy = 0
 						v.energy = v.energy * (1 - drain_in)
 					end
 					for _, v in pairs(t.outputs) do
