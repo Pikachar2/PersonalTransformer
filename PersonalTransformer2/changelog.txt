@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.15
+  Bugfix:
+    - Removed some incessant log statements.
+  Current Bugs:
+    - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
+    - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
+    - Despite these bugs I've released this so that people could at least attempt to use the functionality. If you've got a fix, please let me know!
+
+---------------------------------------------------------------------------------------------------
 Version: 0.1.14
   Bugfix:
     - Fixed issue where having multiple Personal Transformers in your armor when on a space ship that changes surface would crash the game.
