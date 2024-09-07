@@ -50,6 +50,7 @@ script.on_load(
 		if char_armor_transformers.trans == nil then
 			char_armor_transformers.trans = { }
 			char_armor_transformers.trans2 = { }
+			char_armor_transformers.trans3 = { }
 		end
 	end
 )
