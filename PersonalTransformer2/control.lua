@@ -339,6 +339,7 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 					local avail_in = 0
 					local request_out = 0
 					-- creates new personal-transformer-input entities
+			log ('Creating new PT entities.')
 					for _, v in pairs(t.inputs) do
 						if not v.valid then
 							v = p.surface.create_entity
@@ -734,18 +735,19 @@ function removeInputOutputTransformerEntities(playerIndex, old_surface_index, ch
 	end
 	-- if character suface is not the old surface, ie if character changed surfaces
 	if t.surface_index ~= old_surface_index then
-		for _, t_inputs in ipairs(t.inputs) do
-			removeInputOutputEntities(char_table[playerIndex].inputs, _)
+--		log ('RemoveI/O Transformer Entities. ')
+--		log ('Player: ' .. serpent.block(t))
+--		log ('Player Inputs: ' .. serpent.block(t.inputs))
+--		log ('Table to Remove Inputs: ' .. serpent.block(char_table[playerIndex].inputs))
+--		log ('Table to Remove Inputs Size: ' .. serpent.block(#t.inputs))
+		count = #t.inputs
+		for i = 0, count do 
+			t.inputs[i] = nil 
 		end
-		for _, t_outputs in ipairs(t.outputs) do
-			removeInputOutputEntities(char_table[playerIndex].outputs, _)
+
+		count = #t.outputs
+		for i = 0, count do
+			t.outputs[i] = nil
 		end
 	end
-end
-
-function removeInputOutputEntities(tableToRemoveFrom, index)
-	local entity = table.remove(tableToRemoveFrom, index)
---	log ('remove_entity --- entity: ' .. serpent.block(entity))
-	entity.destroy()
-	entity = nil
 end
