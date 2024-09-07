@@ -390,25 +390,12 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 					else
 						ratio_out = math.min(math.max(request_out / max_draw_out, 0), 1)
 					end
---NOTE: The crash only occurs when there are multiple PTs in the armor.
--- The crash always occurs on the first v.energy reference after the surface switch
--- NOTE: I might not be clearing out the old ones correctly in the case of multiple
-			log ('BEFORE loop crash- _: ' .. serpent.block(t.inputs))
 					for _, v in pairs(t.inputs) do
-			log ('In loop crash- _: ' .. serpent.block(_))
-			log ('In loop crash- v: ' .. serpent.block(v))
-			log ('In loop crash- drain_in: ' .. serpent.block(drain_in))
 						if v.energy == nil then
-			log ('In loop crash- v.energy is nill')
 						end
 						v.energy = 0
-			log ('In loop crash- v.energy is NOT nill')
-			log ('In loop crash- v.energy: ' .. serpent.block(v.energy))
-			
 						v.energy = v.energy * (1 - drain_in)
-			log ('In loop crash- post calculation: ')
 					end
-			log ('AFTER loop crash- _: ' .. serpent.block(t.inputs))
 					for _, v in pairs(t.outputs) do
 						v.energy = buffer - ((buffer - v.energy) * (1 - drain_out))
 					end
@@ -751,18 +738,19 @@ function removeInputOutputTransformerEntities(playerIndex, old_surface_index, ch
 	end
 	-- if character suface is not the old surface, ie if character changed surfaces
 	if t.surface_index ~= old_surface_index then
-		for _, t_inputs in ipairs(t.inputs) do
-			removeInputOutputEntities(char_table[playerIndex].inputs, _)
+--		log ('RemoveI/O Transformer Entities. ')
+--		log ('Player: ' .. serpent.block(t))
+--		log ('Player Inputs: ' .. serpent.block(t.inputs))
+--		log ('Table to Remove Inputs: ' .. serpent.block(char_table[playerIndex].inputs))
+--		log ('Table to Remove Inputs Size: ' .. serpent.block(#t.inputs))
+		count = #t.inputs
+		for i = 0, count do 
+			t.inputs[i] = nil 
 		end
-		for _, t_outputs in ipairs(t.outputs) do
-			removeInputOutputEntities(char_table[playerIndex].outputs, _)
+
+		count = #t.outputs
+		for i = 0, count do
+			t.outputs[i] = nil
 		end
 	end
-end
-
-function removeInputOutputEntities(tableToRemoveFrom, index)
-	local entity = table.remove(tableToRemoveFrom, index)
---	log ('remove_entity --- entity: ' .. serpent.block(entity))
-	entity.destroy()
-	entity = nil
 end
