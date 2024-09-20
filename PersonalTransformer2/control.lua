@@ -2,7 +2,10 @@ local char_armor_transformers = nil
 local vehicle_armor_transformers = nil
 local my_types = {"car", "spider-vehicle", "rolling-stock"}
 
-local tickdelay = 1
+-- This is a delay constant for controlling how often the transformer script runs. The mod will behave reasonably for any value from 1 to 6.
+-- Lower values are more UPS intensive but have finer updates, while higher values are less UPS intensive but have coarser updates.
+--local tickdelay = 10
+local tickdelay = settings.global["personal-transformer2-tick-delay"].value
 
 local mk1_draw = 200000
 local mk2_draw = 1000000
@@ -253,6 +256,8 @@ script.on_event(defines.events.on_lua_shortcut,
 script.on_event(defines.events.on_tick,
 	function(event)
 		
+		tickdelay = settings.global["personal-transformer2-tick-delay"].value
+
 		if event.tick % tickdelay ~= 0 then
 			return
 		end
@@ -308,7 +313,7 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 				if not p.is_shortcut_toggled('toggle-equipment-transformer-output') then
 					max_draw_out = 0
 				end
-				-- get position of entity
+				-- get position of player
 				local pos = p.position
 				-- cleans up old personal-transformer-input/output entities
 				if transformer_count ~= #t.outputs then
@@ -365,6 +370,7 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 						v.teleport(pos)
 						request_out = request_out + (buffer - v.energy)
 					end
+					-- Power Calculations begin.
 					local drain_in, drain_out, ratio_in, ratio_out = nil
 					if avail_in == 0 then
 						drain_in = 0
