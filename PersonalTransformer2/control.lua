@@ -731,7 +731,6 @@ function removeInputOutputTransformerEntities(playerIndex, old_surface_index, ch
 	if t == nil then
 		return
 	end
---update_personal_transformer(tickdelay, char_armor_transformers.trans2, 'personal-transformer-mk2-equipment', 'personal-transformer-mk2-input-entity', 'personal-transformer-mk2-output-entity', mk2_draw)
 	-- if character suface is not the old surface, ie if character changed surfaces
 	if t.surface_index ~= old_surface_index then
 --		log ('RemoveI/O Transformer Entities. ')
