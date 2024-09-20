@@ -55,7 +55,6 @@ script.on_load(
 	end
 )
 
-
 script.on_configuration_changed(
 	function(data)
 	-- global.grid_vehicles = {}
@@ -732,6 +731,7 @@ function removeInputOutputTransformerEntities(playerIndex, old_surface_index, ch
 	if t == nil then
 		return
 	end
+--update_personal_transformer(tickdelay, char_armor_transformers.trans2, 'personal-transformer-mk2-equipment', 'personal-transformer-mk2-input-entity', 'personal-transformer-mk2-output-entity', mk2_draw)
 	-- if character suface is not the old surface, ie if character changed surfaces
 	if t.surface_index ~= old_surface_index then
 --		log ('RemoveI/O Transformer Entities. ')
@@ -739,14 +739,19 @@ function removeInputOutputTransformerEntities(playerIndex, old_surface_index, ch
 --		log ('Player Inputs: ' .. serpent.block(t.inputs))
 --		log ('Table to Remove Inputs: ' .. serpent.block(char_table[playerIndex].inputs))
 --		log ('Table to Remove Inputs Size: ' .. serpent.block(#t.inputs))
+		char_table[playerIndex] = nil
 		count = #t.inputs
 		for i = 0, count do 
-			t.inputs[i] = nil 
+			if t.inputs[i] ~= nil then
+				t.inputs[i].destroy()
+			end
 		end
 
 		count = #t.outputs
 		for i = 0, count do
-			t.outputs[i] = nil
+			if t.outputs[i] ~= nil then
+				t.outputs[i].destroy()
+			end
 		end
 	end
 end
