@@ -146,35 +146,7 @@ script.on_event(defines.events.on_equipment_inserted,
 	local player = isPlayerOwnerOfGrid(grid_id)
 	
 	if player ~= nil then
-		if is_personal_transformer_name_match(event.equipment.name) then
-			
-			if not global.transformer_data[grid_id] then 
-				global.transformer_data[grid_id] = {}
-				global.transformer_data[grid_id].grid_transformer_entities = {}
-			end
-			insert_entity(event.equipment.name, player, grid_id)
-
-			if not global.transformer_data[grid_id].transformer_count then 
-				global.transformer_data[grid_id].transformer_count = {}
-				global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] = 0
-				global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] = 0
-				global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name] = 0
-			end
-	log ('on_inserted equipment --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-	log ('on_inserted equipment --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
-			global.transformer_data[grid_id].transformer_count[event.equipment.name] = global.transformer_data[grid_id].transformer_count[event.equipment.name] + 1
-	log ('on_inserted equipment --- global.transformer_data.transformer_count[array] after: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
-
-			global.transformer_data[grid_id].grid_owner_id = player.index
-			global.transformer_data[grid_id].grid_owner_type = "player"
-			
-			if global.transformer_data[grid_id].max_grid_draw == nil then
-				global.transformer_data[grid_id].max_grid_draw = 0
-			end
-			global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw + transformer_draw[event.equipment.name]
-			global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
-
-		end
+		equipmentInserted(player, grid_id, event.equipment.name)
 		return
 	end
 
@@ -218,29 +190,7 @@ script.on_event(defines.events.on_equipment_removed,
 		end
 
 		if global.transformer_data[grid_id].grid_owner_type == "player" or global.transformer_data[grid_id].grid_owner_type == nil then
-			if is_personal_transformer_name_match(event.equipment) then
-				for i = 0, event.count do 
-					remove_entity(event.equipment, grid_id)
-				end
-				log ('on_equipment_removed  --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-				log ('on_equipment_removed --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
-				global.transformer_data[grid_id].transformer_count[event.equipment] = global.transformer_data[grid_id].transformer_count[event.equipment] - event.count
-				log ('on_equipment_removed post remove entity --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
-				global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw - (transformer_draw[event.equipment] * event.count)
-				global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
-
-				local total_count = global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]
-
-				if total_count == 0 then
-					log ('If no more transformers --- Clear out object')
-					global.transformer_data[grid_id].transformer_count = nil
-					global.transformer_data[grid_id].grid_owner_id = nil
-					global.transformer_data[grid_id].grid_owner_type = nil
-					global.transformer_data[grid_id].max_grid_draw = nil
-					global.transformer_data[grid_id].buffer = nil
-					global.transformer_data[grid_id] = nil
-				end
-			end
+			equipmentRemoved(grid_id, event.equipment, event.count)
 			return
 		end
 	
@@ -395,15 +345,43 @@ script.on_event(defines.events.on_player_changed_surface,
 
 script.on_event(defines.events.on_player_armor_inventory_changed, 
 	function(event)
-		log ('on_player_armor_inventory_changed start --- ')
-		-- remove all transformer I/O entities
-		-- Check grid index against player's currently equipped armor?
-		-- Add entities for new armor if need be
-		
-		local current_grid_id = game.players[event.player_index].character.grid.unique_id
-log ('on_player_armor_inventory_changed --- current_grid_id: ' .. serpent.block(current_grid_id))
 log ('on_player_armor_inventory_changed --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-		
+
+		-- Search table for previously equipped armor and remove it from the table
+		for grid_id, transformer_data_values in pairs(global.transformer_data) do
+			if transformer_data_values.grid_owner_type == "player" and transformer_data_values.grid_owner_id == event.player_index then
+				for count_key, count_value in pairs(transformer_data_values.transformer_count) do
+					equipmentRemoved(grid_id, count_key, count_value)
+				end
+			end
+		end
+log ('on_player_armor_inventory_changed --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+
+		local player = game.players[event.player_index]
+		if player.character ~= nil then
+			local grid = player.character.grid
+			if grid ~= nil then
+				local current_grid_id = player.character.grid.unique_id
+				
+				-- Get Number of PTs in new armor and add them all to the table
+				-- prolly need to null check character and grid
+				local mk1_count = grid.count(personal_transformer_mk1_name)
+				local mk2_count = grid.count(personal_transformer_mk2_name)
+				local mk3_count = grid.count(personal_transformer_mk3_name)
+
+				for i = 1, mk1_count do
+					equipmentInserted(player, current_grid_id, personal_transformer_mk1_name)
+				end
+				for i = 1, mk2_count do
+					equipmentInserted(player, current_grid_id, personal_transformer_mk2_name)
+				end
+				for i = 1, mk3_count do
+					equipmentInserted(player, current_grid_id, personal_transformer_mk3_name)
+				end
+
+			end
+		end
+log ('on_player_armor_inventory_changed --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	end
 )
 
@@ -438,7 +416,6 @@ function update_personal_transformer(tickdelay, transformer_data)
 	local dt = tickdelay / 60
 	for grid_id, transformer_data_values in pairs(global.transformer_data) do
 		if transformer_data_values.grid_owner_type == "player" then
-log ('update_personal_transformer --- isPlayer.')
 			local max_draw = transformer_data_values.max_grid_draw
 			local buffer = transformer_data_values.buffer
 			local player = game.players[transformer_data_values.grid_owner_id]
@@ -461,8 +438,6 @@ log ('update_personal_transformer --- isPlayer.')
 						if not is_personal_transformer_name_match(v.name) and v.prototype.energy_source ~= nil then
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
-							
-							
 							-- toggle off appropriate draw if toggle is off
 							if player.is_shortcut_toggled('toggle-equipment-transformer-input') then
 								local draw_in = math.min(v.prototype.energy_source.input_flow_limit * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
@@ -538,7 +513,6 @@ log ('update_personal_transformer --- isPlayer.')
 		::continue::
 	end
 end
-
 
 function update_vehicle_transformer()
 	-- for each grid in global.transformer_data
@@ -889,6 +863,61 @@ function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
 	for _, pt_entity in pairs(grid_transformer_entities) do
 		if pt_entity.position ~= player_pos then
 			pt_entity.teleport(player_pos)
+		end
+	end
+end
+
+function equipmentInserted(player, grid_id, equipment_name)
+	if is_personal_transformer_name_match(equipment_name) then
+		if not global.transformer_data[grid_id] then 
+			global.transformer_data[grid_id] = {}
+			global.transformer_data[grid_id].grid_transformer_entities = {}
+		end
+		insert_entity(equipment_name, player, grid_id)
+
+		if not global.transformer_data[grid_id].transformer_count then 
+			global.transformer_data[grid_id].transformer_count = {}
+			global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] = 0
+			global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] = 0
+			global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name] = 0
+		end
+log ('on_inserted equipment --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+		global.transformer_data[grid_id].transformer_count[equipment_name] = global.transformer_data[grid_id].transformer_count[equipment_name] + 1
+
+		global.transformer_data[grid_id].grid_owner_id = player.index
+		global.transformer_data[grid_id].grid_owner_type = "player"
+		
+		if global.transformer_data[grid_id].max_grid_draw == nil then
+			global.transformer_data[grid_id].max_grid_draw = 0
+		end
+		global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw + transformer_draw[equipment_name]
+		global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
+log ('on_inserted equipment --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
+	end
+end
+
+function equipmentRemoved(grid_id, equipment_name, count)
+	if is_personal_transformer_name_match(equipment_name) then
+		for i = 0, count do 
+			remove_entity(equipment_name, grid_id)
+		end
+		log ('on_equipment_removed  --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+		log ('on_equipment_removed --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
+		global.transformer_data[grid_id].transformer_count[equipment_name] = global.transformer_data[grid_id].transformer_count[equipment_name] - count
+		log ('on_equipment_removed post remove entity --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
+		global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw - (transformer_draw[equipment_name] * count)
+		global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
+
+		local total_count = global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]
+
+		if total_count == 0 then
+			log ('If no more transformers --- Clear out object')
+			global.transformer_data[grid_id].transformer_count = nil
+			global.transformer_data[grid_id].grid_owner_id = nil
+			global.transformer_data[grid_id].grid_owner_type = nil
+			global.transformer_data[grid_id].max_grid_draw = nil
+			global.transformer_data[grid_id].buffer = nil
+			global.transformer_data[grid_id] = nil
 		end
 	end
 end
