@@ -445,11 +445,15 @@ log ('update_personal_transformer --- isPlayer.')
 
 			local max_draw_in = 0
 			local max_draw_out = 0
-			-- teleport entities to player
-			teleportEntitiesToPlayerPosition(player.position, transformer_data_values.grid_transformer_entities)
+
+			-- If a player has both toggles off, no need to check anything.
+			if not player.is_shortcut_toggled('toggle-equipment-transformer-input') and not player.is_shortcut_toggled('toggle-equipment-transformer-output') then
+				goto continue
+			end
 
 			if player.character ~= nil then
---log ('update_personal_transformer --- player.char not null: ' .. serpent.block(transformer_data_values.grid_owner_id))
+				-- teleport entities to player
+				teleportEntitiesToPlayerPosition(player.position, transformer_data_values.grid_transformer_entities)
 				local grid = player.character.grid
 				if grid ~= nil then
 				-- perform math
@@ -457,21 +461,23 @@ log ('update_personal_transformer --- isPlayer.')
 						if not is_personal_transformer_name_match(v.name) and v.prototype.energy_source ~= nil then
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
-							local draw_in = math.min(v.prototype.energy_source.input_flow_limit * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
-							local draw_out = math.min(v.prototype.energy_source.output_flow_limit * tickdelay, v.energy)
-							max_draw_in = max_draw_in + draw_in
-							max_draw_out = max_draw_out + draw_out
+							
+							
+							-- toggle off appropriate draw if toggle is off
+							if player.is_shortcut_toggled('toggle-equipment-transformer-input') then
+								local draw_in = math.min(v.prototype.energy_source.input_flow_limit * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
+								max_draw_in = max_draw_in + draw_in
+							else
+								max_draw_in = 0
+							end
+							if player.is_shortcut_toggled('toggle-equipment-transformer-output') then
+								local draw_out = math.min(v.prototype.energy_source.output_flow_limit * tickdelay, v.energy)
+								max_draw_out = max_draw_out + draw_out
+							else
+								max_draw_out = 0
+							end
 						end
 					end
-					-- toggle off appropriate draw if toggle is off
-					if not player.is_shortcut_toggled('toggle-equipment-transformer-input') then
-						max_draw_in = 0
-					end
-					if not player.is_shortcut_toggled('toggle-equipment-transformer-output') then
-						max_draw_out = 0
-					end
-log ('update_personal_transformer --- max_draw_in: ' .. serpent.block(max_draw_in))
-log ('update_personal_transformer --- max_draw_out: ' .. serpent.block(max_draw_out))
 
 					-- might wrap this in with the teleport to reduce amount of looping
 					local avail_in = 0
@@ -484,8 +490,7 @@ log ('update_personal_transformer --- max_draw_out: ' .. serpent.block(max_draw_
 						end
 					end
 					request_out = request_out + buffer
-					
-					
+
 					-- Power Calculations begin.
 					local drain_in, drain_out, ratio_in, ratio_out = nil
 					if avail_in == 0 then
@@ -500,8 +505,6 @@ log ('update_personal_transformer --- max_draw_out: ' .. serpent.block(max_draw_
 					end
 					avail_in = math.min(avail_in, max_draw * dt)
 					request_out = math.min(request_out, max_draw * dt)
-log ('update_personal_transformer --- avail_in: ' .. serpent.block(avail_in))
-log ('update_personal_transformer --- request_out: ' .. serpent.block(request_out))
 					if max_draw_in == 0 then
 						ratio_in = 0
 					else
@@ -512,8 +515,6 @@ log ('update_personal_transformer --- request_out: ' .. serpent.block(request_ou
 					else
 						ratio_out = math.min(math.max(request_out / max_draw_out, 0), 1)
 					end
-log ('update_personal_transformer --- ratio_in: ' .. serpent.block(ratio_in))
-log ('update_personal_transformer --- ratio_out: ' .. serpent.block(ratio_out))
 					-----
 					for _, gt_entity in pairs(transformer_data_values.grid_transformer_entities) do
 						if gt_entity.type == 'electric-energy-interface' then
@@ -534,6 +535,7 @@ log ('update_personal_transformer --- ratio_out: ' .. serpent.block(ratio_out))
 				end
 			end
 		end
+		::continue::
 	end
 end
 
