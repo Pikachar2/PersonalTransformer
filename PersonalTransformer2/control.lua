@@ -4,17 +4,24 @@ local my_types = {"car", "spider-vehicle", "rolling-stock"}
 
 -- This is a delay constant for controlling how often the transformer script runs. The mod will behave reasonably for any value from 1 to 6.
 -- Lower values are more UPS intensive but have finer updates, while higher values are less UPS intensive but have coarser updates.
---local tickdelay = 10
 local tickdelay = settings.global["personal-transformer2-tick-delay"].value
 
 local mk1_draw = 200000
 local mk2_draw = 1000000
 local mk3_draw = 4000000
 
+-- grid_owner_type can be "player", "entity", "item"
+
 local personal_transformer_mk1_name = "personal-transformer-equipment"
 local personal_transformer_mk2_name = "personal-transformer-mk2-equipment"
 local personal_transformer_mk3_name = "personal-transformer-mk3-equipment"
 local isVehicleGridAllowed = settings.startup["personal-transformer2-allow-non-armor"].value;
+
+local transformer_draw = {}
+transformer_draw[personal_transformer_mk1_name] = mk1_draw
+transformer_draw[personal_transformer_mk2_name] = mk2_draw
+transformer_draw[personal_transformer_mk3_name] = mk3_draw
+
 
 global.grid_vehicles = global.grid_vehicles or {}
 global.transformer_data = global.transformer_data or {}
@@ -28,12 +35,58 @@ global.transformer_data = global.transformer_data or {}
 	-- }
 
 
+
+--[[
+	global.transformer_data[grid_id] = {
+		grid_transformer_entities = {list of transformer entities},
+		transformer_count[level] = someNum
+		grid_owner_id = someNum
+		grid_owner_type = player/entity
+		max_grid_draw = someNum
+		buffer = max_grid_draw/10
+	}
+--]]
+
+
+
+--[[ 
+	global.char_armor_transformers[player_id] = {
+		trans_mk1 = { *each is PT*}
+		trans_mk2 = { }
+		trans_mk3 = { }
+
+		--// What each of the mkx look like
+		pt =
+		{
+			inputs = { },
+			outputs = { },
+			count = 0
+		}
+
+
+	}
+--]]
+
+--[[
+	pt =
+	{
+		inputs = { },
+		outputs = { },
+		count = 0
+	}
+	t =
+	{
+		trans_mk1 = { }
+		trans_mk2 = { }
+		trans_mk3 = { }
+	}
+	char_table[p.index] = t
+--]]
+
+
 script.on_init(
 	function()
 		char_armor_transformers = { }
-		char_armor_transformers.trans = { }
-		char_armor_transformers.trans2 = { }
-		char_armor_transformers.trans3 = { }
 		global.char_armor_transformers = char_armor_transformers
 
 		global.transformer_data = global.transformer_data or {}
@@ -50,11 +103,13 @@ script.on_init(
 script.on_load(
 	function()
 		char_armor_transformers = global.char_armor_transformers
+--[[
 		if char_armor_transformers.trans == nil then
 			char_armor_transformers.trans = { }
 			char_armor_transformers.trans2 = { }
 			char_armor_transformers.trans3 = { }
 		end
+--]]
 	end
 )
 
@@ -85,10 +140,49 @@ script.on_configuration_changed(
 
 script.on_event(defines.events.on_equipment_inserted,
 	function(event)
+-- CHARACTER CODE
+		log ('on_equipment_inserted start --- ')
+	local grid_id = event.grid.unique_id
+	local player = isPlayerOwnerOfGrid(grid_id)
+	
+	if player ~= nil then
+		if is_personal_transformer_name_match(event.equipment.name) then
+			
+			if not global.transformer_data[grid_id] then 
+				global.transformer_data[grid_id] = {}
+				global.transformer_data[grid_id].grid_transformer_entities = {}
+			end
+			insert_entity(event.equipment.name, player, grid_id)
+
+			if not global.transformer_data[grid_id].transformer_count then 
+				global.transformer_data[grid_id].transformer_count = {}
+				global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] = 0
+				global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] = 0
+				global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name] = 0
+			end
+	log ('on_inserted equipment --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+	log ('on_inserted equipment --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
+			global.transformer_data[grid_id].transformer_count[event.equipment.name] = global.transformer_data[grid_id].transformer_count[event.equipment.name] + 1
+	log ('on_inserted equipment --- global.transformer_data.transformer_count[array] after: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
+
+			global.transformer_data[grid_id].grid_owner_id = player.index
+			global.transformer_data[grid_id].grid_owner_type = "player"
+			
+			if global.transformer_data[grid_id].max_grid_draw == nil then
+				global.transformer_data[grid_id].max_grid_draw = 0
+			end
+			global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw + transformer_draw[event.equipment.name]
+			global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
+
+		end
+		return
+	end
+
+
+-- VEHICLE CODE
 		if not isVehicleGridAllowed then
 			return
 		end
-		local grid_id = event.grid.unique_id
 		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
 		local vehicle = nil
 		
@@ -117,10 +211,43 @@ script.on_event(defines.events.on_equipment_inserted,
 
 script.on_event(defines.events.on_equipment_removed,
 	function(event)
+		log ('on_equipment_removed start --- ')
+		local grid_id = event.grid.unique_id
+		if global.transformer_data[grid_id] == nil then
+			return
+		end
+
+		if global.transformer_data[grid_id].grid_owner_type == "player" or global.transformer_data[grid_id].grid_owner_type == nil then
+			if is_personal_transformer_name_match(event.equipment) then
+				for i = 0, event.count do 
+					remove_entity(event.equipment, grid_id)
+				end
+				log ('on_equipment_removed  --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+				log ('on_equipment_removed --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
+				global.transformer_data[grid_id].transformer_count[event.equipment] = global.transformer_data[grid_id].transformer_count[event.equipment] - event.count
+				log ('on_equipment_removed post remove entity --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
+				global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw - (transformer_draw[event.equipment] * event.count)
+				global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
+
+				local total_count = global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]
+
+				if total_count == 0 then
+					log ('If no more transformers --- Clear out object')
+					global.transformer_data[grid_id].transformer_count = nil
+					global.transformer_data[grid_id].grid_owner_id = nil
+					global.transformer_data[grid_id].grid_owner_type = nil
+					global.transformer_data[grid_id].max_grid_draw = nil
+					global.transformer_data[grid_id].buffer = nil
+					global.transformer_data[grid_id] = nil
+				end
+			end
+			return
+		end
+	
+	-- VEHICLE CODE
 		if not isVehicleGridAllowed then
 			return
 		end
-		local grid_id = event.grid.unique_id
 		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
 		local vehicle = nil
 
@@ -141,6 +268,30 @@ script.on_event(defines.events.on_equipment_removed,
 			get_grid_energy_draw(event.grid)
 		end
 		log ('on_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+	end
+)
+
+
+script.on_event(defines.events.on_player_placed_equipment, 
+	function(event)
+		log ('on_player_placed_equipment start --- ')
+		-- remove all transformer I/O entities
+		-- Check grid index against player's currently equipped armor?
+		-- Add entities for new armor if need be
+		
+		
+	end
+)
+
+
+script.on_event(defines.events.on_player_removed_equipment, 
+	function(event)
+		log ('on_player_removed_equipment start --- ')
+		-- remove all transformer I/O entities
+		-- Check grid index against player's currently equipped armor?
+		-- Add entities for new armor if need be
+		
+		
 	end
 )
 
@@ -242,6 +393,22 @@ script.on_event(defines.events.on_player_changed_surface,
 	end
 )
 
+script.on_event(defines.events.on_player_armor_inventory_changed, 
+	function(event)
+		log ('on_player_armor_inventory_changed start --- ')
+		-- remove all transformer I/O entities
+		-- Check grid index against player's currently equipped armor?
+		-- Add entities for new armor if need be
+		
+		local current_grid_id = game.players[event.player_index].character.grid.unique_id
+log ('on_player_armor_inventory_changed --- current_grid_id: ' .. serpent.block(current_grid_id))
+log ('on_player_armor_inventory_changed --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+		
+	end
+)
+
+
+
 script.on_event(defines.events.on_lua_shortcut,
 	function(event)
 		if event.prototype_name == 'toggle-equipment-transformer-input' then
@@ -261,115 +428,64 @@ script.on_event(defines.events.on_tick,
 		if event.tick % tickdelay ~= 0 then
 			return
 		end
-		update_personal_transformer(tickdelay, char_armor_transformers.trans, 'personal-transformer-equipment', 'personal-transformer-input-entity', 'personal-transformer-output-entity', mk1_draw)
-		update_personal_transformer(tickdelay, char_armor_transformers.trans2, 'personal-transformer-mk2-equipment', 'personal-transformer-mk2-input-entity', 'personal-transformer-mk2-output-entity', mk2_draw)
-		update_personal_transformer(tickdelay, char_armor_transformers.trans3, 'personal-transformer-mk3-equipment', 'personal-transformer-mk3-input-entity', 'personal-transformer-mk3-output-entity', mk3_draw)
+		update_personal_transformer(tickdelay, global.transformer_data)
 
-		update_vehicle_transformer()
+--		update_vehicle_transformer()
 
 	end)
 
-function update_personal_transformer(tickdelay, char_table, equip_name, input_name, output_name, max_draw)
+function update_personal_transformer(tickdelay, transformer_data)
 	local dt = tickdelay / 60
-	local buffer = max_draw / 10
-	local _, p, t, v, grid = nil
-	for _, p in pairs(game.players) do
-	-- p is player
-	-- t is character_armor_transformers
-	-- v is various
-		if p.character ~= nil then
-			t = char_table[p.index]
-			grid = p.character.grid
-			if grid ~= nil then
-				if t == nil then
-					t =
-					{
-						inputs = { },
-						outputs = { }
-					}
-					char_table[p.index] = t
-				end
-				t.has_player = true
-				local transformer_count = 0
-				local max_draw_in = 0
-				local max_draw_out = 0
-				for _, v in pairs(grid.equipment) do
-					if v.name == equip_name then
-					-- create count of transformer type
-						transformer_count = transformer_count + 1
-					elseif v.prototype.energy_source ~= nil then
-						-- else if energy source calculate max_draw_in/out from equipment with flow limit
-						-- ie, what's the flow rate of the generators/batteries
-						local draw_in = math.min(v.prototype.energy_source.input_flow_limit * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
-						local draw_out = math.min(v.prototype.energy_source.output_flow_limit * tickdelay, v.energy)
-						max_draw_in = max_draw_in + draw_in
-						max_draw_out = max_draw_out + draw_out
+	for grid_id, transformer_data_values in pairs(global.transformer_data) do
+		if transformer_data_values.grid_owner_type == "player" then
+log ('update_personal_transformer --- isPlayer.')
+			local max_draw = transformer_data_values.max_grid_draw
+			local buffer = transformer_data_values.buffer
+			local player = game.players[transformer_data_values.grid_owner_id]
+
+			local max_draw_in = 0
+			local max_draw_out = 0
+			-- teleport entities to player
+			teleportEntitiesToPlayerPosition(player.position, transformer_data_values.grid_transformer_entities)
+
+			if player.character ~= nil then
+--log ('update_personal_transformer --- player.char not null: ' .. serpent.block(transformer_data_values.grid_owner_id))
+				local grid = player.character.grid
+				if grid ~= nil then
+				-- perform math
+					for _, v in pairs(grid.equipment) do
+						if not is_personal_transformer_name_match(v.name) and v.prototype.energy_source ~= nil then
+							-- if energy source calculate max_draw_in/out from equipment with flow limit
+							-- ie, what's the flow rate of the generators/batteries
+							local draw_in = math.min(v.prototype.energy_source.input_flow_limit * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
+							local draw_out = math.min(v.prototype.energy_source.output_flow_limit * tickdelay, v.energy)
+							max_draw_in = max_draw_in + draw_in
+							max_draw_out = max_draw_out + draw_out
+						end
 					end
-				end
-				-- toggle off appropriate draw if toggle is off
-				if not p.is_shortcut_toggled('toggle-equipment-transformer-input') then
-					max_draw_in = 0
-				end
-				if not p.is_shortcut_toggled('toggle-equipment-transformer-output') then
-					max_draw_out = 0
-				end
-				-- get position of player
-				local pos = p.position
-				-- cleans up old personal-transformer-input/output entities
-				if transformer_count ~= #t.outputs then
-					while transformer_count < #t.outputs do
-						t.inputs[#t.outputs].destroy()
-						t.inputs[#t.outputs] = nil
-						t.outputs[#t.outputs].destroy()
-						t.outputs[#t.outputs] = nil
+					-- toggle off appropriate draw if toggle is off
+					if not player.is_shortcut_toggled('toggle-equipment-transformer-input') then
+						max_draw_in = 0
 					end
-					-- creates new personal-transformer-input/output entities
-					while transformer_count > #t.outputs do
-						table.insert(t.inputs, p.surface.create_entity
-						{
-							name = input_name,
-							position = pos,
-							force = p.force
-						})
-						table.insert(t.outputs, p.surface.create_entity
-						{
-							name = output_name,
-							position = pos,
-							force = p.force
-						})
+					if not player.is_shortcut_toggled('toggle-equipment-transformer-output') then
+						max_draw_out = 0
 					end
-				end
-				if transformer_count ~= 0 then
+log ('update_personal_transformer --- max_draw_in: ' .. serpent.block(max_draw_in))
+log ('update_personal_transformer --- max_draw_out: ' .. serpent.block(max_draw_out))
+
+					-- might wrap this in with the teleport to reduce amount of looping
 					local avail_in = 0
 					local request_out = 0
-					-- creates new personal-transformer-input entities
-					for _, v in pairs(t.inputs) do
-						if not v.valid then
-							v = p.surface.create_entity
-							{
-								name = input_name,
-								position = pos,
-								force = p.force
-							}
-							t[_] = v
+					for _, pt_entity in pairs(transformer_data_values.grid_transformer_entities) do
+						if pt_entity.type == 'electric-energy-interface' then
+							avail_in = avail_in + pt_entity.energy
+						else
+							request_out = request_out - pt_entity.energy
 						end
-						v.teleport(pos)
-						avail_in = avail_in + v.energy
 					end
-					-- creates new personal-transformer-output entities
-					for _, v in pairs(t.outputs) do
-						if not v.valid then
-							v = p.surface.create_entity
-							{
-								name = output_name,
-								position = pos,
-								force = p.force
-							}
-							t[_] = v
-						end
-						v.teleport(pos)
-						request_out = request_out + (buffer - v.energy)
-					end
+					request_out = request_out + buffer
+					
+					
 					-- Power Calculations begin.
 					local drain_in, drain_out, ratio_in, ratio_out = nil
 					if avail_in == 0 then
@@ -382,8 +498,10 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 					else
 						drain_out = math.min(math.max(max_draw_out / request_out, 0), 1)
 					end
-					avail_in = math.min(avail_in, max_draw * transformer_count * dt)
-					request_out = math.min(request_out, max_draw * transformer_count * dt)
+					avail_in = math.min(avail_in, max_draw * dt)
+					request_out = math.min(request_out, max_draw * dt)
+log ('update_personal_transformer --- avail_in: ' .. serpent.block(avail_in))
+log ('update_personal_transformer --- request_out: ' .. serpent.block(request_out))
 					if max_draw_in == 0 then
 						ratio_in = 0
 					else
@@ -394,12 +512,17 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 					else
 						ratio_out = math.min(math.max(request_out / max_draw_out, 0), 1)
 					end
-					for _, v in pairs(t.inputs) do
-						v.energy = v.energy * (1 - drain_in)
+log ('update_personal_transformer --- ratio_in: ' .. serpent.block(ratio_in))
+log ('update_personal_transformer --- ratio_out: ' .. serpent.block(ratio_out))
+					-----
+					for _, gt_entity in pairs(transformer_data_values.grid_transformer_entities) do
+						if gt_entity.type == 'electric-energy-interface' then
+							gt_entity.energy = gt_entity.energy * (1 - drain_in)
+						else
+							gt_entity.energy = buffer - ((buffer - gt_entity.energy) * (1 - drain_out))
+						end
 					end
-					for _, v in pairs(t.outputs) do
-						v.energy = buffer - ((buffer - v.energy) * (1 - drain_out))
-					end
+					----
 					for _, v in pairs(grid.equipment) do
 						if v.name ~= equip_name and v.prototype.energy_source ~= nil then
 							local draw_in = math.min(v.prototype.energy_source.input_flow_limit * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
@@ -410,20 +533,6 @@ function update_personal_transformer(tickdelay, char_table, equip_name, input_na
 					end
 				end
 			end
-		end
-	end
-	-- cleans up character if there's no player
-	for v, t in pairs(char_table) do
-		if not t.has_player then
-			char_table[v] = nil
-			for _, v in pairs(t.inputs) do
-				v.destroy()
-			end
-			for _, v in pairs(t.outputs) do
-				v.destroy()
-			end
-		else
-			t.has_player = false
 		end
 	end
 end
@@ -589,7 +698,7 @@ function is_personal_transformer_name_match(name)
 	return name == personal_transformer_mk1_name or name == personal_transformer_mk2_name or name == personal_transformer_mk3_name
 end
 
-function insert_entity(equipment_name, vehicle, grid_id)
+function insert_entity(equipment_name, grid_owner, grid_id)
 	if is_personal_transformer_name_match(equipment_name) then
 		local entity_input_name
 		local entity_output_name
@@ -603,18 +712,18 @@ function insert_entity(equipment_name, vehicle, grid_id)
 			entity_input_name = "personal-transformer-mk3-input-entity"
 			entity_output_name = "personal-transformer-mk3-output-entity"
 		end
-		local input_entity = vehicle.surface.create_entity
+		local input_entity = grid_owner.surface.create_entity
 			{
 				name = entity_input_name,
-				position = vehicle.position,
-				force = vehicle.force
+				position = grid_owner.position,
+				force = grid_owner.force
 			}
 		table.insert(global.transformer_data[grid_id].grid_transformer_entities, input_entity)
-		local output_entity = vehicle.surface.create_entity
+		local output_entity = grid_owner.surface.create_entity
 			{
 				name = entity_output_name,
-				position = vehicle.position,
-				force = vehicle.force
+				position = grid_owner.position,
+				force = grid_owner.force
 			}
 		table.insert(global.transformer_data[grid_id].grid_transformer_entities, output_entity)
 	end
@@ -760,3 +869,25 @@ function removeInputOutputTransformerEntities(playerIndex, old_surface_index, ch
 		end
 	end
 end
+
+function isPlayerOwnerOfGrid(grid_id)
+	for _, p in pairs(game.players) do
+		if p.character ~= nil then
+			local grid = p.character.grid
+			if grid.unique_id == grid_id then
+				return p
+			end
+		end
+	end
+	return nil
+end
+
+function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
+-- NOTE: teleport across surfaces only works for players, cars, and spidertrons
+	for _, pt_entity in pairs(grid_transformer_entities) do
+		if pt_entity.position ~= player_pos then
+			pt_entity.teleport(player_pos)
+		end
+	end
+end
+
