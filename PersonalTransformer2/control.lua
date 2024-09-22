@@ -5,9 +5,10 @@ local my_types = {"car", "spider-vehicle", "locomotive", "cargo-wagon", "fluid-w
 -- Lower values are more UPS intensive but have finer updates, while higher values are less UPS intensive but have coarser updates.
 local tickdelay = settings.global["personal-transformer2-tick-delay"].value
 
-local mk1_draw = 200000
-local mk2_draw = 1000000
-local mk3_draw = 4000000
+
+local mk1_draw = settings.startup["personal-transformer-mk1-flow-limit"].value
+local mk2_draw = settings.startup["personal-transformer-mk2-flow-limit"].value
+local mk3_draw = settings.startup["personal-transformer-mk3-flow-limit"].value
 
 -- grid_owner_type can be "player", "entity", "item"
 

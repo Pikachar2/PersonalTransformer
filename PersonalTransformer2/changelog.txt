@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+  Features:
+    - Added settings to allow for the configuration of the flow rate of each transformer.
+	- Removed Beta tag from 'Allow Personal Transformer in non-armor Grids' setting.
+  Note:
+    - Biggest performance hits are on having a large amount of other gear in your grid. If you can think of a way to improve this, please let me know.
+	
+---------------------------------------------------------------------------------------------------
 Version: 0.1.18
   Optimizations:
     - Refactored for performance. Got about a 30% improvement in my SE factory I was testing on.

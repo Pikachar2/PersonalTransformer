@@ -53,3 +53,29 @@ data:extend(
   }
 }
 )
+
+-- Mk1
+data.raw["battery-equipment"]["personal-transformer-equipment"].energy_source.input_flow_limit = settings.startup["personal-transformer-mk1-flow-limit"].value .. "kW"
+data.raw["battery-equipment"]["personal-transformer-equipment"].energy_source.output_flow_limit = settings.startup["personal-transformer-mk1-flow-limit"].value .. "kW"
+data.raw["battery-equipment"]["personal-transformer-equipment"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk1-flow-limit"].value/10 .. "kJ"
+data.raw["electric-energy-interface"]["personal-transformer-input-entity"].energy_source.input_flow_limit = settings.startup["personal-transformer-mk1-flow-limit"].value .. "kW"
+data.raw["electric-energy-interface"]["personal-transformer-input-entity"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk1-flow-limit"].value/10 .. "kJ"
+data.raw["accumulator"]["personal-transformer-output-entity"].energy_source.output_flow_limit = settings.startup["personal-transformer-mk1-flow-limit"].value .. "kW"
+data.raw["accumulator"]["personal-transformer-output-entity"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk1-flow-limit"].value/10 .. "kJ"
+-- Mk2
+data.raw["battery-equipment"]["personal-transformer-mk2-equipment"].energy_source.input_flow_limit = settings.startup["personal-transformer-mk2-flow-limit"].value .. "kW"
+data.raw["battery-equipment"]["personal-transformer-mk2-equipment"].energy_source.output_flow_limit = settings.startup["personal-transformer-mk2-flow-limit"].value .. "kW"
+data.raw["battery-equipment"]["personal-transformer-mk2-equipment"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk2-flow-limit"].value/10 .. "kJ"
+data.raw["electric-energy-interface"]["personal-transformer-mk2-input-entity"].energy_source.input_flow_limit = settings.startup["personal-transformer-mk2-flow-limit"].value .. "kW"
+data.raw["electric-energy-interface"]["personal-transformer-mk2-input-entity"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk2-flow-limit"].value/10 .. "kJ"
+data.raw["accumulator"]["personal-transformer-mk2-output-entity"].energy_source.output_flow_limit = settings.startup["personal-transformer-mk2-flow-limit"].value .. "kW"
+data.raw["accumulator"]["personal-transformer-mk2-output-entity"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk2-flow-limit"].value/10 .. "kJ"
+-- Mk3
+data.raw["battery-equipment"]["personal-transformer-mk3-equipment"].energy_source.input_flow_limit = settings.startup["personal-transformer-mk3-flow-limit"].value .. "kW"
+data.raw["battery-equipment"]["personal-transformer-mk3-equipment"].energy_source.output_flow_limit = settings.startup["personal-transformer-mk3-flow-limit"].value .. "kW"
+data.raw["battery-equipment"]["personal-transformer-mk3-equipment"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk3-flow-limit"].value/10 .. "kJ"
+data.raw["electric-energy-interface"]["personal-transformer-mk3-input-entity"].energy_source.input_flow_limit = settings.startup["personal-transformer-mk3-flow-limit"].value .. "kW"
+data.raw["electric-energy-interface"]["personal-transformer-mk3-input-entity"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk3-flow-limit"].value/10 .. "kJ"
+data.raw["accumulator"]["personal-transformer-mk3-output-entity"].energy_source.output_flow_limit = settings.startup["personal-transformer-mk3-flow-limit"].value .. "kW"
+data.raw["accumulator"]["personal-transformer-mk3-output-entity"].energy_source.buffer_capacity = settings.startup["personal-transformer-mk3-flow-limit"].value/10 .. "kJ"
+
