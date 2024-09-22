@@ -14,8 +14,7 @@ local mk3_draw = 4000000
 local personal_transformer_mk1_name = "personal-transformer-equipment"
 local personal_transformer_mk2_name = "personal-transformer-mk2-equipment"
 local personal_transformer_mk3_name = "personal-transformer-mk3-equipment"
---local isVehicleGridAllowed = settings.startup["personal-transformer2-allow-non-armor"].value;
-local isVehicleGridAllowed = true
+local isVehicleGridAllowed = settings.startup["personal-transformer2-allow-non-armor"].value;
 
 local transformer_draw = {}
 transformer_draw[personal_transformer_mk1_name] = mk1_draw
