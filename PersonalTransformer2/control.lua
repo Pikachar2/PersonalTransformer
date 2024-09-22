@@ -98,37 +98,10 @@ script.on_event(defines.events.on_equipment_inserted,
 			return
 		end
 
-
 -- VEHICLE CODE
 		if not isVehicleGridAllowed then
 			return
 		end
-
---[[
-		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
-		local vehicle = nil
-		if valid_vehicle and valid_vehicle.valid then
-			if is_personal_transformer_name_match(event.equipment.name) then
-				vehicle = global.grid_vehicles[grid_id]
-				
-				if not global.transformer_data[grid_id] then 
-					global.transformer_data[grid_id] = {}
-					global.transformer_data[grid_id].grid_transformer_entities = {}
-				end
-				
-				add_grid_draw(event.equipment.name, grid_id, personal_transformer_mk1_name, mk1_draw)
-				add_grid_draw(event.equipment.name, grid_id, personal_transformer_mk2_name, mk2_draw)
-				add_grid_draw(event.equipment.name, grid_id, personal_transformer_mk3_name, mk3_draw)
-
-				log ('on_inserted valid_vehicle --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-				insert_entity(event.equipment.name, vehicle, grid_id)
-			end
-			get_grid_energy_draw(event.grid)
-		end
-
-		log ('on_inserted end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
---]]	
-		
 		local valid_vehicle = global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
 		if valid_vehicle and valid_vehicle.valid then
 			equipmentInserted(valid_vehicle, grid_id, event.equipment.name, "entity")
@@ -154,26 +127,6 @@ script.on_event(defines.events.on_equipment_removed,
 			return
 		end
 		local valid_vehicle =  global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
---[[
-		local vehicle = nil
-
-		if valid_vehicle and valid_vehicle.valid then
-			if is_personal_transformer_name_match(event.equipment) then
-				subtract_grid_draw(event.equipment, grid_id, personal_transformer_mk1_name, mk1_draw)
-				subtract_grid_draw(event.equipment, grid_id, personal_transformer_mk2_name, mk2_draw)
-				subtract_grid_draw(event.equipment, grid_id, personal_transformer_mk3_name, mk3_draw)
-
-				remove_entity(event.equipment, grid_id)
-				log ('on_removed post remove entity --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-				if global.transformer_data[grid_id].grid_draw == nil then
-					log ('on_removed nil grid_draw --- global.transformer_data: ')
-					global.transformer_data[grid_id] = nil
-				end
-			end
-
-			get_grid_energy_draw(event.grid)
-		end
-		--]]
 		
 		if valid_vehicle and valid_vehicle.valid then
 			if global.transformer_data[grid_id].grid_owner_type == "entity" or global.transformer_data[grid_id].grid_owner_type == nil then
