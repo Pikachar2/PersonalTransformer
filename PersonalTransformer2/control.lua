@@ -245,6 +245,13 @@ script.on_event(defines.events.on_player_removed_equipment,
 	end
 )
 
+script.on_event(defines.events.on_player_armor_inventory_changed, 
+	function(event)
+log ('on_player_armor_inventory_changed --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+		playerOrArmorChanged(event.player_index)
+	end
+)
+
 script.on_event(defines.events.on_built_entity, 
 	function(event)
 		new_vehicle_placed_event_wrapper(event)
@@ -306,7 +313,7 @@ script.on_event(defines.events.on_robot_mined_entity,
 script.on_event(defines.events.on_entity_destroyed, 
 	function(event)
 		-- entity_removed(event.entity)
---	log ('on_entity_destroyed --- ')
+	log ('on_entity_destroyed --- ')
 	end
 
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -337,55 +344,33 @@ script.on_event(defines.events.script_raised_destroy,
 script.on_event(defines.events.on_player_changed_surface, 
 	function(event)
 		log ('on_player_changed_surface start --- ')
-		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans)
-		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans2)
-		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans3)
+--		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans)
+--		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans2)
+--		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans3)
+
+	-- Need to remove entities and re-add them on new surface
+	-- Might want to only do this if character leaves surface, not player
+		playerOrArmorChanged(event.player_index)
 	end
 )
 
-script.on_event(defines.events.on_player_armor_inventory_changed, 
+script.on_event(defines.events.on_pre_player_died, 
 	function(event)
-log ('on_player_armor_inventory_changed --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-
-		-- Search table for previously equipped armor and remove it from the table
-		for grid_id, transformer_data_values in pairs(global.transformer_data) do
-			if transformer_data_values.grid_owner_type == "player" and transformer_data_values.grid_owner_id == event.player_index then
-				for count_key, count_value in pairs(transformer_data_values.transformer_count) do
-					equipmentRemoved(grid_id, count_key, count_value)
-				end
-			end
-		end
-log ('on_player_armor_inventory_changed --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-
-		local player = game.players[event.player_index]
-		if player.character ~= nil then
-			local grid = player.character.grid
-			if grid ~= nil then
-				local current_grid_id = player.character.grid.unique_id
-				
-				-- Get Number of PTs in new armor and add them all to the table
-				-- prolly need to null check character and grid
-				local mk1_count = grid.count(personal_transformer_mk1_name)
-				local mk2_count = grid.count(personal_transformer_mk2_name)
-				local mk3_count = grid.count(personal_transformer_mk3_name)
-
-				for i = 1, mk1_count do
-					equipmentInserted(player, current_grid_id, personal_transformer_mk1_name)
-				end
-				for i = 1, mk2_count do
-					equipmentInserted(player, current_grid_id, personal_transformer_mk2_name)
-				end
-				for i = 1, mk3_count do
-					equipmentInserted(player, current_grid_id, personal_transformer_mk3_name)
-				end
-
-			end
-		end
-log ('on_player_armor_inventory_changed --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--		log ('on_pre_player_died start --- ')
+		playerOrArmorChanged(event.player_index)
+--		log ('on_pre_player_died end --- ')
 	end
 )
 
-
+script.on_event(defines.events.on_player_driving_changed_state, 
+	function(event)
+		log ('on_player_driving_changed_state start --- ')
+	-- Need to remove entities and re-add them on new surface
+	-- Might want to only do this if character leaves surface, not player
+--		playerOrArmorChanged(event.player_index)
+		log ('on_player_driving_changed_state end --- ')
+	end
+)
 
 script.on_event(defines.events.on_lua_shortcut,
 	function(event)
@@ -920,5 +905,44 @@ function equipmentRemoved(grid_id, equipment_name, count)
 			global.transformer_data[grid_id] = nil
 		end
 	end
+end
+
+
+function playerOrArmorChanged(player_index)
+	local player = game.players[player_index]
+	if player.character ~= nil then
+		-- Search table for previously equipped armor and remove it from the table
+		for grid_id, transformer_data_values in pairs(global.transformer_data) do
+			if transformer_data_values.grid_owner_type == "player" and transformer_data_values.grid_owner_id == player_index then
+				for count_key, count_value in pairs(transformer_data_values.transformer_count) do
+					equipmentRemoved(grid_id, count_key, count_value)
+				end
+			end
+		end
+log ('playerOrArmorChanged --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+
+		local grid = player.character.grid
+		if grid ~= nil then
+			local current_grid_id = player.character.grid.unique_id
+			
+			-- Get Number of PTs in new armor and add them all to the table
+			-- prolly need to null check character and grid
+			local mk1_count = grid.count(personal_transformer_mk1_name)
+			local mk2_count = grid.count(personal_transformer_mk2_name)
+			local mk3_count = grid.count(personal_transformer_mk3_name)
+
+			for i = 1, mk1_count do
+				equipmentInserted(player, current_grid_id, personal_transformer_mk1_name)
+			end
+			for i = 1, mk2_count do
+				equipmentInserted(player, current_grid_id, personal_transformer_mk2_name)
+			end
+			for i = 1, mk3_count do
+				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name)
+			end
+
+		end
+	end
+log ('playerOrArmorChanged --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
 
