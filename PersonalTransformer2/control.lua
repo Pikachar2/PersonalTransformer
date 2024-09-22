@@ -169,6 +169,7 @@ script.on_event(defines.events.on_built_entity,
 
 script.on_event(defines.events.on_robot_built_entity, 
 	function(event)
+log ('on_robot_built_entity --- ')
 		new_vehicle_placed_event_wrapper(event)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -187,6 +188,7 @@ script.on_event(defines.events.on_entity_cloned,
 
 script.on_event(defines.events.script_raised_built, 
 	function(event)
+log ('script_raised_built --- ')
 		new_vehicle_placed(event.entity)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -196,6 +198,7 @@ script.on_event(defines.events.script_raised_built,
 
 script.on_event(defines.events.script_raised_revive, 
 	function(event)
+log ('script_raised_revive --- ')
 		new_vehicle_placed(event.entity)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -215,7 +218,7 @@ script.on_event(defines.events.on_player_mined_entity,
 
 script.on_event(defines.events.on_robot_mined_entity, 
 	function(event)
---		log ('on_robot_mined_entity start --- ')
+		log ('on_robot_mined_entity start --- ')
 		entity_removed(event.entity)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -226,13 +229,13 @@ script.on_event(defines.events.on_robot_mined_entity,
 script.on_event(defines.events.on_entity_destroyed, 
 	function(event)
 		-- entity_removed(event.entity)
---	log ('on_entity_destroyed --- ')
+	log ('on_entity_destroyed --- ')
 	end
 )
 
 script.on_event(defines.events.on_entity_died, 
 	function(event)
---		log ('on_entity_died start --- ')
+		log ('on_entity_died start --- ')
 		entity_removed(event.entity)
 --		log ('on_entity_died end --- ')
 	end
@@ -244,7 +247,7 @@ script.on_event(defines.events.on_entity_died,
 
 script.on_event(defines.events.script_raised_destroy, 
 	function(event)
---		log ('script_raised_destroy start --- ')
+		log ('script_raised_destroy start --- ')
 		entity_removed(event.entity)
 --		log ('script_raised_destroy end --- ')
 	end
@@ -268,6 +271,15 @@ script.on_event(defines.events.on_pre_player_died,
 		playerOrArmorChanged(event.player_index)
 --		log ('on_pre_player_died end --- ')
 	end
+)
+
+script.on_event(defines.events.script_raised_teleported, 
+	function(event)
+--		log ('script_raised_teleported start --- ')
+		entityTeleported(event.entity)
+--		log ('script_raised_teleported end --- ')
+	end
+, vehicle_event_filters
 )
 
 script.on_event(defines.events.on_lua_shortcut,
@@ -729,7 +741,6 @@ function equipmentRemoved(grid_id, equipment_name, count)
 	end
 end
 
-
 function playerOrArmorChanged(player_index)
 	local player = game.players[player_index]
 	if player.character ~= nil then
@@ -766,5 +777,13 @@ function playerOrArmorChanged(player_index)
 		end
 	end
 --log ('playerOrArmorChanged --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+end
+
+function entityTeleported(entity)
+--log ('entityTeleported --- PRE REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+	entity_removed(entity)
+--log ('entityTeleported --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+	new_vehicle_placed(entity)
+--log ('entityTeleported --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
 
