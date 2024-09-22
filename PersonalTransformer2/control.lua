@@ -221,30 +221,6 @@ script.on_event(defines.events.on_equipment_removed,
 	end
 )
 
-
-script.on_event(defines.events.on_player_placed_equipment, 
-	function(event)
-		log ('on_player_placed_equipment start --- ')
-		-- remove all transformer I/O entities
-		-- Check grid index against player's currently equipped armor?
-		-- Add entities for new armor if need be
-		
-		
-	end
-)
-
-
-script.on_event(defines.events.on_player_removed_equipment, 
-	function(event)
-		log ('on_player_removed_equipment start --- ')
-		-- remove all transformer I/O entities
-		-- Check grid index against player's currently equipped armor?
-		-- Add entities for new armor if need be
-		
-		
-	end
-)
-
 script.on_event(defines.events.on_player_armor_inventory_changed, 
 	function(event)
 log ('on_player_armor_inventory_changed --- global.transformer_data: ' .. serpent.block(global.transformer_data))
@@ -359,16 +335,6 @@ script.on_event(defines.events.on_pre_player_died,
 --		log ('on_pre_player_died start --- ')
 		playerOrArmorChanged(event.player_index)
 --		log ('on_pre_player_died end --- ')
-	end
-)
-
-script.on_event(defines.events.on_player_driving_changed_state, 
-	function(event)
-		log ('on_player_driving_changed_state start --- ')
-	-- Need to remove entities and re-add them on new surface
-	-- Might want to only do this if character leaves surface, not player
---		playerOrArmorChanged(event.player_index)
-		log ('on_player_driving_changed_state end --- ')
 	end
 )
 
