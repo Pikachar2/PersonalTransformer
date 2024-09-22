@@ -681,6 +681,7 @@ function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
 end
 
 function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
+--	log ('on_inserted equipment before --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	if is_personal_transformer_name_match(equipment_name) then
 		if not global.transformer_data[grid_id] then 
 			global.transformer_data[grid_id] = {}
@@ -694,7 +695,6 @@ function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
 			global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] = 0
 			global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name] = 0
 		end
---log ('on_inserted equipment --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 		global.transformer_data[grid_id].transformer_count[equipment_name] = global.transformer_data[grid_id].transformer_count[equipment_name] + 1
 
 		if grid_owner_type == "player" then
@@ -709,7 +709,7 @@ function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
 		end
 		global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw + transformer_draw[equipment_name]
 		global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
---log ('on_inserted equipment --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
+--	log ('on_inserted equipment after --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
 	end
 end
 
@@ -718,7 +718,7 @@ function equipmentRemoved(grid_id, equipment_name, count)
 		for i = 0, count do 
 			remove_entity(equipment_name, grid_id)
 		end
---		log ('on_equipment_removed  --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--		log ('on_equipment_removed before --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 --		log ('on_equipment_removed --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
 		global.transformer_data[grid_id].transformer_count[equipment_name] = global.transformer_data[grid_id].transformer_count[equipment_name] - count
 --		log ('on_equipment_removed post remove entity --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
@@ -737,6 +737,7 @@ function equipmentRemoved(grid_id, equipment_name, count)
 			global.transformer_data[grid_id] = nil
 		end
 	end
+--	log ('on_equipment_removed after --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
 
 function playerOrArmorChanged(player_index)
