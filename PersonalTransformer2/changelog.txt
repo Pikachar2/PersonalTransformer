@@ -4,6 +4,7 @@ Version: 0.1.18
     - Refactored for performance. Got about a 30% improvement in my SE factory I was testing on.
   Features:
     - Personal Transformers now work in vehicle grids!
+    - This includes trains.
     - Leaving the setting as is since vehicles can have a significant performance hit and it really needs more stress testing.
   Note:
     - Biggest performance hits are on having a large amount of other gear in your grid. If you can think of a way to improve this, please let me know.
