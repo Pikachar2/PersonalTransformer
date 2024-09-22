@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.18
-  Optimisations:
+  Optimizations:
     - Refactored for performance. Got about a 30% improvement in my SE factory I was testing on.
   Features:
     - Personal Transformers now work in vehicle grids!
