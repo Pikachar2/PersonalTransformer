@@ -1,5 +1,5 @@
 local vehicle_armor_transformers = nil
-local my_types = {"car", "spider-vehicle", "rolling-stock"}
+local my_types = {"car", "spider-vehicle", "locomotive", "cargo-wagon", "fluid-wagon", "artillery-wagon"}
 
 -- This is a delay constant for controlling how often the transformer script runs. The mod will behave reasonably for any value from 1 to 6.
 -- Lower values are more UPS intensive but have finer updates, while higher values are less UPS intensive but have coarser updates.
@@ -8,6 +8,8 @@ local tickdelay = settings.global["personal-transformer2-tick-delay"].value
 local mk1_draw = 200000
 local mk2_draw = 1000000
 local mk3_draw = 4000000
+
+
 
 -- grid_owner_type can be "player", "entity", "item"
 
@@ -28,7 +30,10 @@ global.transformer_data = global.transformer_data or {}
 local vehicle_event_filters = {
 	{filter = "type", type = "car"},
 	{filter = "type", type = "spider-vehicle"},
-	{filter = "type", type = "rolling-stock"}
+	{filter = "type", type = "locomotive"},
+	{filter = "type", type = "cargo-wagon"},
+	{filter = "type", type = "fluid-wagon"},
+	{filter = "type", type = "artillery-wagon"}
 }
 
 --[[
@@ -89,7 +94,7 @@ script.on_configuration_changed(
 script.on_event(defines.events.on_equipment_inserted,
 	function(event)
 -- CHARACTER CODE
-		log ('on_equipment_inserted start --- ')
+--		log ('on_equipment_inserted start --- ')
 		local grid_id = event.grid.unique_id
 		local player = isPlayerOwnerOfGrid(grid_id)
 		
@@ -102,8 +107,13 @@ script.on_event(defines.events.on_equipment_inserted,
 		if not isVehicleGridAllowed then
 			return
 		end
+--log ('on_equipment_inserted vehicle grids allowed --- ')
 		local valid_vehicle = global.grid_vehicles[grid_id] -- and global.grid_vehicles[grid_id].entity
+--log ('on_equipment_inserted vehicle grid_id --- ' .. serpent.block(grid_id))
+--log ('on_equipment_inserted grid_vehicles --- ' .. serpent.block(global.grid_vehicles))
+--log ('on_equipment_inserted vehicle --- ' .. serpent.block(valid_vehicle))
 		if valid_vehicle and valid_vehicle.valid then
+--log ('on_equipment_inserted valid vehicle --- ')
 			equipmentInserted(valid_vehicle, grid_id, event.equipment.name, "entity")
 		end
 	end
@@ -111,7 +121,7 @@ script.on_event(defines.events.on_equipment_inserted,
 
 script.on_event(defines.events.on_equipment_removed,
 	function(event)
-		log ('on_equipment_removed start --- ')
+--		log ('on_equipment_removed start --- ')
 		local grid_id = event.grid.unique_id
 		if global.transformer_data[grid_id] == nil then
 			return
@@ -135,19 +145,21 @@ script.on_event(defines.events.on_equipment_removed,
 			end
 		end
 		
-		log ('on_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--		log ('on_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	end
 )
 
 script.on_event(defines.events.on_player_armor_inventory_changed, 
 	function(event)
-log ('on_player_armor_inventory_changed --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('on_player_armor_inventory_changed --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 		playerOrArmorChanged(event.player_index)
 	end
 )
 
 script.on_event(defines.events.on_built_entity, 
 	function(event)
+--log ('on_built_entity --- ')
+--log ('on_built_entity entity type --- '.. serpent.block(event.created_entity.type))
 		new_vehicle_placed_event_wrapper(event)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -193,7 +205,7 @@ script.on_event(defines.events.script_raised_revive,
 
 script.on_event(defines.events.on_player_mined_entity, 
 	function(event)
-		log ('on_player_mined_entity start --- ')
+--		log ('on_player_mined_entity start --- ')
 		entity_removed(event.entity)
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
@@ -214,7 +226,7 @@ script.on_event(defines.events.on_robot_mined_entity,
 script.on_event(defines.events.on_entity_destroyed, 
 	function(event)
 		-- entity_removed(event.entity)
-	log ('on_entity_destroyed --- ')
+--	log ('on_entity_destroyed --- ')
 	end
 )
 
@@ -243,7 +255,7 @@ script.on_event(defines.events.script_raised_destroy,
 
 script.on_event(defines.events.on_player_changed_surface, 
 	function(event)
-		log ('on_player_changed_surface start --- ')
+--		log ('on_player_changed_surface start --- ')
 	-- Need to remove entities and re-add them on new surface
 	-- Might want to only do this if character leaves surface, not player
 		playerOrArmorChanged(event.player_index)
@@ -531,13 +543,13 @@ function remove_entity(equipment_name, grid_id)
 		for index, entity in ipairs (global.transformer_data[grid_id].grid_transformer_entities) do 
 			if (entity.name == entity_input_name) then
 				local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
-				log ('remove_entity --- entity: ' .. serpent.block(entity))
+--				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
 				entity = nil
 				input_check = true
 			elseif (entity.name == entity_output_name) then
 				local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
-				log ('remove_entity --- entity: ' .. serpent.block(entity))
+--				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
 				entity = nil
 				output_check = true
@@ -554,13 +566,15 @@ function new_vehicle_placed_event_wrapper(event)
 end
 
 function new_vehicle_placed(entity)
+--log ('new_vehicle_placed --- ')
 	if not isVehicleGridAllowed then
 		return
 	end
+--log ('new_vehicle_placed vehicles allowed --- ')
 	-- add placed vehicle to vehicle list
 	-- add draw total to draw list
 --	log ('new_vehicle_placed start --- global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
-	log ('new_vehicle_placed start --- created_entity.type = '.. serpent.block(entity.type))
+--	log ('new_vehicle_placed start --- created_entity.type = '.. serpent.block(entity.type))
 	-- local vehicle = event.created_entity
 	local vehicle = entity
 	local grid = vehicle.grid
@@ -568,7 +582,7 @@ function new_vehicle_placed(entity)
 --	log ('new_vehicle_placed --- grid = '.. serpent.block(grid))
 	if grid and grid.valid then
 		local grid_id = grid.unique_id
-log ('new_vehicle_placed --- grid_id = '.. serpent.block(grid_id))
+--log ('new_vehicle_placed --- grid_id = '.. serpent.block(grid_id))
 		global.grid_vehicles[grid_id] = vehicle
 		local mk1_count = grid.count(personal_transformer_mk1_name)
 		local mk2_count = grid.count(personal_transformer_mk2_name)
@@ -670,7 +684,7 @@ function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
 			global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] = 0
 			global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name] = 0
 		end
-log ('on_inserted equipment --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('on_inserted equipment --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 		global.transformer_data[grid_id].transformer_count[equipment_name] = global.transformer_data[grid_id].transformer_count[equipment_name] + 1
 
 		if grid_owner_type == "player" then
@@ -685,7 +699,7 @@ log ('on_inserted equipment --- global.transformer_data: ' .. serpent.block(glob
 		end
 		global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw + transformer_draw[equipment_name]
 		global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
-log ('on_inserted equipment --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
+--log ('on_inserted equipment --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
 	end
 end
 
@@ -694,17 +708,17 @@ function equipmentRemoved(grid_id, equipment_name, count)
 		for i = 0, count do 
 			remove_entity(equipment_name, grid_id)
 		end
-		log ('on_equipment_removed  --- global.transformer_data: ' .. serpent.block(global.transformer_data))
-		log ('on_equipment_removed --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
+--		log ('on_equipment_removed  --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--		log ('on_equipment_removed --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
 		global.transformer_data[grid_id].transformer_count[equipment_name] = global.transformer_data[grid_id].transformer_count[equipment_name] - count
-		log ('on_equipment_removed post remove entity --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
+--		log ('on_equipment_removed post remove entity --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
 		global.transformer_data[grid_id].max_grid_draw = global.transformer_data[grid_id].max_grid_draw - (transformer_draw[equipment_name] * count)
 		global.transformer_data[grid_id].buffer = global.transformer_data[grid_id].max_grid_draw / 10
 
 		local total_count = global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]
 
 		if total_count == 0 then
-			log ('If no more transformers --- Clear out object')
+--			log ('If no more transformers --- Clear out object')
 			global.transformer_data[grid_id].transformer_count = nil
 			global.transformer_data[grid_id].grid_owner_id = nil
 			global.transformer_data[grid_id].grid_owner_type = nil
@@ -727,7 +741,7 @@ function playerOrArmorChanged(player_index)
 				end
 			end
 		end
-log ('playerOrArmorChanged --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('playerOrArmorChanged --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 
 		local grid = player.character.grid
 		if grid ~= nil then
@@ -751,6 +765,6 @@ log ('playerOrArmorChanged --- POST REMOVAL --- global.transformer_data: ' .. se
 
 		end
 	end
-log ('playerOrArmorChanged --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('playerOrArmorChanged --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
 

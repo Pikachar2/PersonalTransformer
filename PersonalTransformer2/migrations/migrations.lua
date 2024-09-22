@@ -1,4 +1,5 @@
-local my_types = {"car", "spider-vehicle"}
+--local my_types = {"car", "spider-vehicle"}
+local my_types = {"car", "spider-vehicle", "locomotive", "cargo-wagon", "fluid-wagon", "artillery-wagon"}
 local grid
 global.grid_vehicles = global.grid_vehicles or {}
 -- global.grid_draw = global.grid_draw or {}
