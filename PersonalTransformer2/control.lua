@@ -1,4 +1,3 @@
-local char_armor_transformers = nil
 local vehicle_armor_transformers = nil
 local my_types = {"car", "spider-vehicle", "rolling-stock"}
 
@@ -47,48 +46,8 @@ global.transformer_data = global.transformer_data or {}
 	}
 --]]
 
-
-
---[[ 
-	global.char_armor_transformers[player_id] = {
-		trans_mk1 = { *each is PT*}
-		trans_mk2 = { }
-		trans_mk3 = { }
-
-		--// What each of the mkx look like
-		pt =
-		{
-			inputs = { },
-			outputs = { },
-			count = 0
-		}
-
-
-	}
---]]
-
---[[
-	pt =
-	{
-		inputs = { },
-		outputs = { },
-		count = 0
-	}
-	t =
-	{
-		trans_mk1 = { }
-		trans_mk2 = { }
-		trans_mk3 = { }
-	}
-	char_table[p.index] = t
---]]
-
-
 script.on_init(
 	function()
-		char_armor_transformers = { }
-		global.char_armor_transformers = char_armor_transformers
-
 		global.transformer_data = global.transformer_data or {}
 		-- log ('init --- global.transformer_data = '.. serpent.dump(global.transformer_data))
 		-- I don't like this, but it wont work in on_init for some reason... need to figure that out once the rest is working
@@ -102,14 +61,7 @@ script.on_init(
 
 script.on_load(
 	function()
-		char_armor_transformers = global.char_armor_transformers
---[[
-		if char_armor_transformers.trans == nil then
-			char_armor_transformers.trans = { }
-			char_armor_transformers.trans2 = { }
-			char_armor_transformers.trans3 = { }
-		end
---]]
+
 	end
 )
 
@@ -320,10 +272,6 @@ script.on_event(defines.events.script_raised_destroy,
 script.on_event(defines.events.on_player_changed_surface, 
 	function(event)
 		log ('on_player_changed_surface start --- ')
---		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans)
---		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans2)
---		removeInputOutputTransformerEntities(event.player_index, event.surface_index, global.char_armor_transformers.trans3)
-
 	-- Need to remove entities and re-add them on new surface
 	-- Might want to only do this if character leaves surface, not player
 		playerOrArmorChanged(event.player_index)
