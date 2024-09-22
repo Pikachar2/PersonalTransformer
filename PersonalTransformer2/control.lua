@@ -9,8 +9,6 @@ local mk1_draw = 200000
 local mk2_draw = 1000000
 local mk3_draw = 4000000
 
-
-
 -- grid_owner_type can be "player", "entity", "item"
 
 local personal_transformer_mk1_name = "personal-transformer-equipment"
