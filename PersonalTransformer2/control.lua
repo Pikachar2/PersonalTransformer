@@ -6,9 +6,13 @@ local my_types = {"car", "spider-vehicle", "locomotive", "cargo-wagon", "fluid-w
 local tickdelay = settings.global["personal-transformer2-tick-delay"].value
 
 
-local mk1_draw = settings.startup["personal-transformer-mk1-flow-limit"].value
-local mk2_draw = settings.startup["personal-transformer-mk2-flow-limit"].value
-local mk3_draw = settings.startup["personal-transformer-mk3-flow-limit"].value
+local mk1_draw = settings.startup["personal-transformer-mk1-flow-limit"].value * 1000
+local mk2_draw = settings.startup["personal-transformer-mk2-flow-limit"].value * 1000
+local mk3_draw = settings.startup["personal-transformer-mk3-flow-limit"].value * 1000
+
+--local mk1_draw = 200000
+--local mk2_draw = 1000000
+--local mk3_draw = 4000000
 
 -- grid_owner_type can be "player", "entity", "item"
 
@@ -62,6 +66,9 @@ script.on_init(
 
 script.on_load(
 	function()
+		log ('on_load --- mk1_draw: ' .. serpent.block(mk1_draw))
+		log ('on_load --- mk2_draw: ' .. serpent.block(mk2_draw))
+		log ('on_load --- mk3_draw: ' .. serpent.block(mk3_draw))
 
 	end
 )
@@ -551,6 +558,8 @@ function remove_entity(equipment_name, grid_id)
 
 		local input_check = false
 		local output_check = false
+--log ('remove_entity --- grid_id: ' .. serpent.block(grid_id))
+--log ('remove_entity --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 		for index, entity in ipairs (global.transformer_data[grid_id].grid_transformer_entities) do 
 			if (entity.name == entity_input_name) then
 				local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
@@ -662,7 +671,7 @@ end
 
 function isPlayerOwnerOfGrid(grid_id)
 	for _, p in pairs(game.players) do
-		if p.character ~= nil then
+		if p.character ~= nil and p.character.grid ~= nil then
 			local grid = p.character.grid
 			if grid.unique_id == grid_id then
 				return p
@@ -716,10 +725,13 @@ end
 
 function equipmentRemoved(grid_id, equipment_name, count)
 	if is_personal_transformer_name_match(equipment_name) then
-		for i = 0, count do 
+		for i = 1, count do 
 			remove_entity(equipment_name, grid_id)
 		end
 --		log ('on_equipment_removed before --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--		log ('on_equipment_removed --- grid_id: ' .. serpent.block(grid_id))
+--		log ('on_equipment_removed --- count: ' .. serpent.block(count))
+--		log ('on_equipment_removed --- equipment_name: ' .. serpent.block(equipment_name))
 --		log ('on_equipment_removed --- global.transformer_data.transformer_count[array]: ' .. serpent.block(global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
 		global.transformer_data[grid_id].transformer_count[equipment_name] = global.transformer_data[grid_id].transformer_count[equipment_name] - count
 --		log ('on_equipment_removed post remove entity --- global.transformer_data after: ' .. serpent.block(global.transformer_data))
@@ -729,7 +741,7 @@ function equipmentRemoved(grid_id, equipment_name, count)
 		local total_count = global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]
 
 		if total_count == 0 then
---			log ('If no more transformers --- Clear out object')
+			log ('If no more transformers --- Clear out object')
 			global.transformer_data[grid_id].transformer_count = nil
 			global.transformer_data[grid_id].grid_owner_id = nil
 			global.transformer_data[grid_id].grid_owner_type = nil
@@ -742,13 +754,16 @@ function equipmentRemoved(grid_id, equipment_name, count)
 end
 
 function playerOrArmorChanged(player_index)
+--log ('playerOrArmorChanged --- START --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	local player = game.players[player_index]
 	if player.character ~= nil then
 		-- Search table for previously equipped armor and remove it from the table
 		for grid_id, transformer_data_values in pairs(global.transformer_data) do
 			if transformer_data_values.grid_owner_type == "player" and transformer_data_values.grid_owner_id == player_index then
 				for count_key, count_value in pairs(transformer_data_values.transformer_count) do
-					equipmentRemoved(grid_id, count_key, count_value)
+					if count_value > 0 then
+						equipmentRemoved(grid_id, count_key, count_value)
+					end
 				end
 			end
 		end
@@ -786,4 +801,3 @@ function entityTeleported(entity)
 	new_vehicle_placed(entity)
 --log ('entityTeleported --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
-
