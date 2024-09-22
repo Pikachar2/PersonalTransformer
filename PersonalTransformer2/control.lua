@@ -437,12 +437,9 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 	if not isVehicleGridAllowed then
 		return
 	end
-log ('update_vehicle_transformer --- vehicles allowed = ')
-log ('update_vehicle_transformer--- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	local dt = tickdelay / 60
 	for grid_id, transformer_data_values in pairs(global.transformer_data) do
 		if transformer_data_values.grid_owner_type == "entity" then
-log ('update_vehicle_transformer --- is entity = ')
 			local max_draw = transformer_data_values.max_grid_draw
 			local buffer = transformer_data_values.buffer
 			local vehicle = global.grid_vehicles[transformer_data_values.grid_owner_id]
@@ -467,8 +464,6 @@ log ('update_vehicle_transformer --- is entity = ')
 							max_draw_out = max_draw_out + draw_out
 						end
 					end
-log ('update_vehicle_transformer --- max_draw_in = '.. serpent.block(max_draw_in))
-log ('update_vehicle_transformer --- max_draw_out = '.. serpent.block(max_draw_out))
 
 					-- might wrap this in with the teleport to reduce amount of looping
 					local avail_in = 0
@@ -481,8 +476,6 @@ log ('update_vehicle_transformer --- max_draw_out = '.. serpent.block(max_draw_o
 						end
 					end
 					request_out = request_out + buffer
-log ('update_vehicle_transformer --- avail_in = '.. serpent.block(avail_in))
-log ('update_vehicle_transformer --- request_out = '.. serpent.block(request_out))
 
 					-- Power Calculations begin.
 					local drain_in, drain_out, ratio_in, ratio_out = nil
@@ -508,8 +501,6 @@ log ('update_vehicle_transformer --- request_out = '.. serpent.block(request_out
 					else
 						ratio_out = math.min(math.max(request_out / max_draw_out, 0), 1)
 					end
-log ('update_vehicle_transformer --- ratio_in = '.. serpent.block(ratio_in))
-log ('update_vehicle_transformer --- ratio_out = '.. serpent.block(ratio_out))
 					-----
 					for _, gt_entity in pairs(transformer_data_values.grid_transformer_entities) do
 						if gt_entity.type == 'electric-energy-interface' then
