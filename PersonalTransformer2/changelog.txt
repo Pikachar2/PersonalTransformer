@@ -7,7 +7,9 @@ Version: 1.0.0
   Bugfix:
     - Fixed several crashes introduced in 0.1.18 despite the fact I swear I tested those scenarios
 	- Fixed case where when a train was cloned it would leave duplicates of the invisible transformers lying around.
+	- Fixed case where infinite energy could be created with both input and output on.
   Note:
+    - Remove all transformers from grids upon updating.
     - Biggest performance hits are on having a large amount of other gear in your grid. If you can think of a way to improve this, please let me know.
 	
 ---------------------------------------------------------------------------------------------------
