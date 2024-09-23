@@ -39,6 +39,16 @@ local vehicle_event_filters = {
 	{filter = "type", type = "artillery-wagon"}
 }
 
+local pt_entity_event_filters = {
+	{filter = "name", name = "personal-transformer-input-entity"},
+	{filter = "name", name = "personal-transformer-output-entity"},
+	{filter = "name", name = "personal-transformer-mk2-input-entity"},
+	{filter = "name", name = "personal-transformer-mk2-output-entity"},
+	{filter = "name", name = "personal-transformer-mk3-input-entity"},
+	{filter = "name", name = "personal-transformer-mk3-output-entity"}
+}
+
+
 --[[
 	global.transformer_data[grid_id] = {
 		grid_transformer_entities = {list of transformer entities},
@@ -187,12 +197,33 @@ script.on_event(defines.events.on_entity_cloned,
 	function(event)
 		log ('on_entity_cloned start --- ')
 		new_vehicle_placed(event.destination)
+
+		if event.source.grid then
+			local grid_id = event.source.grid.unique_id
+				for index, et in ipairs (global.transformer_data[grid_id].grid_transformer_entities) do
+					local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
+					entity.destroy()
+					entity = nil
+				end
+		end
+		
+		purgeOrphanedEntities()		
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
 , vehicle_event_filters
 )
-
+--[[
+script.on_event(defines.events.on_entity_cloned, 
+	function(event)
+		log ('on_entity_cloned start PT EVENT--- ')
+--		new_vehicle_placed(event.destination)
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+, pt_entity_event_filters
+)
+--]]
 script.on_event(defines.events.script_raised_built, 
 	function(event)
 log ('script_raised_built --- ')
@@ -287,6 +318,13 @@ script.on_event(defines.events.script_raised_teleported,
 --		log ('script_raised_teleported end --- ')
 	end
 , vehicle_event_filters
+)
+
+script.on_event(defines.events.on_player_driving_changed_state, 
+	function(event)
+		log ('on_player_driving_changed_state start --- ')
+		listCurrentAndAllPTEntities()
+	end
 )
 
 script.on_event(defines.events.on_lua_shortcut,
@@ -546,11 +584,22 @@ function insert_entity(equipment_name, grid_owner, grid_id)
 				force = grid_owner.force
 			}
 		table.insert(global.transformer_data[grid_id].grid_transformer_entities, output_entity)
+log ('insert_entity end --- ')
+log ('insert_entity --- input_entity.name: ' .. serpent.block(input_entity.name))
+log ('insert_entity --- input_entity.unit_number: ' .. serpent.block(input_entity.unit_number))
+--log ('insert_entity --- input_entity.position: ' .. serpent.block(input_entity.position))
+log ('insert_entity --- output_entity.name: ' .. serpent.block(output_entity.name))
+log ('insert_entity --- output_entity.unit_number: ' .. serpent.block(output_entity.unit_number))
+--log ('insert_entity --- output_entity.position: ' .. serpent.block(output_entity.position))
+listCurrentAndAllPTEntities()
 	end
 end
 
 function remove_entity(equipment_name, grid_id)
 	if is_personal_transformer_name_match(equipment_name) then
+
+listCurrentAndAllPTEntities()
+	
 		local entity_input_name
 		local entity_output_name
 		if personal_transformer_mk1_name == equipment_name then
@@ -576,7 +625,8 @@ function remove_entity(equipment_name, grid_id)
 --			local entity = global.transformer_data[grid_id].grid_transformer_entities[index]
 --log ('remove_entity --- index: ' .. serpent.block(index))
 --log ('remove_entity --- entity: ' .. serpent.block(entity))
---log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
+log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
+log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
 			if (entity.name == entity_input_name) then
 				local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
@@ -592,6 +642,8 @@ function remove_entity(equipment_name, grid_id)
 --log ('remove_entity --- index: ' .. serpent.block(index))
 --log ('remove_entity --- entity: ' .. serpent.block(entity))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
+log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
+log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
 			if (entity.name == entity_output_name) then
 				local entity = table.remove(global.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
@@ -603,8 +655,22 @@ function remove_entity(equipment_name, grid_id)
 		end
 --		log ('remove_entity --- global.transformer_data post removal: ' .. serpent.block(global.transformer_data))
 	end
---log ('remove_entity --- grid_id: ' .. serpent.block(grid_id))
---log ('remove_entity --- END global.transformer_data: ' .. serpent.block(global.transformer_data))
+	log ('remove_entity --- abandoned entities: ')
+	for _, surface in pairs(game.surfaces) do 
+		for _, ent in pairs (surface.find_entities_filtered({name={"personal-transformer-input-entity", "personal-transformer-output-entity", "personal-transformer-mk2-input-entity", "personal-transformer-mk2-output-entity", "personal-transformer-mk3-input-entity", "personal-transformer-mk3-output-entity"}})) do 
+			log ('remove_entity --- entity.name: ' .. serpent.block(ent.name))
+			log ('remove_entity --- entity.unit_number: ' .. serpent.block(ent.unit_number))
+		end 
+	end
+	log ('remove_entity --- listed entities: ')
+	for gd_id, transformer_data_values in pairs(global.transformer_data) do
+		for index, et in ipairs (transformer_data_values.grid_transformer_entities) do
+			log ('remove_entity --- entity.name: ' .. serpent.block(et.name))
+			log ('remove_entity --- entity.unit_number: ' .. serpent.block(et.unit_number))
+		end
+	end
+log ('remove_entity --- grid_id: ' .. serpent.block(grid_id))
+log ('remove_entity --- END global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
 
 function new_vehicle_placed_event_wrapper(event)
@@ -658,6 +724,7 @@ function entity_removed(entity)
 --	log ('entity_removed start --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
 --	log ('entity_removed start --- entity.unit_number: ' .. serpent.block(entity.unit_number))
 	log ('entity_removed start --- entity.type: ' .. serpent.block(entity.type))
+	
 --	log ('entity_removed start --- vehicle_grid:4200: unit_number ' .. serpent.block(global.grid_vehicles[4200].unit_number))
 	if not isVehicleGridAllowed then
 		return
@@ -665,23 +732,31 @@ function entity_removed(entity)
 	local grid_id
 	for index, vehicle_entity in pairs (global.grid_vehicles) do 
 		-- See: https://lua-api.factorio.com/latest/classes/LuaEntity.html#unit_number
-log ('entity_removed start --- index ' .. serpent.block(index))
+log ('entity_removed --- index ' .. serpent.block(index))
 --		if entity.unit_number == vehicle_entity.unit_number then
 		if entity == vehicle_entity then
+			log ('entity_removed --- entities match')
 			grid_id = index
 			global.grid_vehicles[grid_id] = nil
-
-			for grid_id, transformer_data_values in pairs(global.transformer_data) do
-				if transformer_data_values.grid_owner_type == "entity" and transformer_data_values.grid_owner_id == grid_id then
-					for count_key, count_value in pairs(transformer_data_values.transformer_count) do
-						if count_value > 0 then
-log ('entity_removed --- grid_id: ' .. serpent.block(grid_id))
-							equipmentRemoved(grid_id, count_key, count_value)
-						end
-					end
-				end
-			end
 			break
+		end
+	end
+	
+	if not grid_id then
+		log ('entity_removed --- grid_id is null')
+		log ('entity_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+		log ('entity_removed end --- global.grid_vehicles: ' .. serpent.block(global.grid_vehicles))
+		return
+	end
+
+log ('entity_removed --- grid_id: ' .. serpent.block(grid_id))
+	local transformer_data_values = global.transformer_data[grid_id]
+
+	if transformer_data_values.grid_owner_type == "entity" and transformer_data_values.grid_owner_id == grid_id then
+		for count_key, count_value in pairs(transformer_data_values.transformer_count) do
+			if count_value > 0 then
+				equipmentRemoved(grid_id, count_key, count_value)
+			end
 		end
 	end
 	log ('entity_removed end --- global.transformer_data: ' .. serpent.block(global.transformer_data))
@@ -774,7 +849,7 @@ function equipmentRemoved(grid_id, equipment_name, count)
 end
 
 function playerOrArmorChanged(player_index)
-log ('playerOrArmorChanged --- START --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('playerOrArmorChanged --- START --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	local player = game.players[player_index]
 	if player.character ~= nil then
 		-- Search table for previously equipped armor and remove it from the table
@@ -787,7 +862,7 @@ log ('playerOrArmorChanged --- START --- global.transformer_data: ' .. serpent.b
 				end
 			end
 		end
-log ('playerOrArmorChanged --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('playerOrArmorChanged --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 
 		local grid = player.character.grid
 		if grid ~= nil then
@@ -811,13 +886,68 @@ log ('playerOrArmorChanged --- POST REMOVAL --- global.transformer_data: ' .. se
 
 		end
 	end
-log ('playerOrArmorChanged --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('playerOrArmorChanged --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
 
 function entityTeleported(entity)
-log ('entityTeleported --- PRE REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('entityTeleported --- PRE REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	entity_removed(entity)
-log ('entityTeleported --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('entityTeleported --- POST REMOVAL --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	new_vehicle_placed(entity)
-log ('entityTeleported --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
+--log ('entityTeleported --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
+
+function purgeOrphanedEntities()
+	log ('purgeOrphanedEntities --- all entities: ')
+
+	local current_entities = {}
+	for gd_id, transformer_data_values in pairs(global.transformer_data) do
+		for index, et in ipairs (transformer_data_values.grid_transformer_entities) do
+--			log ('purgeOrphanedEntities --- entity.name: ' .. serpent.block(et.name))
+--			log ('purgeOrphanedEntities --- entity.unit_number: ' .. serpent.block(et.unit_number))
+			table.insert(current_entities, et)
+		end
+	end
+
+	for _, surface in pairs(game.surfaces) do 
+		for _, ent in pairs (surface.find_entities_filtered({name={"personal-transformer-input-entity", "personal-transformer-output-entity", "personal-transformer-mk2-input-entity", "personal-transformer-mk2-output-entity", "personal-transformer-mk3-input-entity", "personal-transformer-mk3-output-entity"}})) do 
+			if not tableContains(current_entities, ent) then
+				ent.destroy()
+				ent = nil
+			end
+		end 
+	end
+	log ('purgeOrphanedEntities --- AFTER: ')
+	listCurrentAndAllPTEntities()
+end
+
+function tableContains(testTable, value)
+	for i = 1, #testTable do
+		if (testTable[i] == value) then
+			return true
+		end
+	end
+	return false
+end
+
+function listCurrentAndAllPTEntities()
+	log ('listCurrentAndAllPTEntities --- all entities: ')
+	for _, surface in pairs(game.surfaces) do 
+		for _, ent in pairs (surface.find_entities_filtered({name={"personal-transformer-input-entity", "personal-transformer-output-entity", "personal-transformer-mk2-input-entity", "personal-transformer-mk2-output-entity", "personal-transformer-mk3-input-entity", "personal-transformer-mk3-output-entity"}})) do 
+			log ('listCurrentAndAllPTEntities --- entity.name: ' .. serpent.block(ent.name))
+			log ('listCurrentAndAllPTEntities --- entity.unit_number: ' .. serpent.block(ent.unit_number))
+--			log ('listCurrentAndAllPTEntities --- entity.position: ' .. serpent.block(ent.position))
+		end 
+	end
+	log ('listCurrentAndAllPTEntities --- currently listed entities: ')
+	for gd_id, transformer_data_values in pairs(global.transformer_data) do
+		for index, et in ipairs (transformer_data_values.grid_transformer_entities) do
+			log ('listCurrentAndAllPTEntities --- entity.name: ' .. serpent.block(et.name))
+			log ('listCurrentAndAllPTEntities --- entity.unit_number: ' .. serpent.block(et.unit_number))
+--			log ('listCurrentAndAllPTEntities --- entity.position: ' .. serpent.block(et.position))
+		end
+	end
+	log ('listCurrentAndAllPTEntities --- grid_id: ' .. serpent.block(grid_id))
+	log ('listCurrentAndAllPTEntities --- END global.transformer_data: ' .. serpent.block(global.transformer_data))
+end
+
