@@ -17,5 +17,32 @@ data:extend
     default_value = 1,
     per_user = false,
     order = "a2"
+  },
+  {
+    type = "double-setting",
+    name = "personal-transformer-mk1-flow-limit",
+    setting_type = "startup",
+	minimum_value = 0,
+    default_value = 200,
+    per_user = false,
+    order = "a2"
+  },
+  {
+    type = "double-setting",
+    name = "personal-transformer-mk2-flow-limit",
+    setting_type = "startup",
+	minimum_value = 0,
+    default_value = 1000,
+    per_user = false,
+    order = "a2"
+  },
+  {
+    type = "double-setting",
+    name = "personal-transformer-mk3-flow-limit",
+    setting_type = "startup",
+	minimum_value = 0,
+    default_value = 4000,
+    per_user = false,
+    order = "a2"
   }
 }
