@@ -197,7 +197,7 @@ script.on_event(defines.events.on_entity_cloned,
 	function(event)
 		log ('on_entity_cloned start --- ')
 		new_vehicle_placed(event.destination)
-
+--[[
 		if event.source.grid then
 			local grid_id = event.source.grid.unique_id
 				for index, et in ipairs (global.transformer_data[grid_id].grid_transformer_entities) do
@@ -206,24 +206,14 @@ script.on_event(defines.events.on_entity_cloned,
 					entity = nil
 				end
 		end
-		
+--]]		
 		purgeOrphanedEntities()		
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
 , vehicle_event_filters
 )
---[[
-script.on_event(defines.events.on_entity_cloned, 
-	function(event)
-		log ('on_entity_cloned start PT EVENT--- ')
---		new_vehicle_placed(event.destination)
-	end
-	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
-	-- ,{{filter = "name", name = "vehicle"}}
-, pt_entity_event_filters
-)
---]]
+
 script.on_event(defines.events.script_raised_built, 
 	function(event)
 log ('script_raised_built --- ')
@@ -322,22 +312,28 @@ script.on_event(defines.events.script_raised_teleported,
 
 script.on_event(defines.events.on_player_driving_changed_state, 
 	function(event)
-		log ('on_player_driving_changed_state start --- ')
-		listCurrentAndAllPTEntities()
+--		log ('on_player_driving_changed_state start --- ')
+--		listCurrentAndAllPTEntities()
 	end
 )
 
 script.on_event(defines.events.on_lua_shortcut,
 	function(event)
-		if event.prototype_name == 'toggle-equipment-transformer-input' then
+--log ('on_player_driving_changed_state start --- ')
+		if event.prototype_name == 'toggle-equipment-transformer-input' or event.prototype_name == 'toggle-equipment-transformer-output' then
 			local player = game.players[event.player_index]
-			player.set_shortcut_toggled('toggle-equipment-transformer-input', not player.is_shortcut_toggled('toggle-equipment-transformer-input'))
-		elseif event.prototype_name == 'toggle-equipment-transformer-output' then
-			local player = game.players[event.player_index]
-			player.set_shortcut_toggled('toggle-equipment-transformer-output', not player.is_shortcut_toggled('toggle-equipment-transformer-output'))
+			if event.prototype_name == 'toggle-equipment-transformer-input' then
+				player.set_shortcut_toggled('toggle-equipment-transformer-input', not player.is_shortcut_toggled('toggle-equipment-transformer-input'))
+			elseif event.prototype_name == 'toggle-equipment-transformer-output' then
+				player.set_shortcut_toggled('toggle-equipment-transformer-output', not player.is_shortcut_toggled('toggle-equipment-transformer-output'))
+			end
+			-- NOTE put code here to remove and re-add entities
+--			if not player.is_shortcut_toggled('toggle-equipment-transformer-input') and not player.is_shortcut_toggled('toggle-equipment-transformer-output') then
+--				playerOrArmorChanged(event.player_index)
+--			end
 		end
-		-- NOTE put code here to remove and re-add entities
-	end)
+	end
+)
 
 script.on_event(defines.events.on_tick,
 	function(event)
@@ -898,7 +894,10 @@ function entityTeleported(entity)
 end
 
 function purgeOrphanedEntities()
-	log ('purgeOrphanedEntities --- all entities: ')
+--	log ('purgeOrphanedEntities --- all entities: ')
+	if not isVehicleGridAllowed then
+		return
+	end
 
 	local current_entities = {}
 	for gd_id, transformer_data_values in pairs(global.transformer_data) do
@@ -917,10 +916,12 @@ function purgeOrphanedEntities()
 			end
 		end 
 	end
-	log ('purgeOrphanedEntities --- AFTER: ')
-	listCurrentAndAllPTEntities()
+--	log ('purgeOrphanedEntities --- AFTER: ')
+--	listCurrentAndAllPTEntities()
 end
 
+
+-------- Utility Methods ---------
 function tableContains(testTable, value)
 	for i = 1, #testTable do
 		if (testTable[i] == value) then
