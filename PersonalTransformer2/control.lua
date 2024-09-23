@@ -309,7 +309,7 @@ script.on_event(defines.events.on_player_driving_changed_state,
 
 script.on_event(defines.events.on_player_cheat_mode_enabled, 
 	function(event)
-		log ('on_player_cheat_mode_enabled start --- ')
+--		log ('on_player_cheat_mode_enabled start --- ')
 	end
 )
 
