@@ -3,6 +3,10 @@ Version: 1.0.0
   Features:
     - Added settings to allow for the configuration of the flow rate of each transformer.
 	- Removed Beta tag from 'Allow Personal Transformer in non-armor Grids' setting.
+    - Added ability to enable/disable the ability to use the shortcuts in most scenarios.
+  Bugfix:
+    - Fixed several crashes introduced in 0.1.18 despite the fact I swear I tested those scenarios
+	- Fixed case where when a train was cloned it would leave duplicates of the invisible transformers lying around.
   Note:
     - Biggest performance hits are on having a large amount of other gear in your grid. If you can think of a way to improve this, please let me know.
 	
@@ -48,7 +52,7 @@ Version: 0.1.15
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.14
   Bugfix:
-    - Fixed issue where having multiple Personal Transformers in your armor when on a space ship that changes surface would crash the game.
+    - SE: Fixed issue where having multiple Personal Transformers in your armor when on a space ship that changes surface would crash the game.
   Current Bugs:
     - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
     - Transformers do NOT work if you put them in after other equipment in vehicle grids. No idea why. 
