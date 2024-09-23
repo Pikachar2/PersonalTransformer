@@ -471,7 +471,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 				if grid ~= nil then
 				-- perform math
 					for _, v in pairs(grid.equipment) do
-						if not is_personal_transformer_name_match(v.name) and v.prototype.energy_source ~= nil then
+						if v.prototype.energy_source ~= nil then
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
