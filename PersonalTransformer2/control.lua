@@ -307,6 +307,12 @@ script.on_event(defines.events.on_player_driving_changed_state,
 	end
 )
 
+script.on_event(defines.events.on_player_cheat_mode_enabled, 
+	function(event)
+		log ('on_player_cheat_mode_enabled start --- ')
+	end
+)
+
 script.on_event(defines.events.on_lua_shortcut,
 	function(event)
 --log ('on_player_driving_changed_state start --- ')
@@ -774,6 +780,7 @@ function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
 
 		if grid_owner_type == "player" then
 			global.transformer_data[grid_id].grid_owner_id = player.index
+			toggleShortcutAvailable(player, true)
 		elseif grid_owner_type == "entity" then
 			global.transformer_data[grid_id].grid_owner_id = grid_id
 		end
@@ -806,6 +813,10 @@ function equipmentRemoved(grid_id, equipment_name, count)
 		local total_count = global.transformer_data[grid_id].transformer_count[personal_transformer_mk1_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk2_name] + global.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]
 
 		if total_count == 0 then
+			if global.transformer_data[grid_id].grid_owner_type == "player" then
+				toggleShortcutAvailable(game.players[global.transformer_data[grid_id].grid_owner_id], false)
+			end
+		
 --			log ('If no more transformers --- Clear out object')
 			global.transformer_data[grid_id].transformer_count = nil
 			global.transformer_data[grid_id].grid_owner_id = nil
@@ -823,6 +834,7 @@ function playerOrArmorChanged(player_index)
 --log ('playerOrArmorChanged --- START --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 	local player = game.players[player_index]
 	if player.character ~= nil then
+		toggleShortcutAvailable(player, true)
 		-- Search table for previously equipped armor and remove it from the table
 		for grid_id, transformer_data_values in pairs(global.transformer_data) do
 			if transformer_data_values.grid_owner_type == "player" and transformer_data_values.grid_owner_id == player_index then
@@ -854,9 +866,19 @@ function playerOrArmorChanged(player_index)
 			for i = 1, mk3_count do
 				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name, "player")
 			end
-
+			
+			if mk1_count + mk2_count + mk3_count > 0 then
+				toggleShortcutAvailable(player, true)
+			else 
+				toggleShortcutAvailable(player, false)
+			end
+		else
+			toggleShortcutAvailable(player, false)
 		end
+	else
+--		toggleShortcutAvailable(player, false)
 	end
+
 --log ('playerOrArmorChanged --- END --- global.transformer_data: ' .. serpent.block(global.transformer_data))
 end
 
@@ -893,6 +915,11 @@ function purgeOrphanedEntities()
 	end
 --	log ('purgeOrphanedEntities --- AFTER: ')
 --	listCurrentAndAllPTEntities()
+end
+
+function toggleShortcutAvailable(player, is_available)
+	player.set_shortcut_available('toggle-equipment-transformer-input', is_available)
+	player.set_shortcut_available('toggle-equipment-transformer-output', is_available)
 end
 
 
