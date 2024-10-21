@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+  Features:
+    - Updated to Factorio version 2.0.
+	
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
   Features:
     - Added settings to allow for the configuration of the flow rate of each transformer.
