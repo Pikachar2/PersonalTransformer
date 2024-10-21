@@ -28,7 +28,7 @@ data:extend{
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+--		collision_mask = { },
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -81,7 +81,7 @@ data:extend{
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+--		collision_mask = { },
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -136,7 +136,7 @@ data:extend{
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+--		collision_mask = { },
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -189,7 +189,7 @@ data:extend{
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+--		collision_mask = { },
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -244,7 +244,7 @@ data:extend{
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+--		collision_mask = { },
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -297,7 +297,7 @@ data:extend{
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+--		collision_mask = { },
 		alert_icon_scale = 0,
 		energy_source =
 		{
