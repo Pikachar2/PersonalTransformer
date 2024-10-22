@@ -2,6 +2,9 @@
 Version: 1.0.1
   Features:
     - Updated to Factorio version 2.0.
+    - Works with Quality enabled.
+	- Works with Elevated Rails enabled.
+	- Works with Space Age enabled.
 	
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
