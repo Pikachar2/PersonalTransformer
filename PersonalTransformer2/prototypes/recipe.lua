@@ -5,12 +5,12 @@ data:extend{
 		energy_required = 10,
 		ingredients =
 		{
-			{ 'steel-plate', 10 },
-			{ 'battery', 5 },
-			{ 'copper-cable', 100 }
+			{type = "item", name = "steel-plate", amount = 10},
+			{type = "item", name = "battery", amount = 5},
+			{type = "item", name = "copper-cable", amount = 100}
 		},
 		enabled = false,
-		result = 'personal-transformer-equipment'
+        results = {{type = "item", name = "personal-transformer-equipment", amount = 1}}
 	},
 	{
 		type = 'recipe',
@@ -18,12 +18,12 @@ data:extend{
 		energy_required = 10,
 		ingredients =
 		{
-			{ 'low-density-structure', 10 },
-			{ 'processing-unit', 20 },
-			{ 'personal-transformer-equipment', 5 }
+			{type = "item", name = "low-density-structure", amount = 10},
+			{type = "item", name = "processing-unit", amount = 20},
+			{type = "item", name = "personal-transformer-equipment", amount = 5}
 		},
 		enabled = false,
-		result = 'personal-transformer-mk2-equipment'
+        results = {{type = "item", name = "personal-transformer-mk2-equipment", amount = 1}}
 	},
 	{
 		type = 'recipe',
@@ -31,12 +31,12 @@ data:extend{
 		energy_required = 10,
 		ingredients =
 		{
-			{ 'low-density-structure', 50 },
-			{ 'processing-unit', 100 },
-			{ 'accumulator', 10 },
-			{ 'personal-transformer-mk2-equipment', 5 }
+			{type = "item", name = "low-density-structure", amount = 50},
+			{type = "item", name = "processing-unit", amount = 100},
+			{type = "item", name = "accumulator", amount = 10},
+			{type = "item", name = "personal-transformer-mk2-equipment", amount = 5}
 		},
 		enabled = false,
-		result = 'personal-transformer-mk3-equipment'
+        results = {{type = "item", name = "personal-transformer-mk3-equipment", amount = 1}}
 	}
 }

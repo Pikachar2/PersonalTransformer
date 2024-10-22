@@ -1,12 +1,12 @@
 --local my_types = {"car", "spider-vehicle"}
 local my_types = {"car", "spider-vehicle", "locomotive", "cargo-wagon", "fluid-wagon", "artillery-wagon"}
 local grid
-global.grid_vehicles = global.grid_vehicles or {}
--- global.grid_draw = global.grid_draw or {}
--- global.grid_transformer_entities = global.grid_transformer_entities or {}
--- global.grid_energy_draw = global.grid_energy_draw or {}
+storage.grid_vehicles = storage.grid_vehicles or {}
+-- storage.grid_draw = storage.grid_draw or {}
+-- storage.grid_transformer_entities = storage.grid_transformer_entities or {}
+-- storage.grid_energy_draw = storage.grid_energy_draw or {}
 
--- global.transformer_data = global.transformer_data or {}
+-- storage.transformer_data = storage.transformer_data or {}
 
 log ('migrations starting...')
 for s, surface in pairs(game.surfaces) do
@@ -15,9 +15,9 @@ for s, surface in pairs(game.surfaces) do
 			log ('on_configuration_changed valid vehicle --- vehicle.unit_number: ' .. serpent.block(vehicle.unit_number))
 			grid = vehicle.grid
 			if grid and grid.valid then
-				global.grid_vehicles[grid.unique_id] = vehicle
+				storage.grid_vehicles[grid.unique_id] = vehicle
 			end
 		end
 	end
 end
-log ('global.grid_vehicles = '.. serpent.block(global.grid_vehicles))
+log ('storage.grid_vehicles = '.. serpent.block(storage.grid_vehicles))

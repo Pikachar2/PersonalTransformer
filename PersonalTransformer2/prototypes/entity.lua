@@ -14,7 +14,23 @@ data:extend{
 				percent = 100
 			},
 			{
+				type = 'impact',
+				percent = 100
+			},
+			{
+				type = 'poison',
+				percent = 100
+			},
+			{
 				type = 'explosion',
+				percent = 100
+			},
+			{
+				type = 'fire',
+				percent = 100
+			},
+			{
+				type = 'laser',
 				percent = 100
 			},
 			{
@@ -22,13 +38,16 @@ data:extend{
 				percent = 100
 			},
 			{
-				type = 'fire',
+				type = 'electric',
 				percent = 100
 			}
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
-		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
+		collision_mask = {
+			layers =
+			{ }
+		},
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -67,7 +86,23 @@ data:extend{
 				percent = 100
 			},
 			{
+				type = 'impact',
+				percent = 100
+			},
+			{
+				type = 'poison',
+				percent = 100
+			},
+			{
 				type = 'explosion',
+				percent = 100
+			},
+			{
+				type = 'fire',
+				percent = 100
+			},
+			{
+				type = 'laser',
 				percent = 100
 			},
 			{
@@ -75,13 +110,16 @@ data:extend{
 				percent = 100
 			},
 			{
-				type = 'fire',
+				type = 'electric',
 				percent = 100
 			}
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
-		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
+		collision_mask = {
+			layers =
+			{ }
+		},
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -122,7 +160,23 @@ data:extend{
 				percent = 100
 			},
 			{
+				type = 'impact',
+				percent = 100
+			},
+			{
+				type = 'poison',
+				percent = 100
+			},
+			{
 				type = 'explosion',
+				percent = 100
+			},
+			{
+				type = 'fire',
+				percent = 100
+			},
+			{
+				type = 'laser',
 				percent = 100
 			},
 			{
@@ -130,13 +184,16 @@ data:extend{
 				percent = 100
 			},
 			{
-				type = 'fire',
+				type = 'electric',
 				percent = 100
 			}
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
-		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
+		collision_mask = {
+			layers =
+			{ }
+		},
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -175,7 +232,23 @@ data:extend{
 				percent = 100
 			},
 			{
+				type = 'impact',
+				percent = 100
+			},
+			{
+				type = 'poison',
+				percent = 100
+			},
+			{
 				type = 'explosion',
+				percent = 100
+			},
+			{
+				type = 'fire',
+				percent = 100
+			},
+			{
+				type = 'laser',
 				percent = 100
 			},
 			{
@@ -183,13 +256,16 @@ data:extend{
 				percent = 100
 			},
 			{
-				type = 'fire',
+				type = 'electric',
 				percent = 100
 			}
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
-		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
+		collision_mask = {
+			layers =
+			{ }
+		},
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -230,7 +306,23 @@ data:extend{
 				percent = 100
 			},
 			{
+				type = 'impact',
+				percent = 100
+			},
+			{
+				type = 'poison',
+				percent = 100
+			},
+			{
 				type = 'explosion',
+				percent = 100
+			},
+			{
+				type = 'fire',
+				percent = 100
+			},
+			{
+				type = 'laser',
 				percent = 100
 			},
 			{
@@ -238,13 +330,16 @@ data:extend{
 				percent = 100
 			},
 			{
-				type = 'fire',
+				type = 'electric',
 				percent = 100
 			}
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
-		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
+		collision_mask = {
+			layers =
+			{ }
+		},
 		alert_icon_scale = 0,
 		energy_source =
 		{
@@ -283,7 +378,23 @@ data:extend{
 				percent = 100
 			},
 			{
+				type = 'impact',
+				percent = 100
+			},
+			{
+				type = 'poison',
+				percent = 100
+			},
+			{
 				type = 'explosion',
+				percent = 100
+			},
+			{
+				type = 'fire',
+				percent = 100
+			},
+			{
+				type = 'laser',
 				percent = 100
 			},
 			{
@@ -291,13 +402,16 @@ data:extend{
 				percent = 100
 			},
 			{
-				type = 'fire',
+				type = 'electric',
 				percent = 100
 			}
 		},
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
-		selection_box = {{ 0, 0 }, { 0, 0 }},
-		collision_mask = { },
+		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
+		collision_mask = {
+			layers =
+			{ }
+		},
 		alert_icon_scale = 0,
 		energy_source =
 		{
