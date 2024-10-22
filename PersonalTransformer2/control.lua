@@ -91,12 +91,14 @@ script.on_configuration_changed(
 		if storage.transformer_data == nil then
 			storage.transformer_data = {}
 		end
+		storage.grid_vehicles = {}
 		for s, surface in pairs(game.surfaces) do
 			for v, vehicle in pairs(surface.find_entities_filtered{type = my_types}) do
 				if vehicle and vehicle.valid then
 					log ('on_configuration_changed valid vehicle --- vehicle.unit_number: ' .. serpent.block(vehicle.unit_number))
 					grid = vehicle.grid
 					if grid and grid.valid then
+						log ('on_configuration_changed valid grid --- grid.unique_id: ' .. serpent.block(grid.unique_id))
 						storage.grid_vehicles[grid.unique_id] = vehicle
 					end
 				end
@@ -652,7 +654,8 @@ function remove_entity(equipment_name, grid_id)
 end
 
 function new_vehicle_placed_event_wrapper(event)
-	new_vehicle_placed(event.created_entity)
+--log ('new_vehicle_placed_event_wrapper start --- event = '.. serpent.block(event))
+	new_vehicle_placed(event.entity)
 end
 
 function new_vehicle_placed(entity)
@@ -664,6 +667,7 @@ function new_vehicle_placed(entity)
 	-- add placed vehicle to vehicle list
 	-- add draw total to draw list
 --	log ('new_vehicle_placed start --- storage.grid_vehicles = '.. serpent.block(storage.grid_vehicles))
+--	log ('new_vehicle_placed start --- created_entity = '.. serpent.block(entity))
 --	log ('new_vehicle_placed start --- created_entity.type = '.. serpent.block(entity.type))
 	-- local vehicle = event.created_entity
 	local vehicle = entity
