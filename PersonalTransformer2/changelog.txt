@@ -3,19 +3,19 @@ Version: 1.0.1
   Features:
     - Updated to Factorio version 2.0.
     - Works with Quality enabled.
-	- Works with Elevated Rails enabled.
-	- Works with Space Age enabled.
+    - Works with Elevated Rails enabled.
+    - Works with Space Age enabled.
 	
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
   Features:
     - Added settings to allow for the configuration of the flow rate of each transformer.
-	- Removed Beta tag from 'Allow Personal Transformer in non-armor Grids' setting.
+    - Removed Beta tag from 'Allow Personal Transformer in non-armor Grids' setting.
     - Added ability to enable/disable the ability to use the shortcuts in most scenarios.
   Bugfix:
     - Fixed several crashes introduced in 0.1.18 despite the fact I swear I tested those scenarios
-	- Fixed case where when a train was cloned it would leave duplicates of the invisible transformers lying around.
-	- Fixed case where infinite energy could be created with both input and output on.
+    - Fixed case where when a train was cloned it would leave duplicates of the invisible transformers lying around.
+    - Fixed case where infinite energy could be created with both input and output on.
   Note:
     - Remove all transformers from grids upon updating.
     - Biggest performance hits are on having a large amount of other gear in your grid. If you can think of a way to improve this, please let me know.
