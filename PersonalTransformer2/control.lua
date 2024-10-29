@@ -366,7 +366,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 				if grid ~= nil then
 				-- perform math
 					for _, v in pairs(grid.equipment) do
-						if v.prototype.energy_source ~= nil then
+						if v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
@@ -432,7 +432,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 					end
 					----
 					for _, v in pairs(grid.equipment) do
-						if v.name ~= equip_name and v.prototype.energy_source ~= nil then
+						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
 							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
@@ -473,7 +473,9 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 				if grid ~= nil then
 				-- perform math
 					for _, v in pairs(grid.equipment) do
-						if v.prototype.energy_source ~= nil then
+						if v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
+log ('update_vehicle_transformer --- v.prototype.energy_source: ' .. serpent.block(v.prototype.energy_source))
+log ('update_vehicle_transformer --- v.prototype.energy_source.valid: ' .. serpent.block(v.prototype.energy_source.valid))
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
@@ -531,7 +533,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 					end
 					----
 					for _, v in pairs(grid.equipment) do
-						if v.name ~= equip_name and v.prototype.energy_source ~= nil then
+						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
 							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
@@ -574,6 +576,7 @@ function insert_entity(equipment_name, grid_owner, grid_id)
 				name = entity_output_name,
 				position = grid_owner.position,
 				force = grid_owner.force
+--				quality = 
 			}
 		table.insert(storage.transformer_data[grid_id].grid_transformer_entities, output_entity)
 --log ('insert_entity end --- ')
@@ -768,6 +771,7 @@ function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
 end
 
 function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
+--	local quality = equipment.equipment_name
 --	log ('equipmentInserted before --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	if is_personal_transformer_name_match(equipment_name) then
 		if not storage.transformer_data[grid_id] then 
