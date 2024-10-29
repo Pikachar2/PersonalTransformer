@@ -576,6 +576,7 @@ function insert_entity(equipment_name, grid_owner, grid_id)
 				name = entity_output_name,
 				position = grid_owner.position,
 				force = grid_owner.force
+--				quality = 
 			}
 		table.insert(storage.transformer_data[grid_id].grid_transformer_entities, output_entity)
 --log ('insert_entity end --- ')
@@ -770,6 +771,7 @@ function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
 end
 
 function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
+--	local quality = equipment.equipment_name
 --	log ('equipmentInserted before --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	if is_personal_transformer_name_match(equipment_name) then
 		if not storage.transformer_data[grid_id] then 

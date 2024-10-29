@@ -2,6 +2,9 @@
 Version: 1.0.2
   Bugfix:
     - Fixed crash involving changes to how equipment energy sources are referenced.
+  Note:
+    - Quality is currently not taken into account with power transfer.
+    - Higher quality Personal Transformers do not get increased gains.
 	
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
