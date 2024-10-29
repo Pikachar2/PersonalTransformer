@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+  Bugfix:
+    - Fixed crash involving changes to how equipment energy sources are referenced.
+	
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
   Features:
     - Updated to Factorio version 2.0.
