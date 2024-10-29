@@ -1,11 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+  Bugfix:
+    - Fixed issue where quality was not accounted for.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
   Bugfix:
     - Fixed crash involving changes to how equipment energy sources are referenced.
   Note:
     - Quality is currently not taken into account with power transfer.
     - Higher quality Personal Transformers do not get increased gains.
-	
+
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
   Features:
@@ -13,7 +18,7 @@ Version: 1.0.1
     - Works with Quality enabled.
     - Works with Elevated Rails enabled.
     - Works with Space Age enabled.
-	
+
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
   Features:
@@ -27,7 +32,7 @@ Version: 1.0.0
   Note:
     - Remove all transformers from grids upon updating.
     - Biggest performance hits are on having a large amount of other gear in your grid. If you can think of a way to improve this, please let me know.
-	
+
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.18
   Optimizations:

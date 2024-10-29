@@ -1,14 +1,4 @@
-data:extend{
-	{
-		type = 'electric-energy-interface',
-		name = 'personal-transformer-input-entity',
-		icon = '__base__/graphics/icons/power-armor.png',
-		icon_size = 32,
-		flags = { 'placeable-off-grid', 'not-on-map' },
-		minable = nil,
-		max_health = 500,
-		resistances =
-		{
+local all_resistances = {
 			{
 				type = 'physical',
 				percent = 100
@@ -41,7 +31,18 @@ data:extend{
 				type = 'electric',
 				percent = 100
 			}
-		},
+		}
+
+data:extend{
+	{
+		type = 'electric-energy-interface',
+		name = 'personal-transformer-input-entity',
+		icon = '__base__/graphics/icons/power-armor.png',
+		icon_size = 32,
+		flags = { 'placeable-off-grid', 'not-on-map' },
+		minable = nil,
+		max_health = 500,
+		resistances = all_resistances,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -79,41 +80,7 @@ data:extend{
 		flags = { 'placeable-off-grid', 'not-on-map' },
 		minable = nil,
 		max_health = 500,
-		resistances =
-		{
-			{
-				type = 'physical',
-				percent = 100
-			},
-			{
-				type = 'impact',
-				percent = 100
-			},
-			{
-				type = 'poison',
-				percent = 100
-			},
-			{
-				type = 'explosion',
-				percent = 100
-			},
-			{
-				type = 'fire',
-				percent = 100
-			},
-			{
-				type = 'laser',
-				percent = 100
-			},
-			{
-				type = 'acid',
-				percent = 100
-			},
-			{
-				type = 'electric',
-				percent = 100
-			}
-		},
+		resistances = all_resistances,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -153,41 +120,7 @@ data:extend{
 		flags = { 'placeable-off-grid', 'not-on-map' },
 		minable = nil,
 		max_health = 500,
-		resistances =
-		{
-			{
-				type = 'physical',
-				percent = 100
-			},
-			{
-				type = 'impact',
-				percent = 100
-			},
-			{
-				type = 'poison',
-				percent = 100
-			},
-			{
-				type = 'explosion',
-				percent = 100
-			},
-			{
-				type = 'fire',
-				percent = 100
-			},
-			{
-				type = 'laser',
-				percent = 100
-			},
-			{
-				type = 'acid',
-				percent = 100
-			},
-			{
-				type = 'electric',
-				percent = 100
-			}
-		},
+		resistances = all_resistances,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -225,41 +158,7 @@ data:extend{
 		flags = { 'placeable-off-grid', 'not-on-map' },
 		minable = nil,
 		max_health = 500,
-		resistances =
-		{
-			{
-				type = 'physical',
-				percent = 100
-			},
-			{
-				type = 'impact',
-				percent = 100
-			},
-			{
-				type = 'poison',
-				percent = 100
-			},
-			{
-				type = 'explosion',
-				percent = 100
-			},
-			{
-				type = 'fire',
-				percent = 100
-			},
-			{
-				type = 'laser',
-				percent = 100
-			},
-			{
-				type = 'acid',
-				percent = 100
-			},
-			{
-				type = 'electric',
-				percent = 100
-			}
-		},
+		resistances = all_resistances,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -299,41 +198,7 @@ data:extend{
 		flags = { 'placeable-off-grid', 'not-on-map' },
 		minable = nil,
 		max_health = 500,
-		resistances =
-		{
-			{
-				type = 'physical',
-				percent = 100
-			},
-			{
-				type = 'impact',
-				percent = 100
-			},
-			{
-				type = 'poison',
-				percent = 100
-			},
-			{
-				type = 'explosion',
-				percent = 100
-			},
-			{
-				type = 'fire',
-				percent = 100
-			},
-			{
-				type = 'laser',
-				percent = 100
-			},
-			{
-				type = 'acid',
-				percent = 100
-			},
-			{
-				type = 'electric',
-				percent = 100
-			}
-		},
+		resistances = all_resistances,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -371,41 +236,7 @@ data:extend{
 		flags = { 'placeable-off-grid', 'not-on-map' },
 		minable = nil,
 		max_health = 500,
-		resistances =
-		{
-			{
-				type = 'physical',
-				percent = 100
-			},
-			{
-				type = 'impact',
-				percent = 100
-			},
-			{
-				type = 'poison',
-				percent = 100
-			},
-			{
-				type = 'explosion',
-				percent = 100
-			},
-			{
-				type = 'fire',
-				percent = 100
-			},
-			{
-				type = 'laser',
-				percent = 100
-			},
-			{
-				type = 'acid',
-				percent = 100
-			},
-			{
-				type = 'electric',
-				percent = 100
-			}
-		},
+		resistances = all_resistances,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {

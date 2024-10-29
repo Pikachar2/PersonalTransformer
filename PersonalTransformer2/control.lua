@@ -117,7 +117,8 @@ script.on_event(defines.events.on_equipment_inserted,
 		local player = isPlayerOwnerOfGrid(grid_id)
 		
 		if player ~= nil then
-			equipmentInserted(player, grid_id, event.equipment.name, "player")
+log ('on_equipment_inserted --- event.equipment.quality.name = '.. serpent.block(event.equipment.quality.name))
+			equipmentInserted(player, grid_id, event.equipment.name, "player", event.equipment.quality.name)
 			return
 		end
 
@@ -132,7 +133,7 @@ script.on_event(defines.events.on_equipment_inserted,
 --log ('on_equipment_inserted vehicle --- ' .. serpent.block(valid_vehicle))
 		if valid_vehicle and valid_vehicle.valid then
 --log ('on_equipment_inserted valid vehicle --- ')
-			equipmentInserted(valid_vehicle, grid_id, event.equipment.name, "entity")
+			equipmentInserted(valid_vehicle, grid_id, event.equipment.name, "entity", event.equipment.quality.name)
 		end
 	end
 )
@@ -474,8 +475,6 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 				-- perform math
 					for _, v in pairs(grid.equipment) do
 						if v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
-log ('update_vehicle_transformer --- v.prototype.energy_source: ' .. serpent.block(v.prototype.energy_source))
-log ('update_vehicle_transformer --- v.prototype.energy_source.valid: ' .. serpent.block(v.prototype.energy_source.valid))
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
@@ -550,7 +549,7 @@ function is_personal_transformer_name_match(name)
 	return name == personal_transformer_mk1_name or name == personal_transformer_mk2_name or name == personal_transformer_mk3_name
 end
 
-function insert_entity(equipment_name, grid_owner, grid_id)
+function insert_entity(equipment_name, grid_owner, grid_id, quality_name)
 	if is_personal_transformer_name_match(equipment_name) then
 		local entity_input_name
 		local entity_output_name
@@ -568,15 +567,16 @@ function insert_entity(equipment_name, grid_owner, grid_id)
 			{
 				name = entity_input_name,
 				position = grid_owner.position,
-				force = grid_owner.force
+				force = grid_owner.force,
+				quality = quality_name
 			}
 		table.insert(storage.transformer_data[grid_id].grid_transformer_entities, input_entity)
 		local output_entity = grid_owner.surface.create_entity
 			{
 				name = entity_output_name,
 				position = grid_owner.position,
-				force = grid_owner.force
---				quality = 
+				force = grid_owner.force,
+				quality = quality_name
 			}
 		table.insert(storage.transformer_data[grid_id].grid_transformer_entities, output_entity)
 --log ('insert_entity end --- ')
@@ -686,17 +686,17 @@ function new_vehicle_placed(entity)
 		local mk3_count = grid.count(personal_transformer_mk3_name)
 		if mk1_count > 0 then
 			for i = 1, mk1_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk1_name, "entity")
+				equipmentInserted(vehicle, grid_id, personal_transformer_mk1_name, "entity", "normal")
 			end
 		end
 		if mk2_count > 0 then
 			for i = 1, mk2_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk2_name, "entity")
+				equipmentInserted(vehicle, grid_id, personal_transformer_mk2_name, "entity", "normal")
 			end
 		end
 		if mk3_count > 0 then
 			for i = 1, mk3_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk3_name, "entity")
+				equipmentInserted(vehicle, grid_id, personal_transformer_mk3_name, "entity", "normal")
 			end
 		end
 	end
@@ -770,7 +770,7 @@ function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
 	end
 end
 
-function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
+function equipmentInserted(player, grid_id, equipment_name, grid_owner_type, quality_name)
 --	local quality = equipment.equipment_name
 --	log ('equipmentInserted before --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	if is_personal_transformer_name_match(equipment_name) then
@@ -778,7 +778,7 @@ function equipmentInserted(player, grid_id, equipment_name, grid_owner_type)
 			storage.transformer_data[grid_id] = {}
 			storage.transformer_data[grid_id].grid_transformer_entities = {}
 		end
-		insert_entity(equipment_name, player, grid_id)
+		insert_entity(equipment_name, player, grid_id, quality_name)
 
 		if not storage.transformer_data[grid_id].transformer_count then 
 			storage.transformer_data[grid_id].transformer_count = {}
@@ -868,13 +868,13 @@ function playerOrArmorChanged(player_index)
 			local mk3_count = grid.count(personal_transformer_mk3_name)
 
 			for i = 1, mk1_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk1_name, "player")
+				equipmentInserted(player, current_grid_id, personal_transformer_mk1_name, "player", "normal")
 			end
 			for i = 1, mk2_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk2_name, "player")
+				equipmentInserted(player, current_grid_id, personal_transformer_mk2_name, "player", "normal")
 			end
 			for i = 1, mk3_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name, "player")
+				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name, "player", "normal")
 			end
 			
 			if mk1_count + mk2_count + mk3_count > 0 then
