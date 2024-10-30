@@ -117,7 +117,7 @@ script.on_event(defines.events.on_equipment_inserted,
 		local player = isPlayerOwnerOfGrid(grid_id)
 		
 		if player ~= nil then
-log ('on_equipment_inserted --- event.equipment.quality.name = '.. serpent.block(event.equipment.quality.name))
+--log ('on_equipment_inserted --- event.equipment.quality.name = '.. serpent.block(event.equipment.quality.name))
 			equipmentInserted(player, grid_id, event.equipment.name, "player", event.equipment.quality.name)
 			return
 		end
