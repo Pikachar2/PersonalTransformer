@@ -279,7 +279,7 @@ script.on_event(defines.events.script_raised_destroy,
 
 script.on_event(defines.events.on_player_changed_surface, 
 	function(event)
---		log ('on_player_changed_surface start --- ')
+		log ('on_player_changed_surface start --- ')
 	-- Need to remove entities and re-add them on new surface
 	-- Might want to only do this if character leaves surface, not player
 		playerOrArmorChanged(event.player_index)
@@ -843,7 +843,15 @@ end
 function playerOrArmorChanged(player_index)
 --log ('playerOrArmorChanged --- START --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	local player = game.players[player_index]
+--log ('playerOrArmorChanged --- player: ' .. serpent.block(player))
+--log ('playerOrArmorChanged --- player.controller: ' .. serpent.block(player.controller_type))
 	if player.character ~= nil then
+
+		-- NOTE: may need to change this for SE when it's ready for 2.0
+		if player.controller_type == defines.controllers.remote then
+			return
+		end
+
 		toggleShortcutAvailable(player, true)
 		-- Search table for previously equipped armor and remove it from the table
 		for grid_id, transformer_data_values in pairs(storage.transformer_data) do
