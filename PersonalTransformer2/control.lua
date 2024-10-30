@@ -686,17 +686,17 @@ function new_vehicle_placed(entity)
 		local mk3_count = grid.count(personal_transformer_mk3_name)
 		if mk1_count > 0 then
 			for i = 1, mk1_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk1_name, "entity", "normal")
+				equipmentInserted(vehicle, grid_id, personal_transformer_mk1_name, "entity", "legendary")
 			end
 		end
 		if mk2_count > 0 then
 			for i = 1, mk2_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk2_name, "entity", "normal")
+				equipmentInserted(vehicle, grid_id, personal_transformer_mk2_name, "entity", "legendary")
 			end
 		end
 		if mk3_count > 0 then
 			for i = 1, mk3_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk3_name, "entity", "normal")
+				equipmentInserted(vehicle, grid_id, personal_transformer_mk3_name, "entity", "legendary")
 			end
 		end
 	end
@@ -868,13 +868,13 @@ function playerOrArmorChanged(player_index)
 			local mk3_count = grid.count(personal_transformer_mk3_name)
 
 			for i = 1, mk1_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk1_name, "player", "normal")
+				equipmentInserted(player, current_grid_id, personal_transformer_mk1_name, "player", "legendary")
 			end
 			for i = 1, mk2_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk2_name, "player", "normal")
+				equipmentInserted(player, current_grid_id, personal_transformer_mk2_name, "player", "legendary")
 			end
 			for i = 1, mk3_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name, "player", "normal")
+				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name, "player", "legendary")
 			end
 			
 			if mk1_count + mk2_count + mk3_count > 0 then
