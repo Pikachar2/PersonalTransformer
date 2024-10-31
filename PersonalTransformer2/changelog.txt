@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.7
+  Bugfix:
+    - Fixed issue with PTs not getting battery charge to 100%.
+    - Fixed issue with exoskeletons not working while PTs were in armor and Input was enabled.
+  Current Bugs:
+    - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
+	- If Jetpack mod is installed, jetpacking will have the same effect.
+    - To revert to the actual quality, take out and replace the Personal Transformers in the armor/vehicle.
+    - Currently quality is not accounted for when counting equipment in grids. And I'm hoping for an update to the API as opposed to rewriting a large portion.
+    - Request for API update: https://forums.factorio.com/viewtopic.php?f=28&t=118603
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.6
   Feature:
     - Added optional dependency for quality mod.
