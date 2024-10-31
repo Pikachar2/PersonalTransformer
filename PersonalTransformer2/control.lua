@@ -48,6 +48,8 @@ local pt_entity_event_filters = {
 	{filter = "name", name = "personal-transformer-mk3-output-entity"}
 }
 
+local is_quality_enabled = script.active_mods["quality"] 
+
 
 --[[
 	storage.transformer_data[grid_id] = {
@@ -550,6 +552,9 @@ function is_personal_transformer_name_match(name)
 end
 
 function insert_entity(equipment_name, grid_owner, grid_id, quality_name)
+	if not is_quality_enabled then
+		quality_name = "normal"
+	end
 	if is_personal_transformer_name_match(equipment_name) then
 		local entity_input_name
 		local entity_output_name
