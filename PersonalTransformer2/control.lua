@@ -776,7 +776,7 @@ end
 function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
 -- NOTE: teleport across surfaces only works for players, cars, and spidertrons
 	for _, pt_entity in pairs(grid_transformer_entities) do
-		if pt_entity.position ~= player_pos then
+		if pt_entity.position.x ~= player_pos.x or pt_entity.position.y ~= player_pos.y then
 			pt_entity.teleport(player_pos)
 		end
 	end
