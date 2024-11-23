@@ -1,10 +1,24 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+  Bugfix:
+    - Fixed issue with Compact Circuits and other compact surface mods.
+  Current Bugs:
+    - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
+    - If Jetpack mod is installed, jetpacking will have the same effect.
+    - To revert to the actual quality, take out and replace the Personal Transformers in the armor/vehicle.
+    - Currently quality is not accounted for when counting equipment in grids. And I'm hoping for an update to the API as opposed to rewriting a large portion.
+    - Request for API update: https://forums.factorio.com/viewtopic.php?f=28&t=118603
+    - Currently if moving within 3 power networks at the same time the memory leak still occurs.
+  Special Thanks: 
+    - Thanks to Elec for finding and providing the fix for the Compact Circuits crash.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.8
   Bugfix:
     - Fixed memory leak when standing within 3 or more power networks at the same time.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
-	- If Jetpack mod is installed, jetpacking will have the same effect.
+    - If Jetpack mod is installed, jetpacking will have the same effect.
     - To revert to the actual quality, take out and replace the Personal Transformers in the armor/vehicle.
     - Currently quality is not accounted for when counting equipment in grids. And I'm hoping for an update to the API as opposed to rewriting a large portion.
     - Request for API update: https://forums.factorio.com/viewtopic.php?f=28&t=118603
@@ -19,7 +33,7 @@ Version: 1.0.7
     - Fixed issue with exoskeletons not working while PTs were in armor and Input was enabled.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
-	- If Jetpack mod is installed, jetpacking will have the same effect.
+    - If Jetpack mod is installed, jetpacking will have the same effect.
     - To revert to the actual quality, take out and replace the Personal Transformers in the armor/vehicle.
     - Currently quality is not accounted for when counting equipment in grids. And I'm hoping for an update to the API as opposed to rewriting a large portion.
     - Request for API update: https://forums.factorio.com/viewtopic.php?f=28&t=118603
@@ -30,7 +44,7 @@ Version: 1.0.6
     - Added optional dependency for quality mod.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
-	- If Jetpack mod is installed, jetpacking will have the same effect.
+    - If Jetpack mod is installed, jetpacking will have the same effect.
     - To revert to the actual quality, take out and replace the Personal Transformers in the armor/vehicle.
     - Currently quality is not accounted for when counting equipment in grids. And I'm hoping for an update to the API as opposed to rewriting a large portion.
     - Request for API update: https://forums.factorio.com/viewtopic.php?f=28&t=118603
@@ -41,7 +55,7 @@ Version: 1.0.5
     - Fixed crash caused by previous update when quality is not enabled.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
-	- If Jetpack mod is installed, jetpacking will have the same effect.
+    - If Jetpack mod is installed, jetpacking will have the same effect.
     - To revert to the actual quality, take out and replace the Personal Transformers in the armor/vehicle.
     - Currently quality is not accounted for when counting equipment in grids. And I'm hoping for an update to the API as opposed to rewriting a large portion.
     - Request for API update: https://forums.factorio.com/viewtopic.php?f=28&t=118603
