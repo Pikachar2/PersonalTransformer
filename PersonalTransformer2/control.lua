@@ -364,7 +364,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 
 			if player.character ~= nil then
 				-- teleport entities to player
-				teleportEntitiesToPlayerPosition(player.position, transformer_data_values.grid_transformer_entities)
+				teleportEntitiesToPlayerPosition(player.position, player, "player", transformer_data_values.grid_transformer_entities)
 				local grid = player.character.grid
 				if grid ~= nil then
 				-- perform math
@@ -478,7 +478,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 --log ('update_vehicle_transformer --- grid_id = '.. serpent.block(grid_id))
 --log ('update_vehicle_transformer --- vehicle.position = '.. serpent.block(vehicle.position))
 --log ('update_vehicle_transformer --- transformer_data_values.grid_transformer_entities = '.. serpent.block(transformer_data_values.grid_transformer_entities))
-				teleportEntitiesToPlayerPosition(vehicle.position, transformer_data_values.grid_transformer_entities)
+				teleportEntitiesToPlayerPosition(vehicle.position, vehicle, "entity", transformer_data_values.grid_transformer_entities)
 				local grid = vehicle.grid
 				if grid ~= nil then
 				-- perform math
@@ -775,11 +775,14 @@ function isPlayerOwnerOfGrid(grid_id)
 	return nil
 end
 
-function teleportEntitiesToPlayerPosition(player_pos, grid_transformer_entities)
+function teleportEntitiesToPlayerPosition(entity_pos, entity, entity_type, grid_transformer_entities)
 -- NOTE: teleport across surfaces only works for players, cars, and spidertrons
+	if entity_type == "player" and entity.controller_type == defines.controllers.remote then
+		return
+	end
 	for _, pt_entity in pairs(grid_transformer_entities) do
-		if pt_entity.position.x ~= player_pos.x or pt_entity.position.y ~= player_pos.y then
-			pt_entity.teleport(player_pos)
+		if pt_entity.position.x ~= entity_pos.x or pt_entity.position.y ~= entity_pos.y then
+			pt_entity.teleport(entity_pos)
 		end
 	end
 end
@@ -858,6 +861,7 @@ function playerOrArmorChanged(player_index)
 --log ('playerOrArmorChanged --- START --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	local player = game.players[player_index]
 --log ('playerOrArmorChanged --- player: ' .. serpent.block(player))
+--log ('playerOrArmorChanged --- player.character: ' .. serpent.block(player.character))
 --log ('playerOrArmorChanged --- player.controller: ' .. serpent.block(player.controller_type))
 	if player.character ~= nil then
 
