@@ -634,7 +634,8 @@ function remove_entity(equipment_name, grid_id)
 --log ('remove_entity --- entity: ' .. serpent.block(entity))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
-			if (entity.name == entity_input_name) then
+			if ( not entity.valid or entity.name == entity_input_name) then
+--			if (entity.name == entity_input_name) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
@@ -651,7 +652,8 @@ function remove_entity(equipment_name, grid_id)
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
-			if (entity.name == entity_output_name) then
+			if (not entity.valid or entity.name == entity_output_name) then
+--			if (entity.name == entity_output_name) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
