@@ -860,9 +860,9 @@ end
 function playerOrArmorChanged(player_index)
 --log ('playerOrArmorChanged --- START --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	local player = game.players[player_index]
-log ('playerOrArmorChanged --- player: ' .. serpent.block(player))
-log ('playerOrArmorChanged --- player.character: ' .. serpent.block(player.character))
-log ('playerOrArmorChanged --- player.controller: ' .. serpent.block(player.controller_type))
+--log ('playerOrArmorChanged --- player: ' .. serpent.block(player))
+--log ('playerOrArmorChanged --- player.character: ' .. serpent.block(player.character))
+--log ('playerOrArmorChanged --- player.controller: ' .. serpent.block(player.controller_type))
 	if player.character ~= nil then
 
 		-- NOTE: may need to change this for SE when it's ready for 2.0
