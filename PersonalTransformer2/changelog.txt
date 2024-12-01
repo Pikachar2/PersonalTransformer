@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.10
+  Updated:
+    - Added RU localization.
+    - Updated icon graphics to better match base game.
+  Current Bugs:
+    - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
+    - If Jetpack mod is installed, jetpacking will have the same effect.
+    - To revert to the actual quality, take out and replace the Personal Transformers in the armor/vehicle.
+    - Currently quality is not accounted for when counting equipment in grids. And I'm hoping for an update to the API as opposed to rewriting a large portion.
+    - Request for API update: https://forums.factorio.com/viewtopic.php?f=28&t=118603
+    - Currently if moving within 3 power networks at the same time the memory leak still occurs.
+  Special Thanks: 
+    - Thanks to FelixRuin for providing RU localization and bringing the icon graphics inline with the base game.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.9
   Bugfix:
     - Fixed issue with PT not charging/discharging while in remote view.
