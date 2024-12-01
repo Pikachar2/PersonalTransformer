@@ -2,8 +2,7 @@ data:extend{
 	{
 		type = 'item',
 		name = 'personal-transformer-equipment',
-		icon = '__PersonalTransformer2__/graphics/equipment/personal-transformer.png',
-		icon_size = 32,
+		icon = '__PersonalTransformer2__/graphics/icons/personal-transformer/personal-transformer.png',
 		place_as_equipment_result = 'personal-transformer-equipment',
 		subgroup = 'equipment',
 		order = 'c[battery]-f[personal-transformer-equipment]',
@@ -12,8 +11,7 @@ data:extend{
 	{
 		type = 'item',
 		name = 'personal-transformer-mk2-equipment',
-		icon = '__PersonalTransformer2__/graphics/equipment/personal-transformer2.png',
-		icon_size = 32,
+		icon = '__PersonalTransformer2__/graphics/icons/personal-transformer/personal-transformer2.png',
 		place_as_equipment_result = 'personal-transformer-mk2-equipment',
 		subgroup = 'equipment',
 		order = 'c[battery]-f[personal-transformer-mk2-equipment]',
@@ -22,8 +20,7 @@ data:extend{
 	{
 		type = 'item',
 		name = 'personal-transformer-mk3-equipment',
-		icon = '__PersonalTransformer2__/graphics/equipment/personal-transformer3.png',
-		icon_size = 32,
+		icon = '__PersonalTransformer2__/graphics/icons/personal-transformer/personal-transformer3.png',
 		place_as_equipment_result = 'personal-transformer-mk3-equipment',
 		subgroup = 'equipment',
 		order = 'c[battery]-f[personal-transformer-mk3-equipment]',

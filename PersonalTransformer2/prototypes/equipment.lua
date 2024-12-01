@@ -5,8 +5,8 @@ local transformer_eq = {
 		sprite =
 		{
 			filename = '__PersonalTransformer2__/graphics/equipment/personal-transformer.png',
-			width = 32,
-			height = 32,
+			width = 128,
+			height = 128,
 			priority = 'medium'
 		},
 		energy_source =
@@ -24,8 +24,8 @@ local transformer_eq = {
 		sprite =
 		{
 			filename = '__PersonalTransformer2__/graphics/equipment/personal-transformer2.png',
-			width = 32,
-			height = 32,
+			width = 128,
+			height = 128,
 			priority = 'medium'
 		},
 		energy_source =
@@ -43,8 +43,8 @@ local transformer_eq = {
 		sprite =
 		{
 			filename = '__PersonalTransformer2__/graphics/equipment/personal-transformer3.png',
-			width = 32,
-			height = 32,
+			width = 128,
+			height = 128,
 			priority = 'medium'
 		},
 		energy_source =
