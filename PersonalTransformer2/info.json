@@ -1,12 +1,12 @@
 {
 	"name": "PersonalTransformer2",
-	"version": "1.0.10",
+	"version": "1.0.11",
 	"title": "Personal Transformer2",
 	"author": "Pikachar",
 	
 	"description": "Allows you to charge your power armor from the electric network, and vice versa.",
 	
-	"factorio_version": "2.0",
+	"factorio_version": "2.0.22",
 	"dependencies":
 	[
 		"base >= 2.0",

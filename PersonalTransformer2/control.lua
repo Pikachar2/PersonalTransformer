@@ -50,6 +50,7 @@ local pt_entity_event_filters = {
 
 local is_quality_enabled = script.active_mods["quality"] 
 
+--local quality_list = data.raw["quality"]
 
 --[[
 	storage.transformer_data[grid_id] = {
@@ -559,6 +560,7 @@ function is_personal_transformer_name_match(name)
 end
 
 function insert_entity(equipment_name, grid_owner, grid_id, quality_name)
+--TODO: Remove this check
 	if not is_quality_enabled then
 		quality_name = "normal"
 	end
@@ -602,7 +604,7 @@ function insert_entity(equipment_name, grid_owner, grid_id, quality_name)
 	end
 end
 
-function remove_entity(equipment_name, grid_id)
+function remove_entity(equipment_name, quality_name, grid_id)
 	if is_personal_transformer_name_match(equipment_name) then
 
 --listCurrentAndAllPTEntities()
@@ -634,7 +636,7 @@ function remove_entity(equipment_name, grid_id)
 --log ('remove_entity --- entity: ' .. serpent.block(entity))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
-			if ( not entity.valid or entity.name == entity_input_name) then
+			if ( not entity.valid or (entity.name == entity_input_name and entity.quality == quality_name)) then
 --			if (entity.name == entity_input_name) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
@@ -695,24 +697,15 @@ function new_vehicle_placed(entity)
 		local grid_id = grid.unique_id
 --log ('new_vehicle_placed --- grid_id = '.. serpent.block(grid_id))
 		storage.grid_vehicles[grid_id] = vehicle
-		local mk1_count = grid.count(personal_transformer_mk1_name)
-		local mk2_count = grid.count(personal_transformer_mk2_name)
-		local mk3_count = grid.count(personal_transformer_mk3_name)
-		if mk1_count > 0 then
-			for i = 1, mk1_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk1_name, "entity", "legendary")
-			end
-		end
-		if mk2_count > 0 then
-			for i = 1, mk2_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk2_name, "entity", "legendary")
-			end
-		end
-		if mk3_count > 0 then
-			for i = 1, mk3_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk3_name, "entity", "legendary")
-			end
-		end
+
+		local mk1_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk1_name)
+		local mk2_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk2_name)
+		local mk3_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk3_name)
+		
+		insertEquipmentByQuality(mk1_quality_count, vehicle, grid_id, personal_transformer_mk1_name, "entity")
+		insertEquipmentByQuality(mk2_quality_count, vehicle, grid_id, personal_transformer_mk2_name, "entity")
+		insertEquipmentByQuality(mk3_quality_count, vehicle, grid_id, personal_transformer_mk3_name, "entity")
+
 	end
 --	log ('new_vehicle_placed end --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 --	log ('new_vehicle_placed end --- storage.grid_vehicles: ' .. serpent.block(storage.grid_vehicles))
@@ -858,6 +851,8 @@ function equipmentRemoved(grid_id, equipment_name, count)
 end
 
 function playerOrArmorChanged(player_index)
+--log ('playerOrArmorChanged --- START --- quality_list: ' .. serpent.block(prototypes.quality))
+--log ('playerOrArmorChanged --- START --- quality_list: ' .. serpent.block(prototypes.quality["uncommon"]))
 --log ('playerOrArmorChanged --- START --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	local player = game.players[player_index]
 --log ('playerOrArmorChanged --- player: ' .. serpent.block(player))
@@ -889,21 +884,15 @@ function playerOrArmorChanged(player_index)
 			
 			-- Get Number of PTs in new armor and add them all to the table
 			-- prolly need to null check character and grid
-			local mk1_count = grid.count(personal_transformer_mk1_name)
-			local mk2_count = grid.count(personal_transformer_mk2_name)
-			local mk3_count = grid.count(personal_transformer_mk3_name)
-
-			for i = 1, mk1_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk1_name, "player", "legendary")
-			end
-			for i = 1, mk2_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk2_name, "player", "legendary")
-			end
-			for i = 1, mk3_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name, "player", "legendary")
-			end
+			local mk1_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk1_name)
+			local mk2_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk2_name)
+			local mk3_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk3_name)
 			
-			if mk1_count + mk2_count + mk3_count > 0 then
+			insertEquipmentByQuality(mk1_quality_count, player, current_grid_id, personal_transformer_mk1_name, "player")
+			insertEquipmentByQuality(mk2_quality_count, player, current_grid_id, personal_transformer_mk2_name, "player")
+			insertEquipmentByQuality(mk3_quality_count, player, current_grid_id, personal_transformer_mk3_name, "player")
+
+			if countEquipmentByQualityGTZero(mk1_quality_count) or countEquipmentByQualityGTZero(mk2_quality_count) or countEquipmentByQualityGTZero(mk3_quality_count) then
 				toggleShortcutAvailable(player, true)
 			else 
 				toggleShortcutAvailable(player, false)
@@ -958,6 +947,33 @@ function toggleShortcutAvailable(player, is_available)
 	player.set_shortcut_available('toggle-equipment-transformer-output', is_available)
 end
 
+function countEquipmentWithQuality(grid, equip_name)
+-- need to return map of [quality, count]
+-- for each quality, get count in grid of equip_name + quality
+	local grid_count = {}
+	for quality_name, quality in pairs(prototypes.quality) do
+		local count = grid.count({name = equip_name, quality = quality_name})
+		grid_count[quality_name] = count
+	end
+	return grid_count
+end
+
+function insertEquipmentByQuality(item_quality_count, entity, current_grid_id, transformer_name, entity_type)
+	for quality_name, quality_count in pairs(item_quality_count) do
+		for i = 1, quality_count do
+			equipmentInserted(entity, current_grid_id, transformer_name, entity_type, quality_name)
+		end
+	end
+end
+
+function countEquipmentByQualityGTZero(item_quality_count)
+	for _, quality_count in pairs(item_quality_count) do
+		if quality_count > 0 then
+			return true
+		end
+	end
+	return false
+end
 
 -------- Utility Methods ---------
 function tableContains(testTable, value)
