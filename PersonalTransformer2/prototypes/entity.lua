@@ -43,6 +43,8 @@ data:extend{
 		minable = nil,
 		max_health = 500,
 		resistances = all_resistances,
+		hidden = true,
+		hidden_in_factoriopedia = true,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -81,6 +83,8 @@ data:extend{
 		minable = nil,
 		max_health = 500,
 		resistances = all_resistances,
+		hidden = true,
+		hidden_in_factoriopedia = true,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -121,6 +125,8 @@ data:extend{
 		minable = nil,
 		max_health = 500,
 		resistances = all_resistances,
+		hidden = true,
+		hidden_in_factoriopedia = true,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -159,6 +165,8 @@ data:extend{
 		minable = nil,
 		max_health = 500,
 		resistances = all_resistances,
+		hidden = true,
+		hidden_in_factoriopedia = true,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -199,6 +207,8 @@ data:extend{
 		minable = nil,
 		max_health = 500,
 		resistances = all_resistances,
+		hidden = true,
+		hidden_in_factoriopedia = true,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
@@ -237,6 +247,8 @@ data:extend{
 		minable = nil,
 		max_health = 500,
 		resistances = all_resistances,
+		hidden = true,
+		hidden_in_factoriopedia = true,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = {
