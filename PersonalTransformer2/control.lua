@@ -50,8 +50,6 @@ local pt_entity_event_filters = {
 
 local is_quality_enabled = script.active_mods["quality"] 
 
---local quality_list = data.raw["quality"]
-
 --[[
 	storage.transformer_data[grid_id] = {
 		grid_transformer_entities = {list of transformer entities},
@@ -150,7 +148,7 @@ script.on_event(defines.events.on_equipment_removed,
 		end
 
 		if storage.transformer_data[grid_id].grid_owner_type == "player" or storage.transformer_data[grid_id].grid_owner_type == nil then
-			equipmentRemoved(grid_id, event.equipment, event.count)
+			equipmentRemoved(grid_id, event.equipment, event.count, event.quality)
 			return
 		end
 	
@@ -162,7 +160,7 @@ script.on_event(defines.events.on_equipment_removed,
 		
 		if valid_vehicle and valid_vehicle.valid then
 			if storage.transformer_data[grid_id].grid_owner_type == "entity" or storage.transformer_data[grid_id].grid_owner_type == nil then
-				equipmentRemoved(grid_id, event.equipment, event.count)
+				equipmentRemoved(grid_id, event.equipment, event.count, event.quality)
 				return
 			end
 		end
@@ -636,8 +634,10 @@ function remove_entity(equipment_name, quality_name, grid_id)
 --log ('remove_entity --- entity: ' .. serpent.block(entity))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
-			if ( not entity.valid or (entity.name == entity_input_name and entity.quality == quality_name)) then
---			if (entity.name == entity_input_name) then
+--log ('remove_entity --- entity.quality: ' .. serpent.block(entity.quality))
+--log ('remove_entity --- entity.quality.name: ' .. serpent.block(entity.quality.name))
+--log ('remove_entity --- quality_name: ' .. serpent.block(quality_name))
+			if ( not entity.valid or (entity.name == entity_input_name and entity.quality.name == quality_name) or (entity.name == entity_input_name and quality_name == nil)) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
@@ -654,7 +654,8 @@ function remove_entity(equipment_name, quality_name, grid_id)
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
-			if (not entity.valid or entity.name == entity_output_name) then
+			if ( not entity.valid or (entity.name == entity_output_name and entity.quality.name == quality_name) or (entity.name == entity_output_name and quality_name == nil)) then
+--			if (not entity.valid or entity.name == entity_output_name) then
 --			if (entity.name == entity_output_name) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
@@ -748,7 +749,7 @@ function entity_removed(entity)
 	if transformer_data_values and transformer_data_values.grid_owner_type == "entity" and transformer_data_values.grid_owner_id == grid_id then
 		for count_key, count_value in pairs(transformer_data_values.transformer_count) do
 			if count_value > 0 then
-				equipmentRemoved(grid_id, count_key, count_value)
+				equipmentRemoved(grid_id, count_key, count_value, nil)
 			end
 		end
 	end
@@ -815,14 +816,14 @@ function equipmentInserted(player, grid_id, equipment_name, grid_owner_type, qua
 	end
 end
 
-function equipmentRemoved(grid_id, equipment_name, count)
+function equipmentRemoved(grid_id, equipment_name, count, quality_name)
 	if is_personal_transformer_name_match(equipment_name) then
 --		log ('on_equipment_removed before --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 --		log ('on_equipment_removed --- grid_id: ' .. serpent.block(grid_id))
 --		log ('on_equipment_removed --- count: ' .. serpent.block(count))
 --		log ('on_equipment_removed --- equipment_name: ' .. serpent.block(equipment_name))
 		for i = 1, count do 
-			remove_entity(equipment_name, grid_id)
+			remove_entity(equipment_name, quality_name, grid_id)
 		end
 --		log ('on_equipment_removed --- storage.transformer_data.transformer_count[array]: ' .. serpent.block(storage.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
 		storage.transformer_data[grid_id].transformer_count[equipment_name] = storage.transformer_data[grid_id].transformer_count[equipment_name] - count
@@ -871,7 +872,7 @@ function playerOrArmorChanged(player_index)
 			if transformer_data_values.grid_owner_type == "player" and transformer_data_values.grid_owner_id == player_index then
 				for count_key, count_value in pairs(transformer_data_values.transformer_count) do
 					if count_value > 0 then
-						equipmentRemoved(grid_id, count_key, count_value)
+						equipmentRemoved(grid_id, count_key, count_value, nil)
 					end
 				end
 			end
