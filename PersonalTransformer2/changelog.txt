@@ -2,6 +2,8 @@
 Version: 1.0.11
   Updated:
     - Now requires Factorio 2.0.22
+  Changes:
+    - Now hides the hidden entities from factoriopedia.
   Bugfix:
     - Fixed: Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
     - If you still want stronger Personal Transformers, use the settings to configure them.
