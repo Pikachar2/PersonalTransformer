@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.11
+  Updated:
+    - Now requires Factorio 2.0.22
+  Bugfix:
+    - Fixed: Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
+    - If you still want stronger Personal Transformers, use the settings to configure them.
+  Current Bugs:
+    - Currently if moving within 3 power networks at the same time a memory leak occurs.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.10
   Updated:
     - Added RU localization.

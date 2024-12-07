@@ -558,10 +558,6 @@ function is_personal_transformer_name_match(name)
 end
 
 function insert_entity(equipment_name, grid_owner, grid_id, quality_name)
---TODO: Remove this check
-	if not is_quality_enabled then
-		quality_name = "normal"
-	end
 	if is_personal_transformer_name_match(equipment_name) then
 		local entity_input_name
 		local entity_output_name
@@ -655,8 +651,6 @@ function remove_entity(equipment_name, quality_name, grid_id)
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
 			if ( not entity.valid or (entity.name == entity_output_name and entity.quality.name == quality_name) or (entity.name == entity_output_name and quality_name == nil)) then
---			if (not entity.valid or entity.name == entity_output_name) then
---			if (entity.name == entity_output_name) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()

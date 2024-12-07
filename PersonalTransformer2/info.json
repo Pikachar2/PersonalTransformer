@@ -6,10 +6,10 @@
 	
 	"description": "Allows you to charge your power armor from the electric network, and vice versa.",
 	
-	"factorio_version": "2.0.22",
+	"factorio_version": "2.0",
 	"dependencies":
 	[
-		"base >= 2.0",
+		"base >= 2.0.22",
 		"? quality"
 	]
 }
