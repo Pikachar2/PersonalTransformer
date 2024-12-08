@@ -375,7 +375,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
 							if player.is_shortcut_toggled('toggle-equipment-transformer-input') then
-								local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy), 0)
+								local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy), 0)
 								max_draw_in = max_draw_in + draw_in
 							else
 								max_draw_in = 0
@@ -442,7 +442,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 					----
 					for _, v in pairs(grid.equipment) do
 						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
-							local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy), 0)
+							local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy), 0)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
 							v.energy = v.energy + dE
@@ -486,7 +486,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
-							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
+							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy)
 							max_draw_in = max_draw_in + draw_in
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							max_draw_out = max_draw_out + draw_out
@@ -541,7 +541,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 					----
 					for _, v in pairs(grid.equipment) do
 						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
-							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
+							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
 							v.energy = v.energy + dE
