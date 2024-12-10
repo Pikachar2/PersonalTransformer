@@ -50,7 +50,6 @@ local pt_entity_event_filters = {
 
 local is_quality_enabled = script.active_mods["quality"] 
 
-
 --[[
 	storage.transformer_data[grid_id] = {
 		grid_transformer_entities = {list of transformer entities},
@@ -149,7 +148,7 @@ script.on_event(defines.events.on_equipment_removed,
 		end
 
 		if storage.transformer_data[grid_id].grid_owner_type == "player" or storage.transformer_data[grid_id].grid_owner_type == nil then
-			equipmentRemoved(grid_id, event.equipment, event.count)
+			equipmentRemoved(grid_id, event.equipment, event.count, event.quality)
 			return
 		end
 	
@@ -161,7 +160,7 @@ script.on_event(defines.events.on_equipment_removed,
 		
 		if valid_vehicle and valid_vehicle.valid then
 			if storage.transformer_data[grid_id].grid_owner_type == "entity" or storage.transformer_data[grid_id].grid_owner_type == nil then
-				equipmentRemoved(grid_id, event.equipment, event.count)
+				equipmentRemoved(grid_id, event.equipment, event.count, event.quality)
 				return
 			end
 		end
@@ -376,7 +375,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
 							if player.is_shortcut_toggled('toggle-equipment-transformer-input') then
-								local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy), 0)
+								local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy), 0)
 								max_draw_in = max_draw_in + draw_in
 							else
 								max_draw_in = 0
@@ -443,7 +442,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 					----
 					for _, v in pairs(grid.equipment) do
 						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
-							local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy), 0)
+							local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy), 0)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
 							v.energy = v.energy + dE
@@ -487,7 +486,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 							-- if energy source calculate max_draw_in/out from equipment with flow limit
 							-- ie, what's the flow rate of the generators/batteries
 							-- toggle off appropriate draw if toggle is off
-							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
+							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy)
 							max_draw_in = max_draw_in + draw_in
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							max_draw_out = max_draw_out + draw_out
@@ -542,7 +541,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 					----
 					for _, v in pairs(grid.equipment) do
 						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
-							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.prototype.energy_source.buffer_capacity - v.energy)
+							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
 							v.energy = v.energy + dE
@@ -559,9 +558,6 @@ function is_personal_transformer_name_match(name)
 end
 
 function insert_entity(equipment_name, grid_owner, grid_id, quality_name)
-	if not is_quality_enabled then
-		quality_name = "normal"
-	end
 	if is_personal_transformer_name_match(equipment_name) then
 		local entity_input_name
 		local entity_output_name
@@ -602,7 +598,7 @@ function insert_entity(equipment_name, grid_owner, grid_id, quality_name)
 	end
 end
 
-function remove_entity(equipment_name, grid_id)
+function remove_entity(equipment_name, quality_name, grid_id)
 	if is_personal_transformer_name_match(equipment_name) then
 
 --listCurrentAndAllPTEntities()
@@ -634,8 +630,10 @@ function remove_entity(equipment_name, grid_id)
 --log ('remove_entity --- entity: ' .. serpent.block(entity))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
-			if ( not entity.valid or entity.name == entity_input_name) then
---			if (entity.name == entity_input_name) then
+--log ('remove_entity --- entity.quality: ' .. serpent.block(entity.quality))
+--log ('remove_entity --- entity.quality.name: ' .. serpent.block(entity.quality.name))
+--log ('remove_entity --- quality_name: ' .. serpent.block(quality_name))
+			if ( not entity.valid or (entity.name == entity_input_name and entity.quality.name == quality_name) or (entity.name == entity_input_name and quality_name == nil)) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
@@ -652,8 +650,7 @@ function remove_entity(equipment_name, grid_id)
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.name: ' .. serpent.block(entity.name))
 --log ('remove_entity --- entity.unit_number: ' .. serpent.block(entity.unit_number))
-			if (not entity.valid or entity.name == entity_output_name) then
---			if (entity.name == entity_output_name) then
+			if ( not entity.valid or (entity.name == entity_output_name and entity.quality.name == quality_name) or (entity.name == entity_output_name and quality_name == nil)) then
 				local entity = table.remove(storage.transformer_data[grid_id].grid_transformer_entities, index)
 --				log ('remove_entity --- entity: ' .. serpent.block(entity))
 				entity.destroy()
@@ -695,24 +692,15 @@ function new_vehicle_placed(entity)
 		local grid_id = grid.unique_id
 --log ('new_vehicle_placed --- grid_id = '.. serpent.block(grid_id))
 		storage.grid_vehicles[grid_id] = vehicle
-		local mk1_count = grid.count(personal_transformer_mk1_name)
-		local mk2_count = grid.count(personal_transformer_mk2_name)
-		local mk3_count = grid.count(personal_transformer_mk3_name)
-		if mk1_count > 0 then
-			for i = 1, mk1_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk1_name, "entity", "legendary")
-			end
-		end
-		if mk2_count > 0 then
-			for i = 1, mk2_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk2_name, "entity", "legendary")
-			end
-		end
-		if mk3_count > 0 then
-			for i = 1, mk3_count do
-				equipmentInserted(vehicle, grid_id, personal_transformer_mk3_name, "entity", "legendary")
-			end
-		end
+
+		local mk1_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk1_name)
+		local mk2_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk2_name)
+		local mk3_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk3_name)
+		
+		insertEquipmentByQuality(mk1_quality_count, vehicle, grid_id, personal_transformer_mk1_name, "entity")
+		insertEquipmentByQuality(mk2_quality_count, vehicle, grid_id, personal_transformer_mk2_name, "entity")
+		insertEquipmentByQuality(mk3_quality_count, vehicle, grid_id, personal_transformer_mk3_name, "entity")
+
 	end
 --	log ('new_vehicle_placed end --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 --	log ('new_vehicle_placed end --- storage.grid_vehicles: ' .. serpent.block(storage.grid_vehicles))
@@ -755,7 +743,7 @@ function entity_removed(entity)
 	if transformer_data_values and transformer_data_values.grid_owner_type == "entity" and transformer_data_values.grid_owner_id == grid_id then
 		for count_key, count_value in pairs(transformer_data_values.transformer_count) do
 			if count_value > 0 then
-				equipmentRemoved(grid_id, count_key, count_value)
+				equipmentRemoved(grid_id, count_key, count_value, nil)
 			end
 		end
 	end
@@ -822,14 +810,14 @@ function equipmentInserted(player, grid_id, equipment_name, grid_owner_type, qua
 	end
 end
 
-function equipmentRemoved(grid_id, equipment_name, count)
+function equipmentRemoved(grid_id, equipment_name, count, quality_name)
 	if is_personal_transformer_name_match(equipment_name) then
 --		log ('on_equipment_removed before --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 --		log ('on_equipment_removed --- grid_id: ' .. serpent.block(grid_id))
 --		log ('on_equipment_removed --- count: ' .. serpent.block(count))
 --		log ('on_equipment_removed --- equipment_name: ' .. serpent.block(equipment_name))
 		for i = 1, count do 
-			remove_entity(equipment_name, grid_id)
+			remove_entity(equipment_name, quality_name, grid_id)
 		end
 --		log ('on_equipment_removed --- storage.transformer_data.transformer_count[array]: ' .. serpent.block(storage.transformer_data[grid_id].transformer_count[personal_transformer_mk3_name]))
 		storage.transformer_data[grid_id].transformer_count[equipment_name] = storage.transformer_data[grid_id].transformer_count[equipment_name] - count
@@ -858,6 +846,8 @@ function equipmentRemoved(grid_id, equipment_name, count)
 end
 
 function playerOrArmorChanged(player_index)
+--log ('playerOrArmorChanged --- START --- quality_list: ' .. serpent.block(prototypes.quality))
+--log ('playerOrArmorChanged --- START --- quality_list: ' .. serpent.block(prototypes.quality["uncommon"]))
 --log ('playerOrArmorChanged --- START --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	local player = game.players[player_index]
 --log ('playerOrArmorChanged --- player: ' .. serpent.block(player))
@@ -876,7 +866,7 @@ function playerOrArmorChanged(player_index)
 			if transformer_data_values.grid_owner_type == "player" and transformer_data_values.grid_owner_id == player_index then
 				for count_key, count_value in pairs(transformer_data_values.transformer_count) do
 					if count_value > 0 then
-						equipmentRemoved(grid_id, count_key, count_value)
+						equipmentRemoved(grid_id, count_key, count_value, nil)
 					end
 				end
 			end
@@ -889,21 +879,15 @@ function playerOrArmorChanged(player_index)
 			
 			-- Get Number of PTs in new armor and add them all to the table
 			-- prolly need to null check character and grid
-			local mk1_count = grid.count(personal_transformer_mk1_name)
-			local mk2_count = grid.count(personal_transformer_mk2_name)
-			local mk3_count = grid.count(personal_transformer_mk3_name)
-
-			for i = 1, mk1_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk1_name, "player", "legendary")
-			end
-			for i = 1, mk2_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk2_name, "player", "legendary")
-			end
-			for i = 1, mk3_count do
-				equipmentInserted(player, current_grid_id, personal_transformer_mk3_name, "player", "legendary")
-			end
+			local mk1_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk1_name)
+			local mk2_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk2_name)
+			local mk3_quality_count = countEquipmentWithQuality(grid, personal_transformer_mk3_name)
 			
-			if mk1_count + mk2_count + mk3_count > 0 then
+			insertEquipmentByQuality(mk1_quality_count, player, current_grid_id, personal_transformer_mk1_name, "player")
+			insertEquipmentByQuality(mk2_quality_count, player, current_grid_id, personal_transformer_mk2_name, "player")
+			insertEquipmentByQuality(mk3_quality_count, player, current_grid_id, personal_transformer_mk3_name, "player")
+
+			if countEquipmentByQualityGTZero(mk1_quality_count) or countEquipmentByQualityGTZero(mk2_quality_count) or countEquipmentByQualityGTZero(mk3_quality_count) then
 				toggleShortcutAvailable(player, true)
 			else 
 				toggleShortcutAvailable(player, false)
@@ -958,6 +942,33 @@ function toggleShortcutAvailable(player, is_available)
 	player.set_shortcut_available('toggle-equipment-transformer-output', is_available)
 end
 
+function countEquipmentWithQuality(grid, equip_name)
+-- need to return map of [quality, count]
+-- for each quality, get count in grid of equip_name + quality
+	local grid_count = {}
+	for quality_name, quality in pairs(prototypes.quality) do
+		local count = grid.count({name = equip_name, quality = quality_name})
+		grid_count[quality_name] = count
+	end
+	return grid_count
+end
+
+function insertEquipmentByQuality(item_quality_count, entity, current_grid_id, transformer_name, entity_type)
+	for quality_name, quality_count in pairs(item_quality_count) do
+		for i = 1, quality_count do
+			equipmentInserted(entity, current_grid_id, transformer_name, entity_type, quality_name)
+		end
+	end
+end
+
+function countEquipmentByQualityGTZero(item_quality_count)
+	for _, quality_count in pairs(item_quality_count) do
+		if quality_count > 0 then
+			return true
+		end
+	end
+	return false
+end
 
 -------- Utility Methods ---------
 function tableContains(testTable, value)
