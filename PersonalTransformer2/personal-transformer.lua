@@ -153,7 +153,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 					request_out = request_out + buffer
 
 					-- Power Calculations begin.
-					local drain_in, drain_out, ratio_in, ratio_out = nil
+					local drain_in, drain_out, ratio_in, ratio_out = nil, nil, nil, nil
 					if avail_in == 0 then
 						drain_in = 0
 					else
@@ -187,7 +187,7 @@ function update_personal_transformer(tickdelay, transformer_data)
 					end
 					----
 					for _, v in pairs(grid.equipment) do
-						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
+						if v.name ~= nil and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
 							local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy), 0)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
@@ -252,7 +252,7 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 					request_out = request_out + buffer
 
 					-- Power Calculations begin.
-					local drain_in, drain_out, ratio_in, ratio_out = nil
+					local drain_in, drain_out, ratio_in, ratio_out = nil, nil, nil, nil
 					if avail_in == 0 then
 						drain_in = 0
 					else
@@ -286,8 +286,8 @@ function update_vehicle_transformer(tickdelay, transformer_data)
 					end
 					----
 					for _, v in pairs(grid.equipment) do
-						if v.name ~= equip_name and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
-							local draw_in = math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy)
+						if v.name ~= nil and v.prototype.energy_source ~= nil and v.prototype.energy_source.valid then
+							local draw_in = math.max(math.min(v.prototype.energy_source.get_input_flow_limit() * tickdelay, v.max_energy - v.energy), 0)
 							local draw_out = math.min(v.prototype.energy_source.get_output_flow_limit() * tickdelay, v.energy)
 							local dE = draw_in * ratio_in - draw_out * ratio_out
 							v.energy = v.energy + dE
