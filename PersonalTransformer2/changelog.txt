@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.12
+  Changes:
+    - Code cleanup
+  Current Bugs:
+    - Currently if moving within 3 power networks at the same time a memory leak occurs.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.11
   Updated:
     - Now requires Factorio 2.0.22
