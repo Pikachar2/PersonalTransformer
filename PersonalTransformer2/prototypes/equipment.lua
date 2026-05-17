@@ -72,11 +72,11 @@ for name, teq in pairs(transformer_eq) do
 		}
 
 	if settings.startup["personal-transformer2-allow-non-armor"].value then
-		teq.categories = { 'armor' }
+--		teq.categories = { 'armor' }
 	else
 		teq.categories = { 'armor-transformer' }
 	end
-	
+
 	log('\n\n')
 	log('TEQ2: ')
 	log (serpent.block (teq))
