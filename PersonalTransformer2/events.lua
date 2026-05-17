@@ -18,6 +18,9 @@ local pt_entity_event_filters = {
 	{filter = "name", name = "personal-transformer-mk3-output-entity"}
 }
 
+-- local combined_filters = {table.unpack(vehicle_event_filters), table.unpack(pt_entity_event_filters)}
+local combined_filters = {table.unpack(vehicle_event_filters)}
+
 -- local is_quality_enabled = script.active_mods["quality"]
 
 script.on_event(defines.events.on_equipment_inserted,
@@ -96,6 +99,17 @@ script.on_event(defines.events.on_built_entity,
 , vehicle_event_filters
 )
 
+-- script.on_event(defines.events.on_train_created, 
+-- 	function(event)
+-- --log ('on_train_created --- ')
+-- --log ('on_train_created entity type --- '.. serpent.block(event.created_entity.type))
+-- 		new_vehicle_placed_event_wrapper(event)
+-- 	end
+-- 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+-- 	-- ,{{filter = "name", name = "vehicle"}}
+-- -- , vehicle_event_filters
+-- )
+
 script.on_event(defines.events.on_robot_built_entity, 
 	function(event)
 --log ('on_robot_built_entity --- ')
@@ -108,13 +122,41 @@ script.on_event(defines.events.on_robot_built_entity,
 
 script.on_event(defines.events.on_entity_cloned, 
 	function(event)
+--		log ('on_entity_cloned PT_entity start --- ')
+		-- remove old entities from table
+		-- add new entity to table
+		ptEntityCloned(event.source, event.destination)
+	end
+, pt_entity_event_filters
+)
+
+script.on_event(defines.events.on_entity_cloned, 
+	function(event)
 --		log ('on_entity_cloned start --- ')
 		new_vehicle_placed(event.destination)
-		purgeOrphanedEntities()		
+		purgeOrphanedEntities()
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
 , vehicle_event_filters
+)
+
+script.on_event(defines.events.on_entity_cloned, 
+	function(event)
+		log ('on_entity_cloned start --- ')
+		-- if event.source
+		if entity_is_in_vehicle_filter_list(event.source, vehicle_event_filters) then
+			new_vehicle_placed(event.destination)
+			purgeOrphanedEntities()
+		elseif entity_is_in_pt_filter_list(event.source, pt_entity_event_filters) then
+		-- remove old entities from table
+		-- add new entity to table
+			ptEntityCloned(event.source, event.destination)
+		end
+	end
+	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
+	-- ,{{filter = "name", name = "vehicle"}}
+, combined_filters
 )
 
 script.on_event(defines.events.script_raised_built, 
@@ -176,7 +218,7 @@ script.on_event(defines.events.on_entity_died,
 , vehicle_event_filters
 )
 
-script.on_event(defines.events.script_raised_destroy, 
+script.on_event(defines.events.script_raised_destroy,
 	function(event)
 --		log ('script_raised_destroy start --- ')
 		entity_removed(event.entity)
@@ -251,4 +293,21 @@ script.on_event(defines.events.on_tick,
 
 		update_vehicle_transformer(tickdelay, storage.transformer_data)
 
-	end)
+	end
+)
+
+function entity_is_in_vehicle_filter_list(entity, filterList)
+		for index, filter in pairs(filterList) do
+			if filter.type == entity.type then
+				return true
+			end
+		end
+end
+
+function entity_is_in_pt_filter_list(entity, filterList)
+		for index, filter in pairs(filterList) do
+			if filter.name == entity.name then
+				return true
+			end
+		end
+end
