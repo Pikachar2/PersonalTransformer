@@ -1,5 +1,12 @@
 require("personal-transformer")
 
+function create_array_from_two_array(array1, array2)
+	local combined = {}
+	for _, v in ipairs(array1) do table.insert(combined, v) end
+	for _, v in ipairs(array2) do table.insert(combined, v) end
+	return combined
+end
+
 local vehicle_event_filters = {
 	{filter = "type", type = "car"},
 	{filter = "type", type = "spider-vehicle"},
@@ -19,7 +26,7 @@ local pt_entity_event_filters = {
 }
 
 -- local combined_filters = {table.unpack(vehicle_event_filters), table.unpack(pt_entity_event_filters)}
-local combined_filters = {table.unpack(vehicle_event_filters)}
+local combined_filters = create_array_from_two_array(vehicle_event_filters, pt_entity_event_filters)
 
 -- local is_quality_enabled = script.active_mods["quality"]
 
@@ -122,28 +129,9 @@ script.on_event(defines.events.on_robot_built_entity,
 
 script.on_event(defines.events.on_entity_cloned, 
 	function(event)
---		log ('on_entity_cloned PT_entity start --- ')
-		-- remove old entities from table
-		-- add new entity to table
-		ptEntityCloned(event.source, event.destination)
-	end
-, pt_entity_event_filters
-)
-
-script.on_event(defines.events.on_entity_cloned, 
-	function(event)
---		log ('on_entity_cloned start --- ')
-		new_vehicle_placed(event.destination)
-		purgeOrphanedEntities()
-	end
-	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
-	-- ,{{filter = "name", name = "vehicle"}}
-, vehicle_event_filters
-)
-
-script.on_event(defines.events.on_entity_cloned, 
-	function(event)
-		log ('on_entity_cloned start --- ')
+		-- log ('on_entity_cloned start --- ')
+		-- log ('on_entity_cloned --- entity.name: ' .. serpent.block(event.source.name))
+		-- log ('on_entity_cloned --- entity.unit_number: ' .. serpent.block(event.source.unit_number))
 		-- if event.source
 		if entity_is_in_vehicle_filter_list(event.source, vehicle_event_filters) then
 			new_vehicle_placed(event.destination)
@@ -231,7 +219,7 @@ script.on_event(defines.events.script_raised_destroy,
 
 script.on_event(defines.events.on_player_changed_surface, 
 	function(event)
-		log ('on_player_changed_surface start --- ')
+		-- log ('on_player_changed_surface start --- ')
 	-- Need to remove entities and re-add them on new surface
 	-- Might want to only do this if character leaves surface, not player
 		playerOrArmorChanged(event.player_index)

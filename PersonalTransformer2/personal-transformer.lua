@@ -515,24 +515,19 @@ function teleportEntitiesToPlayerPosition(entity_pos, entity, entity_type, grid_
 	if entity_type == "player" and entity.controller_type == defines.controllers.remote then
 		return
 	end
-log ('teleportEntitiesToPlayerPosition start --- entity_pos: ' .. serpent.block(entity_pos))
-log ('teleportEntitiesToPlayerPosition start --- entity: ' .. serpent.block(entity))
-log ('teleportEntitiesToPlayerPosition start --- entity_type: ' .. serpent.block(entity_type))
-log ('teleportEntitiesToPlayerPosition start --- grid_transformer_entities: ' .. serpent.block(grid_transformer_entities))
+-- log ('teleportEntitiesToPlayerPosition start --- entity_pos: ' .. serpent.block(entity_pos))
+-- log ('teleportEntitiesToPlayerPosition start --- entity: ' .. serpent.block(entity))
+-- log ('teleportEntitiesToPlayerPosition start --- entity_type: ' .. serpent.block(entity_type))
+-- log ('teleportEntitiesToPlayerPosition start --- grid_transformer_entities: ' .. serpent.block(grid_transformer_entities))
 	for _, pt_entity in pairs(grid_transformer_entities) do
-log ('teleportEntitiesToPlayerPosition loop --- pt_entity: ' .. serpent.block(pt_entity))
-		if pt_entity.valid then
-			if pt_entity.position.x ~= entity_pos.x or pt_entity.position.y ~= entity_pos.y then
-				pt_entity.teleport(entity_pos)
-			end
-		else
-			-- delete and regenerate PT entities
-
+-- log ('teleportEntitiesToPlayerPosition loop --- pt_entity: ' .. serpent.block(pt_entity))
+		if pt_entity.position.x ~= entity_pos.x or pt_entity.position.y ~= entity_pos.y then
+			pt_entity.teleport(entity_pos)
 		end
-log ('teleportEntitiesToPlayerPosition loop end --- pt_entity: ' .. serpent.block(pt_entity))
+-- log ('teleportEntitiesToPlayerPosition loop end --- pt_entity: ' .. serpent.block(pt_entity))
 	end
-log ('teleportEntitiesToPlayerPosition end--- grid_transformer_entities: ' .. serpent.block(grid_transformer_entities))
-log ('teleportEntitiesToPlayerPosition --- end --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
+-- log ('teleportEntitiesToPlayerPosition end--- grid_transformer_entities: ' .. serpent.block(grid_transformer_entities))
+-- log ('teleportEntitiesToPlayerPosition --- end --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 end
 
 function equipmentInserted(player, grid_id, equipment_name, grid_owner_type, quality_name)
@@ -608,7 +603,7 @@ end
 function playerOrArmorChanged(player_index)
 --log ('playerOrArmorChanged --- START --- quality_list: ' .. serpent.block(prototypes.quality))
 --log ('playerOrArmorChanged --- START --- quality_list: ' .. serpent.block(prototypes.quality["uncommon"]))
-log ('playerOrArmorChanged --- START --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
+-- log ('playerOrArmorChanged --- START --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 	local player = game.players[player_index]
 --log ('playerOrArmorChanged --- player: ' .. serpent.block(player))
 --log ('playerOrArmorChanged --- player.character: ' .. serpent.block(player.character))
@@ -731,30 +726,30 @@ function countEquipmentByQualityGTZero(item_quality_count)
 end
 
 function ptEntityCloned(originalEntity, newEntity)
-	log ('ptEntityCloned --- START ')
-	log ('ptEntityCloned --- originalEntity.name: ' .. serpent.block(originalEntity.name))
-	log ('ptEntityCloned --- originalEntity.unit_number: ' .. serpent.block(originalEntity.unit_number))
-	log ('ptEntityCloned --- newEntity.name: ' .. serpent.block(newEntity.name))
-	log ('ptEntityCloned --- newEntity.unit_number: ' .. serpent.block(newEntity.unit_number))
+	-- log ('ptEntityCloned --- START ')
+	-- log ('ptEntityCloned --- originalEntity.name: ' .. serpent.block(originalEntity.name))
+	-- log ('ptEntityCloned --- originalEntity.unit_number: ' .. serpent.block(originalEntity.unit_number))
+	-- log ('ptEntityCloned --- newEntity.name: ' .. serpent.block(newEntity.name))
+	-- log ('ptEntityCloned --- newEntity.unit_number: ' .. serpent.block(newEntity.unit_number))
 	for gd_id, transformer_data_values in pairs(storage.transformer_data) do
 		for index, et in ipairs (transformer_data_values.grid_transformer_entities) do
-			log ('ptEntityCloned --- entity.name: ' .. serpent.block(et.name))
-			log ('ptEntityCloned --- entity.unit_number: ' .. serpent.block(et.unit_number))
-			log ('ptEntityCloned --- index: ' .. serpent.block(index))
+			-- log ('ptEntityCloned --- entity.name: ' .. serpent.block(et.name))
+			-- log ('ptEntityCloned --- entity.unit_number: ' .. serpent.block(et.unit_number))
+			-- log ('ptEntityCloned --- index: ' .. serpent.block(index))
 			-- if et matches originalEntity then
 			if et == originalEntity then
-				log ('ptEntityCloned --- MATCH')
+				-- log ('ptEntityCloned --- MATCH')
 				storage.transformer_data[gd_id].grid_transformer_entities[index] = newEntity
-				log ('ptEntityCloned --- MATCH entity.name: ' .. serpent.block(et.name))
-				log ('ptEntityCloned --- MATCH entity.unit_number: ' .. serpent.block(et.unit_number))
-				log ('ptEntityCloned --- END --- storage.transformer_data.grid_transformer_entities1: ' .. serpent.block(storage.transformer_data[gd_id].grid_transformer_entities[1].unit_number))
-				log ('ptEntityCloned --- END --- storage.transformer_data.grid_transformer_entities2: ' .. serpent.block(storage.transformer_data[gd_id].grid_transformer_entities[2].unit_number))
+				-- log ('ptEntityCloned --- MATCH entity.name: ' .. serpent.block(et.name))
+				-- log ('ptEntityCloned --- MATCH entity.unit_number: ' .. serpent.block(et.unit_number))
+				-- log ('ptEntityCloned --- END --- storage.transformer_data.grid_transformer_entities1: ' .. serpent.block(storage.transformer_data[gd_id].grid_transformer_entities[1].unit_number))
+				-- log ('ptEntityCloned --- END --- storage.transformer_data.grid_transformer_entities2: ' .. serpent.block(storage.transformer_data[gd_id].grid_transformer_entities[2].unit_number))
 				return
 			end
 		end
 	end
-	log ('ptEntityCloned --- END --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
-	log ('ptEntityCloned --- END ')
+	-- log ('ptEntityCloned --- END --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
+	-- log ('ptEntityCloned --- END ')
 end
 
 
