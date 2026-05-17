@@ -1,0 +1,2 @@
+Might just need to change the algorithm on the old version.
+Tweak things so that it creates/deletes entities when toggled on/off.

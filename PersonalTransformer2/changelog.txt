@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.13
+  Changes:
+    - Major Refactor of codebase for performance.
+  Current Bugs:
+    - Currently if moving within 3 power networks at the same time a memory leak occurs.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.12
   Changes:
     - Code cleanup
