@@ -1,5 +1,12 @@
 require("personal-transformer")
 
+function create_array_from_two_array(array1, array2)
+	local combined = {}
+	for _, v in ipairs(array1) do table.insert(combined, v) end
+	for _, v in ipairs(array2) do table.insert(combined, v) end
+	return combined
+end
+
 local vehicle_event_filters = {
 	{filter = "type", type = "car"},
 	{filter = "type", type = "spider-vehicle"},
@@ -17,6 +24,9 @@ local pt_entity_event_filters = {
 	{filter = "name", name = "personal-transformer-mk3-input-entity"},
 	{filter = "name", name = "personal-transformer-mk3-output-entity"}
 }
+
+-- local combined_filters = {table.unpack(vehicle_event_filters), table.unpack(pt_entity_event_filters)}
+local combined_filters = create_array_from_two_array(vehicle_event_filters, pt_entity_event_filters)
 
 -- local is_quality_enabled = script.active_mods["quality"]
 
@@ -108,13 +118,22 @@ script.on_event(defines.events.on_robot_built_entity,
 
 script.on_event(defines.events.on_entity_cloned, 
 	function(event)
---		log ('on_entity_cloned start --- ')
-		new_vehicle_placed(event.destination)
-		purgeOrphanedEntities()		
+		-- log ('on_entity_cloned start --- ')
+		-- log ('on_entity_cloned --- entity.name: ' .. serpent.block(event.source.name))
+		-- log ('on_entity_cloned --- entity.unit_number: ' .. serpent.block(event.source.unit_number))
+		-- if event.source
+		if entity_is_in_vehicle_filter_list(event.source, vehicle_event_filters) then
+			new_vehicle_placed(event.destination)
+			purgeOrphanedEntities()
+		elseif entity_is_in_pt_filter_list(event.source, pt_entity_event_filters) then
+		-- remove old entities from table
+		-- add new entity to table
+			ptEntityCloned(event.source, event.destination)
+		end
 	end
 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
 	-- ,{{filter = "name", name = "vehicle"}}
-, vehicle_event_filters
+, combined_filters
 )
 
 script.on_event(defines.events.script_raised_built, 
@@ -176,7 +195,7 @@ script.on_event(defines.events.on_entity_died,
 , vehicle_event_filters
 )
 
-script.on_event(defines.events.script_raised_destroy, 
+script.on_event(defines.events.script_raised_destroy,
 	function(event)
 --		log ('script_raised_destroy start --- ')
 		entity_removed(event.entity)
@@ -189,7 +208,7 @@ script.on_event(defines.events.script_raised_destroy,
 
 script.on_event(defines.events.on_player_changed_surface, 
 	function(event)
-		log ('on_player_changed_surface start --- ')
+		-- log ('on_player_changed_surface start --- ')
 	-- Need to remove entities and re-add them on new surface
 	-- Might want to only do this if character leaves surface, not player
 		playerOrArmorChanged(event.player_index)
@@ -251,4 +270,21 @@ script.on_event(defines.events.on_tick,
 
 		update_vehicle_transformer(tickdelay, storage.transformer_data)
 
-	end)
+	end
+)
+
+function entity_is_in_vehicle_filter_list(entity, filterList)
+		for index, filter in pairs(filterList) do
+			if filter.type == entity.type then
+				return true
+			end
+		end
+end
+
+function entity_is_in_pt_filter_list(entity, filterList)
+		for index, filter in pairs(filterList) do
+			if filter.name == entity.name then
+				return true
+			end
+		end
+end

@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.13
+  Bugfixes:
+    - Fixed issue with teleporting.
+  Compatibility:
+    - Fixed the 'Allow Personal Transformer in non-armor grids' setting to work with additional grid mods.
+  Current Bugs:
+    - Currently if moving within 3 power networks at the same time a memory leak occurs.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.12
   Changes:
     - Code cleanup
@@ -11,7 +20,7 @@ Version: 1.0.11
     - Now requires Factorio 2.0.22
   Changes:
     - Now hides the hidden entities from factoriopedia.
-  Bugfix:
+  Bugfixes:
     - Fixed: Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
     - If you still want stronger Personal Transformers, use the settings to configure them.
     - Fixed issue with not charging higher quality equipment like batteries.
@@ -35,7 +44,7 @@ Version: 1.0.10
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.9
-  Bugfix:
+  Bugfixes:
     - Fixed issue with PT not charging/discharging while in remote view.
     - Fixed issue with Compact Circuits and other compact surface mods.
   Current Bugs:
@@ -50,7 +59,7 @@ Version: 1.0.9
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.8
-  Bugfix:
+  Bugfixes:
     - Fixed memory leak when standing within 3 or more power networks at the same time.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
@@ -64,7 +73,7 @@ Version: 1.0.8
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.7
-  Bugfix:
+  Bugfixes:
     - Fixed issue with PTs not getting battery charge to 100%.
     - Fixed issue with exoskeletons not working while PTs were in armor and Input was enabled.
   Current Bugs:
@@ -87,7 +96,7 @@ Version: 1.0.6
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.5
-  Bugfix:
+  Bugfixes:
     - Fixed crash caused by previous update when quality is not enabled.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
@@ -98,7 +107,7 @@ Version: 1.0.5
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.4
-  Bugfix:
+  Bugfixes:
     - Fixed issue where Personal Transformer would be giving/consuming power while riding/viewing a space station.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
@@ -108,7 +117,7 @@ Version: 1.0.4
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.3
-  Bugfix:
+  Bugfixes:
     - Fixed issue where quality was not accounted for.
   Current Bugs:
     - Putting on armor or placing a vehicle with Personal Transformers in them will upgrade all Personal Transformers to Legendary Quality.
@@ -118,7 +127,7 @@ Version: 1.0.3
 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
-  Bugfix:
+  Bugfixes:
     - Fixed crash involving changes to how equipment energy sources are referenced.
   Note:
     - Quality is currently not taken into account with power transfer.
@@ -138,7 +147,7 @@ Version: 1.0.0
     - Added settings to allow for the configuration of the flow rate of each transformer.
     - Removed Beta tag from 'Allow Personal Transformer in non-armor Grids' setting.
     - Added ability to enable/disable the ability to use the shortcuts in most scenarios.
-  Bugfix:
+  Bugfixes:
     - Fixed several crashes introduced in 0.1.18 despite the fact I swear I tested those scenarios
     - Fixed case where when a train was cloned it would leave duplicates of the invisible transformers lying around.
     - Fixed case where infinite energy could be created with both input and output on.
@@ -168,7 +177,7 @@ Version: 0.1.17
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.16
-  Bugfix: 
+  Bugfixes: 
     - Fixed issue of not properly deleting entities on surface change.
 	- To manually remove existing entities run this command (WARNING: Will disable achievements): /c 	for _, surface in pairs(game.surfaces) do for _, ent in pairs (surface.find_entities_filtered({name={"personal-transformer-input-entity", "personal-transformer-output-entity", "personal-transformer-mk2-input-entity", "personal-transformer-mk2-output-entity", "personal-transformer-mk3-input-entity", "personal-transformer-mk3-output-entity"}})) do ent.destroy() end end
   Current Bugs:
@@ -178,7 +187,7 @@ Version: 0.1.16
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.15
-  Bugfix:
+  Bugfixes:
     - Removed some incessant log statements.
   Current Bugs:
     - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
@@ -187,7 +196,7 @@ Version: 0.1.15
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.14
-  Bugfix:
+  Bugfixes:
     - SE: Fixed issue where having multiple Personal Transformers in your armor when on a space ship that changes surface would crash the game.
   Current Bugs:
     - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
@@ -196,7 +205,7 @@ Version: 0.1.14
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.13
-  Bugfix:
+  Bugfixes:
     - Fixed a crash occurring when deconstructing entities with robots. Might still happen if 'Allow Personal Transformer in non-armor grids' is enabled.
   Current Bugs:
     - SE: Crash when two or more Personal Transformers of the same type are in armor when transitioning to ship travel surface.
@@ -206,7 +215,7 @@ Version: 0.1.13
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.12
-  Bugfix:
+  Bugfixes:
     - SE: Fixed a crash occurring when switching to satellite view caused from the fix on spaceships.
   Current Bugs:
     - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
@@ -215,7 +224,7 @@ Version: 0.1.12
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.11
-  Bugfix:
+  Bugfixes:
     - SE: Fixed crash when launching a ship while standing on it while having a Personal Transformer in your currently equipped armor.
   Changes:
     - Added mod thumbnail.png
@@ -239,7 +248,7 @@ Version: 0.1.10
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.9
-  Bugfix:
+  Bugfixes:
     - Fixed weird instantiation crash on configuration change.
   Current Bugs:
     - Vehicles do not drain energy properly. Vehicles can power the network but no drain from batteries currently occurs.
