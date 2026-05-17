@@ -106,17 +106,6 @@ script.on_event(defines.events.on_built_entity,
 , vehicle_event_filters
 )
 
--- script.on_event(defines.events.on_train_created, 
--- 	function(event)
--- --log ('on_train_created --- ')
--- --log ('on_train_created entity type --- '.. serpent.block(event.created_entity.type))
--- 		new_vehicle_placed_event_wrapper(event)
--- 	end
--- 	-- {LuaPlayerBuiltEntityEventFilters = {"vehicle"}} -- incorrect way
--- 	-- ,{{filter = "name", name = "vehicle"}}
--- -- , vehicle_event_filters
--- )
-
 script.on_event(defines.events.on_robot_built_entity, 
 	function(event)
 --log ('on_robot_built_entity --- ')

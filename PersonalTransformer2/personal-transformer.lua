@@ -654,7 +654,7 @@ function playerOrArmorChanged(player_index)
 --		toggleShortcutAvailable(player, false)
 	end
 
-log ('playerOrArmorChanged --- END --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
+-- log ('playerOrArmorChanged --- END --- storage.transformer_data: ' .. serpent.block(storage.transformer_data))
 end
 
 function entityTeleported(entity)
