@@ -110,6 +110,7 @@ end)
 
 script.on_event(defines.events.on_player_changed_surface, function(event)
 	PT.player_or_armor_changed(event.player_index)
+	PT.purge_orphaned_entities()
 	PT.sync_tick_registration()
 end)
 

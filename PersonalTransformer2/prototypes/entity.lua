@@ -15,12 +15,22 @@ local function make_proxy_entity(name, usage_priority, input_limit, output_limit
 		name = name,
 		icon = '__base__/graphics/icons/power-armor.png',
 		icon_size = 32,
-		flags = { 'placeable-off-grid', 'not-on-map' },
+		flags = {
+			'placeable-off-grid',
+			'not-on-map',
+			'not-blueprintable',
+			'not-deconstructable',
+			'not-flammable',
+			'not-selectable-in-game',
+			'no-automated-item-removal',
+			'no-automated-item-insertion'
+		},
 		minable = nil,
 		max_health = 500,
 		resistances = all_resistances,
 		hidden = true,
 		hidden_in_factoriopedia = true,
+		selectable_in_game = false,
 		collision_box = {{ -0.2, -0.2 }, { 0.2, 0.2 }},
 		selection_box = {{ -0.01, -0.01 }, { 0.01, 0.01 }},
 		collision_mask = { layers = {} },
@@ -45,6 +55,7 @@ local function make_proxy_entity(name, usage_priority, input_limit, output_limit
 		}
 	}
 end
+
 
 data:extend{
 	make_proxy_entity('personal-transformer-input-entity', 'secondary-input', '200kW', '0kW', '20kJ'),

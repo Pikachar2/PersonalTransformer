@@ -91,6 +91,9 @@ local function get_equipment_flow_info(eq)
 	return info
 end
 
+local ensure_and_sync_proxy_pair
+local destroy_proxy_pair
+
 local function teleport_proxy_pair_if_moved(data, target_pos, owner, owner_type)
 	if owner_type == "player" and owner.controller_type == defines.controllers.remote then
 		return
@@ -227,11 +230,12 @@ function PT.update_transformers(tickdelay)
 		if data.grid_owner_type == "player" then
 			local player = game.players[data.grid_owner_id]
 			if player and player.valid and player.character and player.character.grid then
+				teleport_proxy_pair_if_moved(data, player.position, player, "player")
+
 				local allow_in = player.is_shortcut_toggled("toggle-equipment-transformer-input")
 				local allow_out = player.is_shortcut_toggled("toggle-equipment-transformer-output")
 
 				if allow_in or allow_out then
-					teleport_proxy_pair_if_moved(data, player.position, player, "player")
 					process_grid_energy(player.character.grid, data, tickdelay, allow_in, allow_out)
 				end
 			end
@@ -245,6 +249,7 @@ function PT.update_transformers(tickdelay)
 	end
 end
 
+
 local function toggle_shortcut_available(player, is_available)
 	if player and player.valid then
 		player.set_shortcut_available("toggle-equipment-transformer-input", is_available)
@@ -252,7 +257,7 @@ local function toggle_shortcut_available(player, is_available)
 	end
 end
 
-local function ensure_and_sync_proxy_pair(data, owner)
+ensure_and_sync_proxy_pair = function(data, owner)
 	local buffer = data.buffer
 	local surface = owner.surface
 	local pos = owner.position
@@ -284,7 +289,7 @@ local function ensure_and_sync_proxy_pair(data, owner)
 	end
 end
 
-local function destroy_proxy_pair(data)
+destroy_proxy_pair = function(data)
 	if data.input_entity and data.input_entity.valid then
 		data.input_entity.destroy()
 	end
@@ -495,12 +500,37 @@ end
 
 function PT.purge_orphaned_entities()
 	local active_entities = {}
+
 	for _, data in pairs(storage.transformer_data) do
-		if data.input_entity and data.input_entity.valid then
-			active_entities[data.input_entity.unit_number] = true
+		local owner_surface = nil
+		if data.grid_owner_type == "player" then
+			local player = game.players[data.grid_owner_id]
+			if player and player.valid and player.character and player.character.valid then
+				owner_surface = player.character.surface
+			end
+		elseif data.grid_owner_type == "entity" then
+			local vehicle = storage.grid_vehicles[data.grid_owner_id]
+			if vehicle and vehicle.valid then
+				owner_surface = vehicle.surface
+			end
 		end
+
+		if data.input_entity and data.input_entity.valid then
+			if not owner_surface or data.input_entity.surface ~= owner_surface then
+				data.input_entity.destroy()
+				data.input_entity = nil
+			else
+				active_entities[data.input_entity.unit_number] = true
+			end
+		end
+
 		if data.output_entity and data.output_entity.valid then
-			active_entities[data.output_entity.unit_number] = true
+			if not owner_surface or data.output_entity.surface ~= owner_surface then
+				data.output_entity.destroy()
+				data.output_entity = nil
+			else
+				active_entities[data.output_entity.unit_number] = true
+			end
 		end
 	end
 
