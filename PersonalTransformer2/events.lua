@@ -75,6 +75,7 @@ script.on_event(defines.events.on_equipment_inserted, function(event)
 	if vehicle and vehicle.valid then
 		PT.equipment_inserted(vehicle, grid_id, event.equipment.name, "entity", event.equipment.quality.name)
 		PT.refresh_grid_composition(grid, grid_id)
+		PT.refresh_open_vehicle_guis(grid_id)
 		PT.sync_tick_registration()
 	end
 end)
@@ -98,6 +99,7 @@ script.on_event(defines.events.on_equipment_removed, function(event)
 	if vehicle and vehicle.valid and (data.grid_owner_type == "entity" or data.grid_owner_type == nil) then
 		PT.equipment_removed(grid_id, event.equipment, event.count, event.quality)
 		PT.refresh_grid_composition(grid, grid_id)
+		PT.refresh_open_vehicle_guis(grid_id)
 		PT.sync_tick_registration()
 	end
 end)
@@ -197,6 +199,11 @@ script.on_event(defines.events.script_raised_teleported, function(event)
 	PT.entity_teleported(event.entity)
 	PT.sync_tick_registration()
 end, vehicle_event_filters)
+
+-- Vehicle GUI events
+script.on_event(defines.events.on_gui_opened, PT.handle_gui_opened)
+script.on_event(defines.events.on_gui_closed, PT.handle_gui_closed)
+script.on_event(defines.events.on_gui_click, PT.handle_gui_click)
 
 -- Shortcut & custom-input events
 local function toggle_player_shortcut(player_index, shortcut_name)

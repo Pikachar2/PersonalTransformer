@@ -46,5 +46,19 @@ data:extend{
 		name = "toggle-equipment-transformer-output",
 		key_sequence = "",
 		consuming = "none"
+	},
+	{
+		type = "sprite",
+		name = "pt-input-icon",
+		filename = "__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-input-x32.png",
+		size = 32,
+		flags = { "gui-icon" }
+	},
+	{
+		type = "sprite",
+		name = "pt-output-icon",
+		filename = "__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x32.png",
+		size = 32,
+		flags = { "gui-icon" }
 	}
 }

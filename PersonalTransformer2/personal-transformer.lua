@@ -243,12 +243,15 @@ function PT.update_transformers(tickdelay)
 			local vehicle = storage.grid_vehicles[data.grid_owner_id]
 			if vehicle and vehicle.valid and vehicle.grid then
 				teleport_proxy_pair_if_moved(data, vehicle.position, vehicle, "entity")
-				process_grid_energy(vehicle.grid, data, tickdelay, true, true)
+				local allow_in = (data.allow_in ~= false)
+				local allow_out = (data.allow_out ~= true)
+				if allow_in or allow_out then
+					process_grid_energy(vehicle.grid, data, tickdelay, allow_in, allow_out)
+				end
 			end
 		end
 	end
 end
-
 
 local function toggle_shortcut_available(player, is_available)
 	if player and player.valid then
@@ -331,7 +334,9 @@ function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, 
 	if not data then
 		data = {
 			transformer_count = 0,
-			max_grid_draw = 0
+			max_grid_draw = 0,
+			allow_in = true,
+			allow_out = false
 		}
 		storage.transformer_data[grid_id] = data
 	end
