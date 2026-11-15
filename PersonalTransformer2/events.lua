@@ -56,6 +56,18 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	end
 end)
 
+-- Research events
+local function on_research_updated(event)
+	local tech = event.research
+	if tech and tech.name == "personal-transformer-efficiency" then
+		PT.migrate_and_rebuild_all()
+		PT.sync_tick_registration()
+	end
+end
+
+script.on_event(defines.events.on_research_finished, on_research_updated)
+script.on_event(defines.events.on_research_reversed, on_research_updated)
+
 -- Equipment grid events
 script.on_event(defines.events.on_equipment_inserted, function(event)
 	local grid = event.grid

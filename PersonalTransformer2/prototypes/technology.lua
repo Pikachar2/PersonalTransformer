@@ -78,3 +78,57 @@ data:extend{
 		}
 	}
 }
+
+if settings.startup["personal-transformer2-enable-research"].value then
+	local bonus_val = settings.startup["personal-transformer2-research-bonus"].value
+	local bonus_type = settings.startup["personal-transformer2-research-bonus-type"].value
+	local cost_formula = settings.startup["personal-transformer2-research-cost-formula"].value
+
+	local effect_key = (bonus_type == "flat")
+		and "modifier-description.personal-transformer-efficiency-flat"
+		or "modifier-description.personal-transformer-efficiency"
+
+	data:extend{
+		{
+			type = 'technology',
+			name = 'personal-transformer-efficiency',
+			icons =
+			{
+				{
+					icon = '__PersonalTransformer2__/graphics/technology/personal-transformer3.png',
+					icon_size = 256
+				},
+				{
+					icon = '__core__/graphics/icons/technology/constants/constant-capacity.png',
+					icon_size = 128,
+					scale = 0.5,
+					shift = { 50, 50 }
+				}
+			},
+			prerequisites = { 'personal-transformer-mk3-equipment', 'space-science-pack' },
+			unit =
+			{
+				count_formula = cost_formula,
+				ingredients =
+				{
+					{ 'automation-science-pack', 1 },
+					{ 'logistic-science-pack', 1 },
+					{ 'chemical-science-pack', 1 },
+					{ 'production-science-pack', 1 },
+					{ 'utility-science-pack', 1 },
+					{ 'space-science-pack', 1 }
+				},
+				time = 60
+			},
+			effects =
+			{
+				{
+					type = 'nothing',
+					effect_description = { effect_key, tostring(bonus_val) }
+				}
+			},
+			max_level = 'infinite',
+			upgrade = true
+		}
+	}
+end

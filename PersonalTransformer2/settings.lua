@@ -112,5 +112,39 @@ data:extend
     setting_type = "runtime-per-user",
     default_value = false,
     order = "f2"
+  },
+
+  -- Startup: Infinite Research
+  {
+    type = "bool-setting",
+    name = "personal-transformer2-enable-research",
+    setting_type = "startup",
+    default_value = false,
+    order = "g1"
+  },
+  {
+    type = "string-setting",
+    name = "personal-transformer2-research-bonus-type",
+    setting_type = "startup",
+    default_value = "percentage",
+    allowed_values = {"percentage", "flat"},
+    order = "g2"
+  },
+  {
+    type = "double-setting",
+    name = "personal-transformer2-research-bonus",
+    setting_type = "startup",
+    minimum_value = 0.1,
+    maximum_value = 1000000,
+    default_value = 20,
+    order = "g3"
+  },
+  {
+    type = "string-setting",
+    name = "personal-transformer2-research-cost-formula",
+    setting_type = "startup",
+    default_value = "(1.5 ^ (L - 1)) * 1000",
+    allow_blank = false,
+    order = "g4"
   }
 }

@@ -354,6 +354,48 @@ local function get_vehicle_defaults(player_index)
 	return true, false
 end
 
+local RESEARCH_ENABLED = settings.startup["personal-transformer2-enable-research"].value
+local RESEARCH_TECH_NAME = "personal-transformer-efficiency"
+local RESEARCH_BONUS_TYPE = settings.startup["personal-transformer2-research-bonus-type"].value
+local RESEARCH_BONUS_VALUE = settings.startup["personal-transformer2-research-bonus"].value
+
+function PT.get_force_research_levels(force)
+	if not RESEARCH_ENABLED or not (force and force.valid) then return 0 end
+	local tech = force.technologies[RESEARCH_TECH_NAME]
+	if not tech then return 0 end
+
+	local completed_levels = (tech.level or 1) - 1
+	if tech.researched then
+		completed_levels = completed_levels + 1
+	end
+	return completed_levels
+end
+
+local function get_effective_tier_stats(tier, quality_name, force)
+	local q_mult = get_quality_multiplier(quality_name)
+	local levels = PT.get_force_research_levels(force)
+
+	local item_in = tier.in_draw
+	local item_out = tier.out_draw
+	local item_buf = tier.buffer
+
+	if levels > 0 then
+		if RESEARCH_BONUS_TYPE == "flat" then
+			local flat_watts = levels * RESEARCH_BONUS_VALUE * 1000
+			item_in = item_in + flat_watts
+			item_out = item_out + flat_watts
+			item_buf = item_buf + (flat_watts * 0.1)
+		else
+			local pct_mult = 1 + (levels * (RESEARCH_BONUS_VALUE / 100))
+			item_in = item_in * pct_mult
+			item_out = item_out * pct_mult
+			item_buf = item_buf * pct_mult
+		end
+	end
+
+	return item_in * q_mult, item_out * q_mult, item_buf * q_mult
+end
+
 function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, quality_name, player_index)
 	local tier = PT.TRANSFORMER_TIERS[equipment_name]
 	if not tier then return end
@@ -372,11 +414,11 @@ function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, 
 		storage.transformer_data[grid_id] = data
 	end
 
-	local mult = get_quality_multiplier(quality_name)
+	local eff_in, eff_out, eff_buf = get_effective_tier_stats(tier, quality_name, owner.force)
 	data.transformer_count = (data.transformer_count or 0) + 1
-	data.max_grid_in = (data.max_grid_in or 0) + (tier.in_draw * mult)
-	data.max_grid_out = (data.max_grid_out or 0) + (tier.out_draw * mult)
-	data.buffer = (data.buffer or 0) + (tier.buffer * mult)
+	data.max_grid_in = (data.max_grid_in or 0) + eff_in
+	data.max_grid_out = (data.max_grid_out or 0) + eff_out
+	data.buffer = (data.buffer or 0) + eff_buf
 	data.grid_owner_type = grid_owner_type
 
 	if grid_owner_type == "player" then
