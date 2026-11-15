@@ -161,6 +161,11 @@ script.on_event(defines.events.script_raised_destroy, function(event)
 	PT.sync_tick_registration()
 end, vehicle_event_filters)
 
+script.on_event(defines.events.on_object_destroyed, function(event)
+	PT.on_object_destroyed(event.registration_number)
+	PT.sync_tick_registration()
+end)
+
 -- Cloning & teleportation events
 script.on_event(defines.events.on_entity_cloned, function(event)
 	if PT.VEHICLE_TYPES[event.source.type] then

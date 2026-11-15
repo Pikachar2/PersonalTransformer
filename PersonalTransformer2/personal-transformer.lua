@@ -40,6 +40,7 @@ end
 function PT.init_storage()
 	storage.transformer_data = storage.transformer_data or {}
 	storage.grid_vehicles = storage.grid_vehicles or {}
+	storage.destroyed_registrations = storage.destroyed_registrations or {}
 end
 
 local EQUIP_FLOW_CACHE = {}
@@ -396,6 +397,8 @@ function PT.new_vehicle_placed(entity)
 	if grid and grid.valid then
 		local grid_id = grid.unique_id
 		storage.grid_vehicles[grid_id] = entity
+		local reg_id = script.register_on_object_destroyed(entity)
+		storage.destroyed_registrations[reg_id] = grid_id
 		PT.rebuild_grid_from_scratch(grid, entity, grid_id, "entity")
 	end
 end
@@ -413,6 +416,20 @@ function PT.entity_removed(entity)
 	end
 
 	if not grid_id then return end
+
+	local data = storage.transformer_data[grid_id]
+	if data and data.grid_owner_type == "entity" then
+		destroy_proxy_pair(data)
+		storage.transformer_data[grid_id] = nil
+	end
+end
+
+function PT.on_object_destroyed(registration_number)
+	local grid_id = storage.destroyed_registrations[registration_number]
+	if not grid_id then return end
+
+	storage.destroyed_registrations[registration_number] = nil
+	storage.grid_vehicles[grid_id] = nil
 
 	local data = storage.transformer_data[grid_id]
 	if data and data.grid_owner_type == "entity" then
@@ -508,6 +525,7 @@ function PT.migrate_and_rebuild_all()
 
 	storage.transformer_data = {}
 	storage.grid_vehicles = {}
+	storage.destroyed_registrations = {}
 
 	for _, player in pairs(game.players) do
 		if player.valid and player.character and player.character.grid and player.character.grid.valid then
@@ -524,8 +542,11 @@ function PT.migrate_and_rebuild_all()
 			for _, vehicle in pairs(surface.find_entities_filtered{type = PT.VEHICLE_TYPE_LIST}) do
 				if vehicle.valid and vehicle.grid and vehicle.grid.valid then
 					local grid = vehicle.grid
-					storage.grid_vehicles[grid.unique_id] = vehicle
-					PT.rebuild_grid_from_scratch(grid, vehicle, grid.unique_id, "entity")
+					local grid_id = grid.unique_id
+					storage.grid_vehicles[grid_id] = vehicle
+					local reg_id = script.register_on_object_destroyed(vehicle)
+					storage.destroyed_registrations[reg_id] = grid_id
+					PT.rebuild_grid_from_scratch(grid, vehicle, grid_id, "entity")
 				end
 			end
 		end
