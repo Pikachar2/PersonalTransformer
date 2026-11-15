@@ -96,6 +96,20 @@ local function teleport_proxy_pair_if_moved(data, target_pos, owner, owner_type)
 		return
 	end
 
+	local in_ent = data.input_entity
+	local out_ent = data.output_entity
+	local owner_surface = owner.surface
+
+	-- Cross-surface check: electric-energy-interface entities cannot teleport across surfaces
+	if (in_ent and in_ent.valid and in_ent.surface ~= owner_surface)
+		or (out_ent and out_ent.valid and out_ent.surface ~= owner_surface) then
+		destroy_proxy_pair(data)
+		data.last_x = target_pos.x
+		data.last_y = target_pos.y
+		ensure_and_sync_proxy_pair(data, owner)
+		return
+	end
+
 	local tx = target_pos.x
 	local ty = target_pos.y
 	if data.last_x == tx and data.last_y == ty then
@@ -105,12 +119,10 @@ local function teleport_proxy_pair_if_moved(data, target_pos, owner, owner_type)
 	data.last_x = tx
 	data.last_y = ty
 
-	local in_ent = data.input_entity
 	if in_ent and in_ent.valid then
 		in_ent.teleport(target_pos)
 	end
 
-	local out_ent = data.output_entity
 	if out_ent and out_ent.valid then
 		out_ent.teleport(target_pos)
 	end
@@ -393,6 +405,8 @@ end
 function PT.new_vehicle_placed(entity)
 	if not PT.is_vehicle_grid_allowed or not (entity and entity.valid) then return end
 
+	storage.destroyed_registrations = storage.destroyed_registrations or {}
+
 	local grid = entity.grid
 	if grid and grid.valid then
 		local grid_id = grid.unique_id
@@ -425,6 +439,7 @@ function PT.entity_removed(entity)
 end
 
 function PT.on_object_destroyed(registration_number)
+	storage.destroyed_registrations = storage.destroyed_registrations or {}
 	local grid_id = storage.destroyed_registrations[registration_number]
 	if not grid_id then return end
 
@@ -447,24 +462,29 @@ function PT.get_player_for_grid(grid_id)
 	return nil
 end
 
-function PT.player_or_armor_changed(player_index)
-	local player = game.players[player_index]
-	if not (player and player.valid and player.character) then return end
-	if player.controller_type == defines.controllers.remote then return end
-
+function PT.clear_player_transformers(player_index)
 	for grid_id, data in pairs(storage.transformer_data) do
 		if data.grid_owner_type == "player" and data.grid_owner_id == player_index then
 			destroy_proxy_pair(data)
 			storage.transformer_data[grid_id] = nil
 		end
 	end
+	toggle_shortcut_available(game.players[player_index], false)
+end
 
-	local grid = player.character.grid
+function PT.player_or_armor_changed(player_index)
+	local player = game.players[player_index]
+	if not (player and player.valid) then return end
+
+	PT.clear_player_transformers(player_index)
+
+	local character = player.character
+	if not (character and character.valid) then return end
+
+	local grid = character.grid
 	if grid and grid.valid then
 		local has_transformers = PT.rebuild_grid_from_scratch(grid, player, grid.unique_id, "player")
 		toggle_shortcut_available(player, has_transformers)
-	else
-		toggle_shortcut_available(player, false)
 	end
 end
 

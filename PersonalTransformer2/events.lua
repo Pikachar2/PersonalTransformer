@@ -102,8 +102,7 @@ script.on_event(defines.events.on_equipment_removed, function(event)
 	end
 end)
 
-
--- Player state events
+-- Player state & Space Exploration controller/cutscene events
 script.on_event(defines.events.on_player_armor_inventory_changed, function(event)
 	PT.player_or_armor_changed(event.player_index)
 	PT.sync_tick_registration()
@@ -114,7 +113,22 @@ script.on_event(defines.events.on_player_changed_surface, function(event)
 	PT.sync_tick_registration()
 end)
 
+script.on_event(defines.events.on_player_controller_changed, function(event)
+	PT.player_or_armor_changed(event.player_index)
+	PT.sync_tick_registration()
+end)
+
+script.on_event(defines.events.on_cutscene_cancelled, function(event)
+	PT.player_or_armor_changed(event.player_index)
+	PT.sync_tick_registration()
+end)
+
 script.on_event(defines.events.on_pre_player_died, function(event)
+	PT.clear_player_transformers(event.player_index)
+	PT.sync_tick_registration()
+end)
+
+script.on_event(defines.events.on_player_respawned, function(event)
 	PT.player_or_armor_changed(event.player_index)
 	PT.sync_tick_registration()
 end)
@@ -170,10 +184,11 @@ end)
 script.on_event(defines.events.on_entity_cloned, function(event)
 	if PT.VEHICLE_TYPES[event.source.type] then
 		PT.new_vehicle_placed(event.destination)
-		PT.purge_orphaned_entities()
 		PT.sync_tick_registration()
 	elseif PT.ENTITY_NAMES[event.source.name] then
-		PT.pt_entity_cloned(event.source, event.destination)
+		if event.destination and event.destination.valid then
+			event.destination.destroy()
+		end
 	end
 end, combined_filters)
 
