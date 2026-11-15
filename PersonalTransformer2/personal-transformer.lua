@@ -1,3 +1,9 @@
+local min = math.min
+local max = math.max
+local pairs = pairs
+local next = next
+local REMOTE_CONTROLLER = defines.controllers.remote
+
 PT.VEHICLE_TYPES = {
 	["car"] = true,
 	["spider-vehicle"] = true,
@@ -15,9 +21,21 @@ end
 PT.is_vehicle_grid_allowed = settings.startup["personal-transformer2-allow-non-armor"].value
 
 PT.TRANSFORMER_TIERS = {
-	["personal-transformer-equipment"] = settings.startup["personal-transformer-mk1-flow-limit"].value * 1000,
-	["personal-transformer-mk2-equipment"] = settings.startup["personal-transformer-mk2-flow-limit"].value * 1000,
-	["personal-transformer-mk3-equipment"] = settings.startup["personal-transformer-mk3-flow-limit"].value * 1000
+	["personal-transformer-equipment"] = {
+		in_draw = settings.startup["personal-transformer-mk1-flow-limit"].value * 1000,
+		out_draw = settings.startup["personal-transformer-mk1-output-limit"].value * 1000,
+		buffer = settings.startup["personal-transformer-mk1-buffer-capacity"].value * 1000
+	},
+	["personal-transformer-mk2-equipment"] = {
+		in_draw = settings.startup["personal-transformer-mk2-flow-limit"].value * 1000,
+		out_draw = settings.startup["personal-transformer-mk2-output-limit"].value * 1000,
+		buffer = settings.startup["personal-transformer-mk2-buffer-capacity"].value * 1000
+	},
+	["personal-transformer-mk3-equipment"] = {
+		in_draw = settings.startup["personal-transformer-mk3-flow-limit"].value * 1000,
+		out_draw = settings.startup["personal-transformer-mk3-output-limit"].value * 1000,
+		buffer = settings.startup["personal-transformer-mk3-buffer-capacity"].value * 1000
+	}
 }
 
 PT.PROXY_INPUT_NAME = "personal-transformer-input-entity"
@@ -48,11 +66,8 @@ local scratch_eq = {}
 local scratch_in = {}
 local scratch_out = {}
 
-local min = math.min
-local max = math.max
-local pairs = pairs
-local next = next
-local REMOTE_CONTROLLER = defines.controllers.remote
+local ensure_and_sync_proxy_pair
+local destroy_proxy_pair
 
 local function get_quality_multiplier(quality_name)
 	local q = quality_name and prototypes.quality[quality_name]
@@ -91,11 +106,8 @@ local function get_equipment_flow_info(eq)
 	return info
 end
 
-local ensure_and_sync_proxy_pair
-local destroy_proxy_pair
-
 local function teleport_proxy_pair_if_moved(data, target_pos, owner, owner_type)
-	if owner_type == "player" and owner.controller_type == defines.controllers.remote then
+	if owner_type == "player" and owner.controller_type == REMOTE_CONTROLLER then
 		return
 	end
 
@@ -103,7 +115,6 @@ local function teleport_proxy_pair_if_moved(data, target_pos, owner, owner_type)
 	local out_ent = data.output_entity
 	local owner_surface = owner.surface
 
-	-- Cross-surface check: electric-energy-interface entities cannot teleport across surfaces
 	if (in_ent and in_ent.valid and in_ent.surface ~= owner_surface)
 		or (out_ent and out_ent.valid and out_ent.surface ~= owner_surface) then
 		destroy_proxy_pair(data)
@@ -139,18 +150,13 @@ local function process_grid_energy(grid, data, tickdelay, allow_in, allow_out)
 	local avail_in = (allow_in and in_ent and in_ent.valid) and in_ent.energy or 0
 	local request_out = (allow_out and out_ent and out_ent.valid) and (buffer - out_ent.energy) or 0
 
-	-- O(1) early exit: skip grid.equipment entirely if proxies have nothing to give or receive
 	if 0 >= avail_in and 0 >= request_out then
 		return
 	end
 
 	local can_in = avail_in > 0
 	local can_out = request_out > 0
-	local max_draw_in = 0
-	local max_draw_out = 0
-	local count = 0
 
-	-- O(1) fast-path: skip iterating grid.equipment when batteries are completely full or empty
 	if can_in and not can_out then
 		if (data.consumer_count or 0) == 0 and grid.available_in_batteries == grid.battery_capacity then
 			return
@@ -160,6 +166,10 @@ local function process_grid_energy(grid, data, tickdelay, allow_in, allow_out)
 			return
 		end
 	end
+
+	local max_draw_in = 0
+	local max_draw_out = 0
+	local count = 0
 
 	for _, eq in pairs(grid.equipment) do
 		local info = get_equipment_flow_info(eq)
@@ -194,10 +204,12 @@ local function process_grid_energy(grid, data, tickdelay, allow_in, allow_out)
 
 	if count == 0 then return end
 
-	local max_step_draw = data.max_grid_draw * (tickdelay / 60)
+	local dt = tickdelay / 60
+	local max_step_in = (data.max_grid_in or data.max_grid_draw or 0) * dt
+	local max_step_out = (data.max_grid_out or data.max_grid_draw or 0) * dt
 
-	local actual_in = min(max_draw_in, avail_in, max_step_draw)
-	local actual_out = min(max_draw_out, request_out, max_step_draw)
+	local actual_in = min(max_draw_in, avail_in, max_step_in)
+	local actual_out = min(max_draw_out, request_out, max_step_out)
 
 	local ratio_in = (max_draw_in > 0) and (actual_in / max_draw_in) or 0
 	local ratio_out = (max_draw_out > 0) and (actual_out / max_draw_out) or 0
@@ -244,7 +256,7 @@ function PT.update_transformers(tickdelay)
 			if vehicle and vehicle.valid and vehicle.grid then
 				teleport_proxy_pair_if_moved(data, vehicle.position, vehicle, "entity")
 				local allow_in = (data.allow_in ~= false)
-				local allow_out = (data.allow_out ~= true)
+				local allow_out = (data.allow_out == true)
 				if allow_in or allow_out then
 					process_grid_energy(vehicle.grid, data, tickdelay, allow_in, allow_out)
 				end
@@ -261,8 +273,13 @@ local function toggle_shortcut_available(player, is_available)
 end
 
 ensure_and_sync_proxy_pair = function(data, owner)
-	local buffer = data.buffer
 	local surface = owner.surface
+	if surface.name:find("^spaceship%-") then
+		destroy_proxy_pair(data)
+		return
+	end
+
+	local buffer = data.buffer
 	local pos = owner.position
 	local force = owner.force
 
@@ -326,25 +343,40 @@ function PT.refresh_grid_composition(grid, grid_id)
 	data.consumer_count = consumers
 end
 
-function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, quality_name)
-	local base_draw = PT.TRANSFORMER_TIERS[equipment_name]
-	if not base_draw then return end
+local function get_vehicle_defaults(player_index)
+	if player_index then
+		local p_settings = settings.get_player_settings(player_index)
+		if p_settings then
+			return p_settings["personal-transformer2-default-vehicle-in"].value,
+				p_settings["personal-transformer2-default-vehicle-out"].value
+		end
+	end
+	return true, false
+end
+
+function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, quality_name, player_index)
+	local tier = PT.TRANSFORMER_TIERS[equipment_name]
+	if not tier then return end
 
 	local data = storage.transformer_data[grid_id]
 	if not data then
+		local def_in, def_out = get_vehicle_defaults(player_index)
 		data = {
 			transformer_count = 0,
-			max_grid_draw = 0,
-			allow_in = true,
-			allow_out = false
+			max_grid_in = 0,
+			max_grid_out = 0,
+			buffer = 0,
+			allow_in = def_in,
+			allow_out = def_out
 		}
 		storage.transformer_data[grid_id] = data
 	end
 
-	local draw_delta = base_draw * get_quality_multiplier(quality_name)
+	local mult = get_quality_multiplier(quality_name)
 	data.transformer_count = (data.transformer_count or 0) + 1
-	data.max_grid_draw = (data.max_grid_draw or 0) + draw_delta
-	data.buffer = data.max_grid_draw / 10
+	data.max_grid_in = (data.max_grid_in or 0) + (tier.in_draw * mult)
+	data.max_grid_out = (data.max_grid_out or 0) + (tier.out_draw * mult)
+	data.buffer = (data.buffer or 0) + (tier.buffer * mult)
 	data.grid_owner_type = grid_owner_type
 
 	if grid_owner_type == "player" then
@@ -358,18 +390,19 @@ function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, 
 end
 
 function PT.equipment_removed(grid_id, equipment_name, count, quality_name)
-	local base_draw = PT.TRANSFORMER_TIERS[equipment_name]
+	local tier = PT.TRANSFORMER_TIERS[equipment_name]
 	local data = storage.transformer_data[grid_id]
-	if not base_draw or not data then
+	if not tier or not data then
 		return
 	end
 
-	local draw_delta = base_draw * get_quality_multiplier(quality_name) * count
-	data.transformer_count = math.max((data.transformer_count or 0) - count, 0)
-	data.max_grid_draw = math.max((data.max_grid_draw or 0) - draw_delta, 0)
-	data.buffer = data.max_grid_draw / 10
+	local mult = get_quality_multiplier(quality_name) * count
+	data.transformer_count = max((data.transformer_count or 0) - count, 0)
+	data.max_grid_in = max((data.max_grid_in or 0) - (tier.in_draw * mult), 0)
+	data.max_grid_out = max((data.max_grid_out or 0) - (tier.out_draw * mult), 0)
+	data.buffer = max((data.buffer or 0) - (tier.buffer * mult), 0)
 
-	if data.transformer_count == 0 or 0.001 > data.max_grid_draw then
+	if data.transformer_count == 0 or (0.001 > data.max_grid_in and 0.001 > data.max_grid_out) then
 		if data.grid_owner_type == "player" then
 			toggle_shortcut_available(game.players[data.grid_owner_id], false)
 		end
@@ -385,8 +418,10 @@ function PT.equipment_removed(grid_id, equipment_name, count, quality_name)
 	end
 end
 
-function PT.rebuild_grid_from_scratch(grid, owner, grid_id, owner_type)
+function PT.rebuild_grid_from_scratch(grid, owner, grid_id, owner_type, player_index)
 	local existing = storage.transformer_data[grid_id]
+	local prev_in = existing and existing.allow_in
+	local prev_out = existing and existing.allow_out
 	if existing then
 		destroy_proxy_pair(existing)
 		storage.transformer_data[grid_id] = nil
@@ -399,20 +434,25 @@ function PT.rebuild_grid_from_scratch(grid, owner, grid_id, owner_type)
 			if count > 0 then
 				found_any = true
 				for _ = 1, count do
-					PT.equipment_inserted(owner, grid_id, equip_name, owner_type, quality_name)
+					PT.equipment_inserted(owner, grid_id, equip_name, owner_type, quality_name, player_index)
 				end
 			end
 		end
 	end
 
 	if found_any then
+		local rebuilt = storage.transformer_data[grid_id]
+		if rebuilt and prev_in ~= nil then
+			rebuilt.allow_in = prev_in
+			rebuilt.allow_out = prev_out
+		end
 		PT.refresh_grid_composition(grid, grid_id)
 	end
 
 	return found_any
 end
 
-function PT.new_vehicle_placed(entity)
+function PT.new_vehicle_placed(entity, player_index)
 	if not PT.is_vehicle_grid_allowed or not (entity and entity.valid) then return end
 
 	storage.destroyed_registrations = storage.destroyed_registrations or {}
@@ -423,7 +463,7 @@ function PT.new_vehicle_placed(entity)
 		storage.grid_vehicles[grid_id] = entity
 		local reg_id = script.register_on_object_destroyed(entity)
 		storage.destroyed_registrations[reg_id] = grid_id
-		PT.rebuild_grid_from_scratch(grid, entity, grid_id, "entity")
+		PT.rebuild_grid_from_scratch(grid, entity, grid_id, "entity", player_index)
 	end
 end
 
@@ -493,7 +533,7 @@ function PT.player_or_armor_changed(player_index)
 
 	local grid = character.grid
 	if grid and grid.valid then
-		local has_transformers = PT.rebuild_grid_from_scratch(grid, player, grid.unique_id, "player")
+		local has_transformers = PT.rebuild_grid_from_scratch(grid, player, grid.unique_id, "player", player_index)
 		toggle_shortcut_available(player, has_transformers)
 	end
 end
@@ -585,7 +625,7 @@ function PT.migrate_and_rebuild_all()
 	for _, player in pairs(game.players) do
 		if player.valid and player.character and player.character.grid and player.character.grid.valid then
 			local grid = player.character.grid
-			local has_transformers = PT.rebuild_grid_from_scratch(grid, player, grid.unique_id, "player")
+			local has_transformers = PT.rebuild_grid_from_scratch(grid, player, grid.unique_id, "player", player.index)
 			toggle_shortcut_available(player, has_transformers)
 		elseif player.valid then
 			toggle_shortcut_available(player, false)

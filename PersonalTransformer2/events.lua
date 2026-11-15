@@ -63,7 +63,7 @@ script.on_event(defines.events.on_equipment_inserted, function(event)
 	local player = PT.get_player_for_grid(grid_id)
 
 	if player then
-		PT.equipment_inserted(player, grid_id, event.equipment.name, "player", event.equipment.quality.name)
+		PT.equipment_inserted(player, grid_id, event.equipment.name, "player", event.equipment.quality.name, player.index)
 		PT.refresh_grid_composition(grid, grid_id)
 		PT.sync_tick_registration()
 		return
@@ -73,7 +73,7 @@ script.on_event(defines.events.on_equipment_inserted, function(event)
 
 	local vehicle = storage.grid_vehicles[grid_id]
 	if vehicle and vehicle.valid then
-		PT.equipment_inserted(vehicle, grid_id, event.equipment.name, "entity", event.equipment.quality.name)
+		PT.equipment_inserted(vehicle, grid_id, event.equipment.name, "entity", event.equipment.quality.name, event.player_index)
 		PT.refresh_grid_composition(grid, grid_id)
 		PT.refresh_open_vehicle_guis(grid_id)
 		PT.sync_tick_registration()
@@ -138,7 +138,7 @@ end)
 
 -- Vehicle build & revive events
 script.on_event(defines.events.on_built_entity, function(event)
-	PT.new_vehicle_placed(event.entity)
+	PT.new_vehicle_placed(event.entity, event.player_index)
 	PT.sync_tick_registration()
 end, vehicle_event_filters)
 

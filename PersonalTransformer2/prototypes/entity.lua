@@ -56,7 +56,6 @@ local function make_proxy_entity(name, usage_priority, input_limit, output_limit
 	}
 end
 
-
 data:extend{
 	make_proxy_entity('personal-transformer-input-entity', 'secondary-input', '200kW', '0kW', '20kJ'),
 	make_proxy_entity('personal-transformer-output-entity', 'tertiary', '0kW', '200kW', '20kJ'),
