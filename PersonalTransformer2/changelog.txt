@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.14
+  Updated:
+    - Now requires Factorio 2.1.7
+  Current Bugs:
+    - Currently if moving within 3 power networks at the same time a memory leak occurs.
+
+---------------------------------------------------------------------------------------------------
 Version: 1.0.13
   Bugfixes:
     - Fixed issue with teleporting.
