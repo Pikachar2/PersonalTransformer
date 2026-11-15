@@ -197,12 +197,24 @@ script.on_event(defines.events.script_raised_teleported, function(event)
 	PT.sync_tick_registration()
 end, vehicle_event_filters)
 
--- Shortcut events
+-- Shortcut & custom-input events
+local function toggle_player_shortcut(player_index, shortcut_name)
+	local player = game.players[player_index]
+	if player and player.valid and player.is_shortcut_available(shortcut_name) then
+		player.set_shortcut_toggled(shortcut_name, not player.is_shortcut_toggled(shortcut_name))
+	end
+end
+
 script.on_event(defines.events.on_lua_shortcut, function(event)
 	if event.prototype_name == "toggle-equipment-transformer-input" or event.prototype_name == "toggle-equipment-transformer-output" then
-		local player = game.players[event.player_index]
-		if player and player.valid then
-			player.set_shortcut_toggled(event.prototype_name, not player.is_shortcut_toggled(event.prototype_name))
-		end
+		toggle_player_shortcut(event.player_index, event.prototype_name)
 	end
+end)
+
+script.on_event("toggle-equipment-transformer-input", function(event)
+	toggle_player_shortcut(event.player_index, "toggle-equipment-transformer-input")
+end)
+
+script.on_event("toggle-equipment-transformer-output", function(event)
+	toggle_player_shortcut(event.player_index, "toggle-equipment-transformer-output")
 end)
