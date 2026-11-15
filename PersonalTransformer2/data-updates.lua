@@ -27,19 +27,18 @@ local TIER_CONFIGS = {
 }
 
 for _, tier in ipairs(TIER_CONFIGS) do
-	local flow = tier.limit .. "kW"
-	local buffer = (tier.limit / 10) .. "kJ"
-
 	local equip = data.raw["battery-equipment"][tier.equip]
-	equip.energy_source.input_flow_limit = flow
-	equip.energy_source.output_flow_limit = flow
-	equip.energy_source.buffer_capacity = buffer
+	equip.energy_source.input_flow_limit = tier.limit .. "kW"
+	equip.energy_source.output_flow_limit = tier.limit .. "kW"
+	equip.energy_source.buffer_capacity = (tier.limit / 10) .. "kJ"
 
 	local input_ent = data.raw["electric-energy-interface"][tier.input]
-	input_ent.energy_source.input_flow_limit = flow
-	input_ent.energy_source.buffer_capacity = buffer
+	input_ent.energy_source.input_flow_limit = "100GW"
+	input_ent.energy_source.output_flow_limit = "0W"
+	input_ent.energy_source.buffer_capacity = "100GJ"
 
-	local output_ent = data.raw["accumulator"][tier.output]
-	output_ent.energy_source.output_flow_limit = flow
-	output_ent.energy_source.buffer_capacity = buffer
+	local output_ent = data.raw["electric-energy-interface"][tier.output]
+	output_ent.energy_source.input_flow_limit = "0W"
+	output_ent.energy_source.output_flow_limit = "100GW"
+	output_ent.energy_source.buffer_capacity = "100GJ"
 end

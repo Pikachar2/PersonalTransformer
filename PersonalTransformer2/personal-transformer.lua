@@ -15,30 +15,26 @@ end
 PT.is_vehicle_grid_allowed = settings.startup["personal-transformer2-allow-non-armor"].value
 
 PT.TRANSFORMER_TIERS = {
-	["personal-transformer-equipment"] = {
-		input = "personal-transformer-input-entity",
-		output = "personal-transformer-output-entity",
-		draw = settings.startup["personal-transformer-mk1-flow-limit"].value * 1000
-	},
-	["personal-transformer-mk2-equipment"] = {
-		input = "personal-transformer-mk2-input-entity",
-		output = "personal-transformer-mk2-output-entity",
-		draw = settings.startup["personal-transformer-mk2-flow-limit"].value * 1000
-	},
-	["personal-transformer-mk3-equipment"] = {
-		input = "personal-transformer-mk3-input-entity",
-		output = "personal-transformer-mk3-output-entity",
-		draw = settings.startup["personal-transformer-mk3-flow-limit"].value * 1000
-	}
+	["personal-transformer-equipment"] = settings.startup["personal-transformer-mk1-flow-limit"].value * 1000,
+	["personal-transformer-mk2-equipment"] = settings.startup["personal-transformer-mk2-flow-limit"].value * 1000,
+	["personal-transformer-mk3-equipment"] = settings.startup["personal-transformer-mk3-flow-limit"].value * 1000
 }
 
-PT.ENTITY_NAMES = {}
+PT.PROXY_INPUT_NAME = "personal-transformer-input-entity"
+PT.PROXY_OUTPUT_NAME = "personal-transformer-output-entity"
+
+PT.ENTITY_NAMES = {
+	[PT.PROXY_INPUT_NAME] = true,
+	[PT.PROXY_OUTPUT_NAME] = true,
+	["personal-transformer-mk2-input-entity"] = true,
+	["personal-transformer-mk2-output-entity"] = true,
+	["personal-transformer-mk3-input-entity"] = true,
+	["personal-transformer-mk3-output-entity"] = true
+}
+
 PT.ENTITY_NAME_LIST = {}
-for _, tier in pairs(PT.TRANSFORMER_TIERS) do
-	PT.ENTITY_NAMES[tier.input] = true
-	PT.ENTITY_NAMES[tier.output] = true
-	table.insert(PT.ENTITY_NAME_LIST, tier.input)
-	table.insert(PT.ENTITY_NAME_LIST, tier.output)
+for name in pairs(PT.ENTITY_NAMES) do
+	table.insert(PT.ENTITY_NAME_LIST, name)
 end
 
 function PT.init_storage()
@@ -46,11 +42,21 @@ function PT.init_storage()
 	storage.grid_vehicles = storage.grid_vehicles or {}
 end
 
--- Local caches and reusable scratch tables to minimize C++ API calls and GC churn
 local EQUIP_FLOW_CACHE = {}
 local scratch_eq = {}
 local scratch_in = {}
 local scratch_out = {}
+
+local min = math.min
+local max = math.max
+local pairs = pairs
+local next = next
+local REMOTE_CONTROLLER = defines.controllers.remote
+
+local function get_quality_multiplier(quality_name)
+	local q = quality_name and prototypes.quality[quality_name]
+	return q and (1 + 0.3 * q.level) or 1
+end
 
 local function get_equipment_flow_info(eq)
 	local name = eq.name
@@ -75,6 +81,7 @@ local function get_equipment_flow_info(eq)
 		info = {
 			in_limit = es.get_input_flow_limit(quality_name),
 			out_limit = is_source and es.get_output_flow_limit(quality_name) or 0,
+			max_energy = eq.max_energy,
 			is_source = is_source
 		}
 	end
@@ -83,7 +90,7 @@ local function get_equipment_flow_info(eq)
 	return info
 end
 
-local function teleport_entities_if_moved(data, target_pos, owner, owner_type, pt_entities)
+local function teleport_proxy_pair_if_moved(data, target_pos, owner, owner_type)
 	if owner_type == "player" and owner.controller_type == defines.controllers.remote then
 		return
 	end
@@ -97,20 +104,47 @@ local function teleport_entities_if_moved(data, target_pos, owner, owner_type, p
 	data.last_x = tx
 	data.last_y = ty
 
-	for i = 1, #pt_entities do
-		local pt_entity = pt_entities[i]
-		if pt_entity.valid then
-			pt_entity.teleport(target_pos)
-		end
+	local in_ent = data.input_entity
+	if in_ent and in_ent.valid then
+		in_ent.teleport(target_pos)
+	end
+
+	local out_ent = data.output_entity
+	if out_ent and out_ent.valid then
+		out_ent.teleport(target_pos)
 	end
 end
 
-local function process_grid_energy(grid, pt_entities, max_draw, buffer, tickdelay, allow_in, allow_out)
+local function process_grid_energy(grid, data, tickdelay, allow_in, allow_out)
+	local in_ent = data.input_entity
+	local out_ent = data.output_entity
+	local buffer = data.buffer
+
+	local avail_in = (allow_in and in_ent and in_ent.valid) and in_ent.energy or 0
+	local request_out = (allow_out and out_ent and out_ent.valid) and (buffer - out_ent.energy) or 0
+
+	-- O(1) early exit: skip grid.equipment entirely if proxies have nothing to give or receive
+	if 0 >= avail_in and 0 >= request_out then
+		return
+	end
+
+	local can_in = avail_in > 0
+	local can_out = request_out > 0
 	local max_draw_in = 0
 	local max_draw_out = 0
 	local count = 0
 
-	-- Pass 1: Gather equipment draw demands once and store in scratch tables
+	-- O(1) fast-path: skip iterating grid.equipment when batteries are completely full or empty
+	if can_in and not can_out then
+		if (data.consumer_count or 0) == 0 and grid.available_in_batteries == grid.battery_capacity then
+			return
+		end
+	elseif can_out and not can_in then
+		if (data.generator_count or 0) == 0 and grid.available_in_batteries == 0 then
+			return
+		end
+	end
+
 	for _, eq in pairs(grid.equipment) do
 		local info = get_equipment_flow_info(eq)
 		if info then
@@ -118,18 +152,18 @@ local function process_grid_energy(grid, pt_entities, max_draw, buffer, tickdela
 			local d_in = 0
 			local d_out = 0
 
-			if allow_in and info.in_limit > 0 then
-				local room = eq.max_energy - energy
+			if can_in and info.in_limit > 0 then
+				local room = info.max_energy - energy
 				if room > 0 then
 					local limit = info.in_limit * tickdelay
-					d_in = (limit < room) and limit or room
+					d_in = (room > limit) and limit or room
 					max_draw_in = max_draw_in + d_in
 				end
 			end
 
-			if allow_out and info.is_source and info.out_limit > 0 and energy > 0 then
+			if can_out and info.is_source and info.out_limit > 0 and energy > 0 then
 				local limit = info.out_limit * tickdelay
-				d_out = (limit < energy) and limit or energy
+				d_out = (energy > limit) and limit or energy
 				max_draw_out = max_draw_out + d_out
 			end
 
@@ -142,57 +176,24 @@ local function process_grid_energy(grid, pt_entities, max_draw, buffer, tickdela
 		end
 	end
 
-	-- Early exit if nothing in the grid needs charging or can discharge
 	if count == 0 then return end
 
-	local avail_in = 0
-	local request_out = buffer
-	local num_pt = #pt_entities
-	for i = 1, num_pt do
-		local pt_entity = pt_entities[i]
-		if pt_entity.valid then
-			if pt_entity.type == "electric-energy-interface" then
-				avail_in = avail_in + pt_entity.energy
-			else
-				request_out = request_out - pt_entity.energy
-			end
-		end
+	local max_step_draw = data.max_grid_draw * (tickdelay / 60)
+
+	local actual_in = min(max_draw_in, avail_in, max_step_draw)
+	local actual_out = min(max_draw_out, request_out, max_step_draw)
+
+	local ratio_in = (max_draw_in > 0) and (actual_in / max_draw_in) or 0
+	local ratio_out = (max_draw_out > 0) and (actual_out / max_draw_out) or 0
+
+	if actual_in > 0 then
+		in_ent.energy = max(avail_in - actual_in, 0)
 	end
 
-	if avail_in <= 0 and request_out <= 0 then
-		for i = 1, count do scratch_eq[i] = nil end
-		return
+	if actual_out > 0 then
+		out_ent.energy = min(out_ent.energy + actual_out, buffer)
 	end
 
-	local dt = tickdelay / 60
-	local max_step_draw = max_draw * dt
-
-	local drain_in = (avail_in > 0 and max_draw_in > 0) and math.min(max_draw_in / avail_in, 1) or 0
-	local drain_out = (request_out > 0 and max_draw_out > 0) and math.min(max_draw_out / request_out, 1) or 0
-
-	if avail_in > max_step_draw then avail_in = max_step_draw end
-	if request_out > max_step_draw then request_out = max_step_draw end
-
-	local ratio_in = (max_draw_in > 0 and avail_in > 0) and math.min(avail_in / max_draw_in, 1) or 0
-	local ratio_out = (max_draw_out > 0 and request_out > 0) and math.min(request_out / max_draw_out, 1) or 0
-
-	if drain_in > 0 or drain_out > 0 then
-		for i = 1, num_pt do
-			local pt_entity = pt_entities[i]
-			if pt_entity.valid then
-				if pt_entity.type == "electric-energy-interface" then
-					if drain_in > 0 then
-						pt_entity.energy = pt_entity.energy * (1 - drain_in)
-					end
-				elseif drain_out > 0 then
-					local entity_buffer = pt_entity.electric_buffer_size
-					pt_entity.energy = entity_buffer - ((entity_buffer - pt_entity.energy) * (1 - drain_out))
-				end
-			end
-		end
-	end
-
-	-- Pass 2: Apply cached energy deltas and clear scratch references
 	if ratio_in > 0 or ratio_out > 0 then
 		for i = 1, count do
 			local eq = scratch_eq[i]
@@ -217,15 +218,15 @@ function PT.update_transformers(tickdelay)
 				local allow_out = player.is_shortcut_toggled("toggle-equipment-transformer-output")
 
 				if allow_in or allow_out then
-					teleport_entities_if_moved(data, player.position, player, "player", data.grid_transformer_entities)
-					process_grid_energy(player.character.grid, data.grid_transformer_entities, data.max_grid_draw, data.buffer, tickdelay, allow_in, allow_out)
+					teleport_proxy_pair_if_moved(data, player.position, player, "player")
+					process_grid_energy(player.character.grid, data, tickdelay, allow_in, allow_out)
 				end
 			end
 		elseif PT.is_vehicle_grid_allowed and data.grid_owner_type == "entity" then
 			local vehicle = storage.grid_vehicles[data.grid_owner_id]
 			if vehicle and vehicle.valid and vehicle.grid then
-				teleport_entities_if_moved(data, vehicle.position, vehicle, "entity", data.grid_transformer_entities)
-				process_grid_energy(vehicle.grid, data.grid_transformer_entities, data.max_grid_draw, data.buffer, tickdelay, true, true)
+				teleport_proxy_pair_if_moved(data, vehicle.position, vehicle, "entity")
+				process_grid_energy(vehicle.grid, data, tickdelay, true, true)
 			end
 		end
 	end
@@ -238,58 +239,89 @@ local function toggle_shortcut_available(player, is_available)
 	end
 end
 
-local function spawn_proxy_entities(tier, grid_owner, grid_id, quality_name)
-	local entities = storage.transformer_data[grid_id].grid_transformer_entities
-	local surface = grid_owner.surface
-	local pos = grid_owner.position
-	local force = grid_owner.force
+local function ensure_and_sync_proxy_pair(data, owner)
+	local buffer = data.buffer
+	local surface = owner.surface
+	local pos = owner.position
+	local force = owner.force
 
-	for _, entity_name in ipairs({tier.input, tier.output}) do
-		local created = surface.create_entity{
-			name = entity_name,
+	if not (data.input_entity and data.input_entity.valid) then
+		data.input_entity = surface.create_entity{
+			name = PT.PROXY_INPUT_NAME,
 			position = pos,
-			force = force,
-			quality = quality_name
+			force = force
 		}
-		if created then
-			entities[#entities + 1] = created
+	end
+	if data.input_entity and data.input_entity.valid then
+		data.input_entity.electric_buffer_size = buffer
+	end
+
+	if not (data.output_entity and data.output_entity.valid) then
+		data.output_entity = surface.create_entity{
+			name = PT.PROXY_OUTPUT_NAME,
+			position = pos,
+			force = force
+		}
+		if data.output_entity and data.output_entity.valid then
+			data.output_entity.electric_buffer_size = buffer
+			data.output_entity.energy = buffer
 		end
+	elseif data.output_entity and data.output_entity.valid then
+		data.output_entity.electric_buffer_size = buffer
 	end
 end
 
-local function destroy_proxy_entities(tier, quality_name, grid_id)
-	local entities = storage.transformer_data[grid_id].grid_transformer_entities
-	for _, target_name in ipairs({tier.input, tier.output}) do
-		for i = 1, #entities do
-			local entity = entities[i]
-			if not entity.valid or (entity.name == target_name and (quality_name == nil or entity.quality.name == quality_name)) then
-				table.remove(entities, i)
-				if entity.valid then entity.destroy() end
-				break
+local function destroy_proxy_pair(data)
+	if data.input_entity and data.input_entity.valid then
+		data.input_entity.destroy()
+	end
+	if data.output_entity and data.output_entity.valid then
+		data.output_entity.destroy()
+	end
+	data.input_entity = nil
+	data.output_entity = nil
+end
+
+function PT.refresh_grid_composition(grid, grid_id)
+	local data = storage.transformer_data[grid_id]
+	if not data or not (grid and grid.valid) then return end
+
+	local generators = 0
+	local consumers = 0
+
+	for _, eq in pairs(grid.equipment) do
+		local info = get_equipment_flow_info(eq)
+		if info then
+			local ptype = eq.prototype.type
+			if ptype == "generator-equipment" then
+				generators = generators + 1
+			elseif ptype ~= "battery-equipment" and info.in_limit > 0 then
+				consumers = consumers + 1
 			end
 		end
 	end
+
+	data.generator_count = generators
+	data.consumer_count = consumers
 end
 
 function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, quality_name)
-	local tier = PT.TRANSFORMER_TIERS[equipment_name]
-	if not tier then return end
+	local base_draw = PT.TRANSFORMER_TIERS[equipment_name]
+	if not base_draw then return end
 
 	local data = storage.transformer_data[grid_id]
 	if not data then
 		data = {
-			grid_transformer_entities = {},
-			transformer_count = {},
+			transformer_count = 0,
 			max_grid_draw = 0
 		}
-		for name in pairs(PT.TRANSFORMER_TIERS) do
-			data.transformer_count[name] = 0
-		end
 		storage.transformer_data[grid_id] = data
 	end
 
-	spawn_proxy_entities(tier, owner, grid_id, quality_name)
-	data.transformer_count[equipment_name] = (data.transformer_count[equipment_name] or 0) + 1
+	local draw_delta = base_draw * get_quality_multiplier(quality_name)
+	data.transformer_count = (data.transformer_count or 0) + 1
+	data.max_grid_draw = (data.max_grid_draw or 0) + draw_delta
+	data.buffer = data.max_grid_draw / 10
 	data.grid_owner_type = grid_owner_type
 
 	if grid_owner_type == "player" then
@@ -299,41 +331,48 @@ function PT.equipment_inserted(owner, grid_id, equipment_name, grid_owner_type, 
 		data.grid_owner_id = grid_id
 	end
 
-	data.max_grid_draw = data.max_grid_draw + tier.draw
-	data.buffer = data.max_grid_draw / 10
+	ensure_and_sync_proxy_pair(data, owner)
 end
 
 function PT.equipment_removed(grid_id, equipment_name, count, quality_name)
-	local tier = PT.TRANSFORMER_TIERS[equipment_name]
+	local base_draw = PT.TRANSFORMER_TIERS[equipment_name]
 	local data = storage.transformer_data[grid_id]
-	if not tier or not data then return end
-
-	for _ = 1, count do
-		destroy_proxy_entities(tier, quality_name, grid_id)
+	if not base_draw or not data then
+		return
 	end
 
-	data.transformer_count[equipment_name] = math.max((data.transformer_count[equipment_name] or 0) - count, 0)
-	data.max_grid_draw = math.max(data.max_grid_draw - (tier.draw * count), 0)
+	local draw_delta = base_draw * get_quality_multiplier(quality_name) * count
+	data.transformer_count = math.max((data.transformer_count or 0) - count, 0)
+	data.max_grid_draw = math.max((data.max_grid_draw or 0) - draw_delta, 0)
 	data.buffer = data.max_grid_draw / 10
 
-	local total_count = 0
-	for _, c in pairs(data.transformer_count) do
-		total_count = total_count + c
-	end
-
-	if total_count == 0 then
+	if data.transformer_count == 0 or 0.001 > data.max_grid_draw then
 		if data.grid_owner_type == "player" then
 			toggle_shortcut_available(game.players[data.grid_owner_id], false)
 		end
+		destroy_proxy_pair(data)
 		storage.transformer_data[grid_id] = nil
+	else
+		if data.input_entity and data.input_entity.valid then
+			data.input_entity.electric_buffer_size = data.buffer
+		end
+		if data.output_entity and data.output_entity.valid then
+			data.output_entity.electric_buffer_size = data.buffer
+		end
 	end
 end
 
-local function insert_grid_transformers(grid, owner, grid_id, owner_type)
+function PT.rebuild_grid_from_scratch(grid, owner, grid_id, owner_type)
+	local existing = storage.transformer_data[grid_id]
+	if existing then
+		destroy_proxy_pair(existing)
+		storage.transformer_data[grid_id] = nil
+	end
+
 	local found_any = false
 	for equip_name in pairs(PT.TRANSFORMER_TIERS) do
 		for quality_name in pairs(prototypes.quality) do
-			local count = grid.count{name = equip_name, quality = quality_name}
+			local count = grid.count({name = equip_name, quality = quality_name})
 			if count > 0 then
 				found_any = true
 				for _ = 1, count do
@@ -342,6 +381,11 @@ local function insert_grid_transformers(grid, owner, grid_id, owner_type)
 			end
 		end
 	end
+
+	if found_any then
+		PT.refresh_grid_composition(grid, grid_id)
+	end
+
 	return found_any
 end
 
@@ -352,7 +396,7 @@ function PT.new_vehicle_placed(entity)
 	if grid and grid.valid then
 		local grid_id = grid.unique_id
 		storage.grid_vehicles[grid_id] = entity
-		insert_grid_transformers(grid, entity, grid_id, "entity")
+		PT.rebuild_grid_from_scratch(grid, entity, grid_id, "entity")
 	end
 end
 
@@ -371,12 +415,9 @@ function PT.entity_removed(entity)
 	if not grid_id then return end
 
 	local data = storage.transformer_data[grid_id]
-	if data and data.grid_owner_type == "entity" and data.grid_owner_id == grid_id then
-		for equip_name, count in pairs(data.transformer_count) do
-			if count > 0 then
-				PT.equipment_removed(grid_id, equip_name, count, nil)
-			end
-		end
+	if data and data.grid_owner_type == "entity" then
+		destroy_proxy_pair(data)
+		storage.transformer_data[grid_id] = nil
 	end
 end
 
@@ -396,17 +437,14 @@ function PT.player_or_armor_changed(player_index)
 
 	for grid_id, data in pairs(storage.transformer_data) do
 		if data.grid_owner_type == "player" and data.grid_owner_id == player_index then
-			for equip_name, count in pairs(data.transformer_count) do
-				if count > 0 then
-					PT.equipment_removed(grid_id, equip_name, count, nil)
-				end
-			end
+			destroy_proxy_pair(data)
+			storage.transformer_data[grid_id] = nil
 		end
 	end
 
 	local grid = player.character.grid
 	if grid and grid.valid then
-		local has_transformers = insert_grid_transformers(grid, player, grid.unique_id, "player")
+		local has_transformers = PT.rebuild_grid_from_scratch(grid, player, grid.unique_id, "player")
 		toggle_shortcut_available(player, has_transformers)
 	else
 		toggle_shortcut_available(player, false)
@@ -419,16 +457,13 @@ function PT.entity_teleported(entity)
 end
 
 function PT.purge_orphaned_entities()
-	if not PT.is_vehicle_grid_allowed then return end
-
 	local active_entities = {}
 	for _, data in pairs(storage.transformer_data) do
-		local entities = data.grid_transformer_entities
-		for i = 1, #entities do
-			local pt_entity = entities[i]
-			if pt_entity.valid then
-				active_entities[pt_entity.unit_number] = true
-			end
+		if data.input_entity and data.input_entity.valid then
+			active_entities[data.input_entity.unit_number] = true
+		end
+		if data.output_entity and data.output_entity.valid then
+			active_entities[data.output_entity.unit_number] = true
 		end
 	end
 
@@ -443,14 +478,58 @@ end
 
 function PT.pt_entity_cloned(original_entity, new_entity)
 	for _, data in pairs(storage.transformer_data) do
-		local entities = data.grid_transformer_entities
-		for i = 1, #entities do
-			if entities[i] == original_entity then
-				entities[i] = new_entity
-				data.last_x = nil
-				data.last_y = nil
-				return
+		if data.input_entity == original_entity then
+			data.input_entity = new_entity
+			data.last_x = nil
+			data.last_y = nil
+			return
+		elseif data.output_entity == original_entity then
+			data.output_entity = new_entity
+			data.last_x = nil
+			data.last_y = nil
+			return
+		end
+	end
+end
+
+function PT.migrate_and_rebuild_all()
+	PT.init_storage()
+
+	for _, data in pairs(storage.transformer_data) do
+		if data.grid_transformer_entities then
+			for _, old_ent in ipairs(data.grid_transformer_entities) do
+				if old_ent and old_ent.valid then
+					old_ent.destroy()
+				end
+			end
+		end
+		destroy_proxy_pair(data)
+	end
+
+	storage.transformer_data = {}
+	storage.grid_vehicles = {}
+
+	for _, player in pairs(game.players) do
+		if player.valid and player.character and player.character.grid and player.character.grid.valid then
+			local grid = player.character.grid
+			local has_transformers = PT.rebuild_grid_from_scratch(grid, player, grid.unique_id, "player")
+			toggle_shortcut_available(player, has_transformers)
+		elseif player.valid then
+			toggle_shortcut_available(player, false)
+		end
+	end
+
+	if PT.is_vehicle_grid_allowed then
+		for _, surface in pairs(game.surfaces) do
+			for _, vehicle in pairs(surface.find_entities_filtered{type = PT.VEHICLE_TYPE_LIST}) do
+				if vehicle.valid and vehicle.grid and vehicle.grid.valid then
+					local grid = vehicle.grid
+					storage.grid_vehicles[grid.unique_id] = vehicle
+					PT.rebuild_grid_from_scratch(grid, vehicle, grid.unique_id, "entity")
+				end
 			end
 		end
 	end
+
+	PT.purge_orphaned_entities()
 end
