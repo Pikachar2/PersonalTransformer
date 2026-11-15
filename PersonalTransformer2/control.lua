@@ -1,2 +1,4 @@
-require("events")
+PT = {}
+
 require("personal-transformer")
+require("events")

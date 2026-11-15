@@ -1,6 +1,6 @@
 {
 	"name": "PersonalTransformer2",
-	"version": "1.0.14",
+	"version": "1.0.15",
 	"title": "Personal Transformer2",
 	"author": "Pikachar",
 	
@@ -9,7 +9,7 @@
 	"factorio_version": "2.1",
 	"dependencies":
 	[
-		"base >= 2.1.7",
+		"base >= 2.1.24",
 		"? quality"
 	]
 }
