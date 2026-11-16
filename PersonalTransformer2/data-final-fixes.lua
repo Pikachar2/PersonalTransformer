@@ -1,3 +1,5 @@
+require("prototypes.menu-simulations")
+
 local TRANSFORMER_ITEMS = {
 	"personal-transformer-equipment",
 	"personal-transformer-mk2-equipment",
