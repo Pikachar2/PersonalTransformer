@@ -1,12 +1,12 @@
 data:extend{
 	{
-		type = 'shortcut',
-		name = 'toggle-equipment-transformer-input',
-		order = 'c[toggle]-c[transformer-input]',
-		action = 'lua',
-		localised_name = { 'shortcut.toggle-equipment-transformer-input' },
-		associated_control_input = 'toggle-equipment-transformer-input',
-		technology_to_unlock = 'personal-transformer-equipment',
+		type = "shortcut",
+		name = "toggle-equipment-transformer-input",
+		order = "c[toggle]-c[transformer-input]",
+		action = "lua",
+		localised_name = { "shortcut.toggle-equipment-transformer-input" },
+		associated_control_input = "toggle-equipment-transformer-input",
+		technology_to_unlock = "personal-transformer-equipment",
 		toggleable = true,
 		icon = "__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-input-x32.png",
 		icon_size = 32,
@@ -18,20 +18,20 @@ data:extend{
 		disabled_small_icon_size = 24
 	},
 	{
-		type = 'custom-input',
-		name = 'personal-transformer-toggle-input',
-		key_sequence = ''
+		type = "custom-input",
+		name = "toggle-equipment-transformer-input",
+		key_sequence = "",
+		consuming = "none"
 	},
 	{
-		type = 'shortcut',
-		name = 'toggle-equipment-transformer-output',
-		order = 'c[toggle]-c[transformer-output]',
-		action = 'lua',
-		localised_name = { 'shortcut.toggle-equipment-transformer-output' },
-		associated_control_input = 'toggle-equipment-transformer-output',
-		technology_to_unlock = 'personal-transformer-equipment',
+		type = "shortcut",
+		name = "toggle-equipment-transformer-output",
+		order = "c[toggle]-c[transformer-output]",
+		action = "lua",
+		localised_name = { "shortcut.toggle-equipment-transformer-output" },
+		associated_control_input = "toggle-equipment-transformer-output",
+		technology_to_unlock = "personal-transformer-equipment",
 		toggleable = true,
-		
 		icon = "__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x32.png",
 		icon_size = 32,
 		small_icon = "__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x24.png",
@@ -42,8 +42,23 @@ data:extend{
 		disabled_small_icon_size = 24
 	},
 	{
-		type = 'custom-input',
-		name = 'personal-transformer-toggle-output',
-		key_sequence = ''
+		type = "custom-input",
+		name = "toggle-equipment-transformer-output",
+		key_sequence = "",
+		consuming = "none"
+	},
+	{
+		type = "sprite",
+		name = "pt-input-icon",
+		filename = "__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-input-x32.png",
+		size = 32,
+		flags = { "gui-icon" }
+	},
+	{
+		type = "sprite",
+		name = "pt-output-icon",
+		filename = "__PersonalTransformer2__/graphics/icons/shortcut-toolbar/personal-transformer-output-x32.png",
+		size = 32,
+		flags = { "gui-icon" }
 	}
 }
