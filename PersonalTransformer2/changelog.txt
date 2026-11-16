@@ -6,6 +6,7 @@ Date: 2026-11-15
     - Added per-player runtime settings for default vehicle Input and Output states.
     - Added startup settings for independent MK1, MK2, and MK3 Input (kW), Output (kW), and Buffer Capacity (kJ).
     - Added optional infinite capacity research with configurable percentage or flat (+kW) scaling and custom science cost formula.
+    - Added two custom main-menu simulations showcasing Personal Transformers in action.
   Locale:
     - Added full localization support for German, French, Spanish, Simplified Chinese, Japanese, Polish, Korean, and Brazilian Portuguese.
   Optimizations:
